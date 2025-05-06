@@ -1,22 +1,34 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AuthScreen from '../screens/auth/AuthScreen';
-import DashboardScreen from '../screens/energy/DashboardScreen';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import LoginPage from "../screens/auth/LoginPage";
+import RegisterPage from "../screens/auth/RegisterPage";
+import DashboardPage from "../screens/DashboardPage";
+import LandingPage from "../screens/LandingPage";
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  return (
-    <Stack.Navigator initialRouteName="Auth">
-      <Stack.Screen 
-        name="Auth" 
-        component={AuthScreen} 
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen 
-        name="Dashboard" 
-        component={DashboardScreen}
-        options={{ title: 'Energy Dashboard' }}
-      />
-    </Stack.Navigator>
-  );
+    return (
+        <Stack.Navigator initialRouteName="">
+            <Stack.Screen
+                name="Login"
+                component={LoginPage}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Register"
+                component={RegisterPage}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Dashboard"
+                component={DashboardPage}
+                options={{ title: "Dashboard", headerShown: false }}
+            />
+            <Stack.Screen
+                name=""
+                component={LandingPage}
+                options={{ title: "Cychael Energy", headerShown: false }}
+            />
+        </Stack.Navigator>
+    );
 }
