@@ -5,11 +5,15 @@ import { NavigationContainer } from "@react-navigation/native";
 import AppNavigator from "./navigation/AppNavigator";
 import NavBarComponent from "./components/NavBarComponent";
 
+import "../global.css";
+
 export default function App() {
     return (
         <NavigationContainer>
-            <NavBarComponent />
-            <AppNavigator />
+            <View style={{ flex: 1 }}>
+                <NavBarComponent />
+                <AppNavigator />
+            </View>
         </NavigationContainer>
     );
 }
