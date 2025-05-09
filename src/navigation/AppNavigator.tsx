@@ -8,7 +8,7 @@ const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
     return (
-        <Stack.Navigator initialRouteName="">
+        <Stack.Navigator initialRouteName="LandingPage">
             <Stack.Screen
                 name="Login"
                 component={LoginPage}
@@ -25,7 +25,7 @@ export default function AppNavigator() {
                 options={{ title: "Dashboard", headerShown: false }}
             />
             <Stack.Screen
-                name=""
+                name="LandingPage"
                 component={LandingPage}
                 options={{ title: "Cychael Energy", headerShown: false }}
             />
