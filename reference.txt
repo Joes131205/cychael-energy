@@ -1,0 +1,69 @@
+Alasan Berpartisipasi
+Kami percaya bahwa inovasi teknologi dapat mempercepat pencapaian tujuan pembangunan berkelanjutan, khususnya dalam bidang Affordable and Clean Energy (SDG 7). Melalui partisipasi di Hackathon ini, kami ingin melatih dan menunjukan kemampuan kami di bidang teknologi cloud dan kecerdasan buatan untuk menghadirkan solusi yang dapat berdampak nyata.
+Kami melihat bahwa masih banyak rumah tangga yang tidak memahami konsumsi listrik mereka sendiri atau potensi penghematan energi. Dengan semangat kolaboratif dan semangat inovasi, kami ingin menciptakan aplikasi yang bukan hanya informatif, tetapi juga interaktif dan memotivasi masyarakat untuk beralih ke gaya hidup yang lebih hemat energi.
+Partisipasi ini juga menjadi kesempatan bagi kami untuk belajar lebih jauh, berinovasi dalam waktu singkat, dan berkontribusi pada tantangan global melalui kekuatan teknologi. Kami yakin Hackathon ini adalah platform yang tepat untuk membawa ide menjadi aksi nyata.
+
+Tema SDG:
+SDG 7: Affordable and Clean Energy
+
+Latar Belakang
+Konsumsi listrik rumah tangga di Indonesia menunjukkan tren peningkatan yang signifikan. Pada tahun 2023, konsumsi listrik per kapita mencapai 1.285 kWh, dengan target peningkatan menjadi 1.408 kWh pada tahun 2024 (Kementrian ESDM, 2024). Sektor rumah tangga sendiri mengalami pertumbuhan konsumsi sebesar 8,75% pada semester I tahun 2024 dibandingkan periode yang sama tahun sebelumnya (PLN, 2024).
+Meskipun demikian, kesadaran masyarakat terhadap penghematan energi masih tergolong rendah. Kementerian ESDM (2024) mencatat bahwa penghematan 10% pada sektor rumah tangga dapat menghemat listrik setara dengan pembangunan pembangkit listrik tenaga uap (PLTU) berkapasitas sekitar 900 MW. Namun, perilaku hemat energi seringkali hanya muncul saat terjadi krisis atau gangguan pasokan.
+Kementerian ESDM mencatat bahwa sektor rumah tangga merupakan konsumen energi terbesar ketiga di Indonesia, menyumbang 15% dari total konsumsi energi final pada tahun 2015 . Potensi penghematan dari sektor ini sangat besar; jika setiap rumah tangga dapat menghemat 15% dari konsumsi energi mereka, maka dapat mengurangi konsumsi energi nasional sebesar 16,5 juta BOE atau setara dengan 28.040 GWh, yang bernilai sekitar Rp 37,9 triliun per tahun.
+Kurangnya pemahaman dan alat untuk memantau serta mengelola konsumsi listrik menjadi tantangan utama. Tanpa intervensi yang tepat, peningkatan konsumsi listrik rumah tangga dapat membebani sistem kelistrikan nasional dan meningkatkan emisi karbon. Oleh karena itu, diperlukan solusi digital yang dapat membantu rumah tangga memahami dan mengoptimalkan konsumsi listrik mereka secara efektif.
+
+Referensi:
+Kementerian ESDM. (2024). Konsumsi Listrik Masyarakat Meningkat, Tahun 2023 Capai 1.285 kWh/Kapita. Diakses dari
+https://www.esdm.go.id/id/media-center/arsip-berita/konsumsi-listrik-masyarakat-meningkat-tahun-2023-capai-1285-kwh-kapita
+PLN. (2024). PLN Sukses Kerek Penjualan Listrik Semester I 2024, Tumbuh 7,54 Persen!. Diakses dari
+https://web.pln.co.id/media/siaran-pers/2024/08/pln-sukses-kerek-penjualan-listrik-semester-2024-tumbuh-754-persen
+Katadata. (2024). Konsumsi Listrik Per Kapita RI Naik 14% pada 2023, Capai 1.377 kWh. Diakses dari
+https://katadata.co.id/berita/energi/65a90bef72a38/konsumsi-listrik-per-kapita-ri-naik-14-pada-2023-capai-1377-kwh 
+Suara Investor. (2025). Sektor Rumah Tangga, Ujung Tombak Penghematan Energi Listrik. Diakses dari
+https://www.suarainvestor.com/sektor-rumah-tangga-ujung-tombak-penghematan-energi-listrik/
+
+Deskripsi Target User
+Target pengguna utama Cychael of Energy adalah keluarga di wilayah urban dan semi-urban yang memiliki akses listrik standar (baik prabayar maupun pascabayar), serta ingin mengurangi tagihan listrik bulanan mereka. Banyak dari pengguna ini belum memiliki pemahaman yang cukup mengenai pola konsumsi listrik di rumah mereka, atau kebiasaan penggunaan perangkat elektronik yang berdampak pada tingginya konsumsi daya.
+Aplikasi ini juga ditujukan untuk individu yang mulai tertarik pada efisiensi energi dan mempertimbangkan penggunaan energi terbarukan sebagai solusi jangka panjang—misalnya melalui fitur simulasi panel surya yang membantu mereka menghitung potensi penghematan dan biaya awal instalasi.
+Dengan antarmuka yang dirancang sederhana dan mudah diakses oleh pengguna non-teknis, Cychael of Energy menargetkan spektrum usia yang luas, mulai dari generasi milenial hingga generasi yang lebih tua. Pendekatan edukatif dan personalisasi rekomendasi penghematan diharapkan dapat menjadikan pengguna lebih sadar dan aktif dalam mengelola konsumsi listrik sehari-hari secara lebih bijak.
+
+Deskripsi Solusi
+Cychael of Energy adalah aplikasi mobile berbasis cloud yang dirancang untuk membantu rumah tangga memahami, memantau, dan mengoptimalkan konsumsi energi listrik mereka secara efektif. Fokus utama aplikasi ini adalah memberikan solusi personalisasi bagi pengguna yang ingin mengurangi tagihan listrik bulanan, dengan pendekatan yang mudah diakses oleh pengguna awam.
+Pengguna dapat memilih untuk mengisi form sederhana mengenai jumlah dan jenis perangkat listrik yang digunakan di rumah, atau mengunggah foto instalasi/peralatan listrik. Azure Computer Vision dan Azure Machine Learning kemudian memproses data tersebut untuk menganalisis pola konsumsi dan memperkirakan potensi penghematan energi berdasarkan profil pengguna.
+Aplikasi akan menyajikan rekomendasi spesifik dan actionable, seperti saran mengganti lampu pijar ke LED, mengatur jadwal penggunaan AC, hingga menghindari mode standby pada peralatan elektronik. Tips ini disusun secara personal dan berbasis data, menjadikan saran lebih relevan dan aplikatif untuk masing-masing pengguna.
+Sebagai pelengkap, aplikasi juga menyediakan fitur Solar Installation Simulator, yang memungkinkan pengguna menghitung estimasi biaya pemasangan panel surya di rumah mereka serta memproyeksikan waktu balik modal (return on investment) berdasarkan lokasi dan konsumsi listrik bulanan.
+Solusi ini dirancang dengan antarmuka yang ramah pengguna, cepat, dan dapat langsung diterapkan dalam kehidupan sehari-hari, menjadikannya alat bantu praktis untuk penghematan energi di tingkat rumah tangga secara berkelanjutan.
+
+
+Keunggulan Solusi
+Personalisasi Berdasarkan AI
+Rekomendasi penghematan disesuaikan dengan profil pengguna dan perangkat mereka.
+Mudah Digunakan oleh Non-Teknis
+Form sederhana, unggah foto, dan panduan step-by-step.
+Langsung Berdampak ke Tagihan Listrik
+Tips yang bisa langsung diterapkan untuk hasil nyata dalam waktu singkat.
+Berbasis Cloud dan Scalable
+Mendukung ribuan pengguna dengan performa stabil dan bisa terus dikembangkan.
+Fitur Tambahan Solar Simulator
+Memberi perspektif jangka panjang untuk pengguna yang mempertimbangkan transisi ke energi terbarukan.
+Teknologi yang digunakan
+Azure Machine Learning
+Untuk membangun model prediktif sederhana yang memberikan simulasi konsumsi energi dan penghematan potensial berdasarkan profil pengguna.
+MongoDB / PostgreSQL
+Untuk penyimpanan data pengguna, histori analisa, dan hasil simulasi.
+React Native
+Untuk membuat aplikasi mobile lintas platform (Android & iOS) dengan antarmuka yang responsif dan user-friendly. 
+Azure Chart
+Menampilkan grafik interaktif konsumsi listrik, hasil simulasi solar panel, dan progress penghematan.
+Azure Bot Service (lanjutan)
+Untuk fitur chatbot konsultasi hemat energi bagi pengguna yang membutuhkan panduan tambahan. Teknologi ini dipilih untuk keandalannya, skalabilitas tinggi, dan integrasi mulus antar layanan cloud dan AI.
+Azure Computer Vision (lanjutan)
+Untuk melatih model khusus jika ingin mendeteksi tipe instalasi atau perangkat dari foto.
+ESP32 / Arduino Uno + WiFi Module (lanjutan)
+Untuk pengembangan lanjutan berbasis IoT untuk mengukur energi yang digunakan sebuah peralatan listrik dan mengirimnya ke cloud melalui Wi-Fi untuk dianalisis.
+
+Dampak dan Manfaat
+Cychael of Energy memberikan dampak langsung terhadap upaya penghematan energi rumah tangga dengan menghadirkan solusi digital yang mudah diakses dan dipersonalisasi. Aplikasi ini membantu pengguna memahami pola konsumsi listrik mereka dan memberikan rekomendasi praktis untuk mengurangi pemborosan energi.
+Dengan mendorong perubahan perilaku dalam penggunaan perangkat elektronik, aplikasi ini berkontribusi pada penurunan tagihan listrik bulanan sekaligus mengurangi beban pada sistem kelistrikan nasional. Selain itu, fitur simulasi pemasangan panel surya memberikan wawasan tentang potensi transisi ke energi terbarukan secara bertahap dan terukur.
+Integrasi dengan perangkat IoT memungkinkan pemantauan konsumsi listrik secara real-time, memperkuat kesadaran energi di tingkat rumah tangga. Manfaat jangka panjangnya meliputi peningkatan literasi energi, efisiensi konsumsi listrik, dan kontribusi nyata terhadap pengurangan emisi karbon, sejalan dengan target SDG 7: Affordable and Clean Energy.
+Solusi ini juga berpotensi digunakan oleh pemerintah daerah, lembaga energi, atau komunitas sebagai alat edukasi dan monitoring konsumsi energi secara kolektif.
