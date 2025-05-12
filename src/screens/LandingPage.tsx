@@ -1,8 +1,10 @@
+import { View, Text } from "react-native";
+
 const LandingPage = () => {
     return (
-        <div>
-            <h1>Cychael Energy</h1>
-        </div>
+        <View>
+            <Text>Cychael Energy</Text>
+        </View>
     );
 };
 

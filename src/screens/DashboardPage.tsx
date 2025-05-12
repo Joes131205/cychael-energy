@@ -6,13 +6,13 @@ import { View, Text } from "react-native";
 const DashboardPage = () => {
     const navigation = useNavigation<any>();
     return (
-        <div>
+        <View>
             <Text>Hello World!</Text>
             <Button
                 title="Login"
                 onPress={() => navigation.navigate("Login")}
             />
-        </div>
+        </View>
     );
 };
 
