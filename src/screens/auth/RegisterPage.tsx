@@ -1,10 +1,11 @@
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useEffect, useState } from "react";
-import { auth } from "../../utils/firebase";
+import { app, auth } from "../../utils/firebase";
 import { useNavigation } from "@react-navigation/native";
 import {
     createUserWithEmailAndPassword,
     signInWithPopup,
+    signInWithRedirect,
     updateProfile,
 } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
@@ -87,38 +88,6 @@ const Register = () => {
         }
     };
 
-    const handleRegisterWithGoogle = async () => {
-        setLoading(true);
-
-        try {
-            const userCredential = await signInWithPopup(auth, provider);
-
-            if (userCredential) {
-                Alert.alert("Success", "Registration successful!", [
-                    {
-                        text: "OK",
-                        onPress: () =>
-                            navigation.navigate("Dashboard" as never),
-                    },
-                ]);
-            }
-        } catch (error: any) {
-            let errorMessage = "Registration failed";
-
-            if (error.code === "auth/email-already-in-use") {
-                errorMessage = "Email is already in use";
-            } else if (error.code === "auth/invalid-email") {
-                errorMessage = "Invalid email address";
-            } else if (error.code === "auth/weak-password") {
-                errorMessage = "Password is too weak";
-            }
-
-            Alert.alert("Error", errorMessage);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     return (
         <View className="flex-1 p-5 justify-center">
             <View className="w-full flex flex-col gap-10">
@@ -172,16 +141,16 @@ const Register = () => {
                     </View>
 
                     <TouchableOpacity
-                        className="bg-blue-600 p-4 rounded-md items-center mt-3"
                         onPress={handleRegister}
                         disabled={loading}
+                        className="bg-blue-600 disabled:bg-gray-500 p-4 rounded-md items-center mt-3"
                     >
                         <Text className="text-white text-base font-bold">
-                            Register
+                            {loading ? "Waiting..." : "Register"}
                         </Text>
                     </TouchableOpacity>
                 </View>
-                <View className="flex flex-col gap-10">
+                {/* <View className="flex flex-col gap-10">
                     <View className="border border-b w-full"></View>
                     <TouchableOpacity
                         className="flex flex-col gap-10 items-center justify-center"
@@ -189,7 +158,7 @@ const Register = () => {
                     >
                         <Text>Register with Google</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
             </View>
         </View>
     );

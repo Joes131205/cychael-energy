@@ -11,7 +11,6 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
 
     const navigation = useNavigation();
-    const provider = new GoogleAuthProvider();
 
     useEffect(() => {
         const user = auth.currentUser;
@@ -44,37 +43,7 @@ const LoginPage = () => {
 
         setLoading(true);
     };
-    const handleLoginWithGoogle = async () => {
-        setLoading(true);
 
-        try {
-            const userCredential = await signInWithPopup(auth, provider);
-
-            if (userCredential) {
-                Alert.alert("Success", "Registration successful!", [
-                    {
-                        text: "OK",
-                        onPress: () =>
-                            navigation.navigate("Dashboard" as never),
-                    },
-                ]);
-            }
-        } catch (error: any) {
-            let errorMessage = "Registration failed";
-
-            if (error.code === "auth/email-already-in-use") {
-                errorMessage = "Email is already in use";
-            } else if (error.code === "auth/invalid-email") {
-                errorMessage = "Invalid email address";
-            } else if (error.code === "auth/weak-password") {
-                errorMessage = "Password is too weak";
-            }
-
-            Alert.alert("Error", errorMessage);
-        } finally {
-            setLoading(false);
-        }
-    };
     return (
         <View className="flex-1 p-5 justify-center">
             <View className="w-full flex flex-col gap-10">
@@ -109,14 +78,14 @@ const LoginPage = () => {
                     <TouchableOpacity
                         onPress={handleLogin}
                         disabled={loading}
-                        className="bg-blue-600 p-4 rounded-md items-center mt-3"
+                        className="bg-blue-600 disabled:bg-gray-500 p-4 rounded-md items-center mt-3"
                     >
                         <Text className="text-white text-base font-bold">
-                            Login
+                            {loading ? "Waiting..." : "Login"}
                         </Text>
                     </TouchableOpacity>
                 </View>
-                <View className="flex flex-col gap-10">
+                {/* <View className="flex flex-col gap-10">
                     <View className="border border-b w-full"></View>
                     <TouchableOpacity
                         className="flex flex-col gap-10 items-center justify-center"
@@ -124,7 +93,7 @@ const LoginPage = () => {
                     >
                         <Text>Login with Google</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
             </View>
         </View>
     );

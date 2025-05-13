@@ -11,8 +11,8 @@ export default function App() {
     return (
         <NavigationContainer>
             <View style={{ flex: 1 }}>
-                <NavBarComponent />
                 <AppNavigator />
+                <NavBarComponent />
             </View>
         </NavigationContainer>
     );
