@@ -12,10 +12,6 @@ const DashboardPage = () => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-            console.log(
-                "Auth state changed:",
-                currentUser ? "logged in" : "logged out"
-            );
         });
 
         return () => unsubscribe();
@@ -25,11 +21,10 @@ const DashboardPage = () => {
             <Text>Hello World!</Text>
             <View>
                 <Text className="text-gray-700">
-                    {" "}
                     Hello, {user?.displayName || "User"}
                 </Text>
             </View>
-            <Button title="LogOut" onPress={async () => await signOut(auth)} />
+            <Button title="Log Out" onPress={async () => await signOut(auth)} />
         </View>
     );
 };

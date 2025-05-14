@@ -1,22 +1,18 @@
 import { useNavigation } from "@react-navigation/native";
 import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { app } from "../utils/firebase";
 
 const NavBarComponent = () => {
     const navigation = useNavigation();
     const auth = getAuth(app);
-    const [user, setUser] = useState(auth.currentUser);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-            console.log(
-                "Auth state changed:",
-                currentUser ? "logged in" : "logged out"
-            );
         });
 
         return () => unsubscribe();

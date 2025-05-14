@@ -2,8 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { auth } from "../../utils/firebase";
 import { useNavigation } from "@react-navigation/native";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { GoogleAuthProvider } from "firebase/auth/web-extension";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
