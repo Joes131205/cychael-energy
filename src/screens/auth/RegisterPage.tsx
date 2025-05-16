@@ -2,12 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useEffect, useState } from "react";
 import { app, auth } from "../../utils/firebase";
 import { useNavigation } from "@react-navigation/native";
-import {
-    createUserWithEmailAndPassword,
-    signInWithPopup,
-    signInWithRedirect,
-    updateProfile,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
 
 const Register = () => {

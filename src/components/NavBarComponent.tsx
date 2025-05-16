@@ -28,53 +28,58 @@ const NavBarComponent = () => {
             <StatusBar backgroundColor="#ffffff" barStyle="dark-content" />
             <View className="px-5 py-4 bg-white border-b border-gray-200 shadow-sm">
                 <View className="flex flex-row justify-between items-center w-full">
-                    <View className="flex-row items-center">
-                        {user && (
+                    {user ? (
+                        <View className="flex flex-row items-center justify-center w-full gap-10">
                             <TouchableOpacity
+                                className="flex flex-col items-center px-4 py-2 rounded-full justify-center"
                                 onPress={() =>
                                     navigation.navigate("Dashboard" as never)
                                 }
-                                className="mr-4"
                             >
                                 <Ionicons
                                     name="home-outline"
-                                    size={24}
-                                    color="#4B5563"
+                                    size={30}
+                                    color="#000000"
                                 />
                             </TouchableOpacity>
-                        )}
-                    </View>
-
-                    {user ? (
-                        <View className="flex flex-row items-center space-x-4">
                             <TouchableOpacity
-                                className="flex flex-row items-center bg-blue-50 px-4 py-2 rounded-full"
+                                className="flex flex-col items-center px-4 py-2 rounded-full justify-center"
                                 onPress={() =>
-                                    navigation.navigate("Dashboard" as never)
+                                    navigation.navigate("Settings" as never)
                                 }
                             >
                                 <Ionicons
-                                    name="grid-outline"
-                                    size={20}
-                                    color="#3B82F6"
+                                    name="bar-chart-outline"
+                                    size={30}
+                                    color="#000000"
                                 />
-                                <Text className="text-blue-600 font-medium ml-2">
-                                    Dashboard
-                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                className="flex flex-col items-center px-4 py-2 rounded-full justify-center"
+                                onPress={() =>
+                                    navigation.navigate(
+                                        "EnergyInputPage" as never
+                                    )
+                                }
+                            >
+                                <Ionicons
+                                    name="calculator-outline"
+                                    size={30}
+                                    color="#000000"
+                                />
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                className="flex flex-row items-center bg-red-50 px-4 py-2 rounded-full"
-                                onPress={handleLogOut}
+                                className="flex flex-col items-center px-4 py-2 rounded-full justify-center"
+                                onPress={() =>
+                                    navigation.navigate("Settings" as never)
+                                }
                             >
                                 <Ionicons
-                                    name="log-out-outline"
-                                    size={20}
-                                    color="#EF4444"
+                                    name="people-outline"
+                                    size={30}
+                                    color="#000000"
                                 />
-                                <Text className="text-red-600 font-medium ml-2">
-                                    Log Out
-                                </Text>
                             </TouchableOpacity>
                         </View>
                     ) : (
@@ -104,9 +109,15 @@ const NavBarComponent = () => {
                             {/* For Debugging */}
                             <TouchableOpacity
                                 className="px-4 py-2 bg-green-600 rounded-full"
-                                onPress={() => navigation.navigate("EnergyInputPage" as never)}
+                                onPress={() =>
+                                    navigation.navigate(
+                                        "EnergyInputPage" as never
+                                    )
+                                }
                             >
-                                <Text className="text-white font-medium">Debug Input</Text>
+                                <Text className="text-white font-medium">
+                                    Debug Input
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     )}
