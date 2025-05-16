@@ -4,6 +4,8 @@ import RegisterPage from "../screens/auth/RegisterPage";
 import DashboardPage from "../screens/DashboardPage";
 import LandingPage from "../screens/LandingPage";
 import EnergyInputPage from "../screens/EnergyInputPage";
+import SettingsPage from "../screens/SettingsPage";
+import EnergyAnalysisResultPage from "../screens/EnergyAnalysisResultPage";
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +26,19 @@ export default function AppNavigator() {
                 name="Dashboard"
                 component={DashboardPage}
                 options={{ title: "Dashboard", headerShown: false }}
+            />
+            <Stack.Screen
+                name="Settings"
+                component={SettingsPage}
+                options={{ title: "Settings", headerShown: false }}
+            />
+            <Stack.Screen
+                name="EnergyAnalysisResultPage"
+                component={EnergyAnalysisResultPage}
+                options={{
+                    title: "EnergyAnalysisResultPage",
+                    headerShown: false,
+                }}
             />
             <Stack.Screen
                 name="LandingPage"

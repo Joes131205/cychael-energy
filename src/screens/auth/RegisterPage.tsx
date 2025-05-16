@@ -5,16 +5,9 @@ import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { RootStackParamList } from "../../navigation/Navigation";
 import { StackNavigationProp } from '@react-navigation/stack';
-
-type RegisterScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Register'>;
-
-import {
-    createUserWithEmailAndPassword,
-    // signInWithPopup,
-    // signInWithRedirect,
-    updateProfile,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
+type RegisterScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Register'>;
 
 const Register = () => {
     const [name, setName] = useState("");

@@ -1,5 +1,11 @@
+import { View, Text } from "react-native";
+
 const EnergyAnalysisResultPage = () => {
-    return <div>EnergyAnalysisResultPage</div>;
+    return (
+        <View>
+            <Text>EnergyAnalysisResultPage</Text>
+        </View>
+    );
 };
 
 export default EnergyAnalysisResultPage;
