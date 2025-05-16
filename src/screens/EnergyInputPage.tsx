@@ -1,14 +1,27 @@
 import React from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    StyleSheet,
+} from "react-native";
 import { useState } from "react";
 import { Alert } from "react-native";
 
+interface Device {
+    name: string;
+    watt: number;
+    hours: number;
+}
+
 const EnergyInputPage = () => {
-    const [devices, setDevices] = useState([{ name: "", watt: "", hours: "" }]);
+    const [devices, setDevices] = useState<Device[]>([]);
     const [result, setResult] = useState<number | null>(null);
 
     const handleAddDevice = () => {
-        setDevices([...devices, { name: "", watt: "", hours: "" }]);
+        setDevices([...devices, { name: "", watt: 0, hours: 0 }]);
     };
 
     const handleChange = (
@@ -17,7 +30,11 @@ const EnergyInputPage = () => {
         value: string
     ) => {
         const updated = [...devices];
-        updated[index][key] = value;
+        if (key === "watt" || key === "hours") {
+            updated[index][key] = parseFloat(value);
+        } else {
+            updated[index][key] = value;
+        }
         setDevices(updated);
     };
 
@@ -31,7 +48,10 @@ const EnergyInputPage = () => {
     const calculate = () => {
         for (const device of devices) {
             if (!device.name || !device.watt || !device.hours) {
-                Alert.alert("Incomplete Input", "Please fill in all fields for each device.");
+                Alert.alert(
+                    "Incomplete Input",
+                    "Please fill in all fields for each device."
+                );
                 return;
             }
         }
@@ -39,23 +59,21 @@ const EnergyInputPage = () => {
         let totalKWhPerDay = 0;
 
         devices.forEach((device) => {
-            const watt = parseFloat(device.watt);
-            const hours = parseFloat(device.hours);
-
-            if (!isNaN(watt) && !isNaN(hours)) {
-                totalKWhPerDay += (watt * hours) / 1000;
+            if (!isNaN(device.watt) && !isNaN(device.hours)) {
+                totalKWhPerDay += (device.watt * device.hours) / 1000;
             }
         });
 
         setResult(totalKWhPerDay);
     };
 
-
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Energy Usage Calculator</Text>
-                <Text style={styles.subtitle}>Estimate your daily power consumption</Text>
+                <Text style={styles.subtitle}>
+                    Estimate your daily power consumption
+                </Text>
             </View>
 
             {devices.map((device, index) => (
@@ -65,22 +83,28 @@ const EnergyInputPage = () => {
                         placeholder="Device Name"
                         placeholderTextColor="#95A3A1"
                         value={device.name}
-                        onChangeText={(text) => handleChange(index, "name", text)}
+                        onChangeText={(text) =>
+                            handleChange(index, "name", text)
+                        }
                         style={styles.input}
                     />
                     <TextInput
                         placeholder="Power (Watt)"
                         placeholderTextColor="#95A3A1"
-                        value={device.watt}
-                        onChangeText={(text) => handleChange(index, "watt", text)}
+                        value={String(device.watt)}
+                        onChangeText={(text) =>
+                            handleChange(index, "watt", text)
+                        }
                         keyboardType="numeric"
                         style={styles.input}
                     />
                     <TextInput
                         placeholder="Usage per day (Hours)"
                         placeholderTextColor="#95A3A1"
-                        value={device.hours}
-                        onChangeText={(text) => handleChange(index, "hours", text)}
+                        value={String(device.hours)}
+                        onChangeText={(text) =>
+                            handleChange(index, "hours", text)
+                        }
                         keyboardType="numeric"
                         style={styles.input}
                     />
@@ -90,7 +114,9 @@ const EnergyInputPage = () => {
                             onPress={() => handleRemoveDevice(index)}
                             style={styles.removeButton}
                         >
-                            <Text style={styles.removeButtonText}>Remove Device</Text>
+                            <Text style={styles.removeButtonText}>
+                                Remove Device
+                            </Text>
                         </TouchableOpacity>
                     )}
                 </View>
@@ -107,23 +133,35 @@ const EnergyInputPage = () => {
                 onPress={calculate}
                 style={styles.calculateButton}
             >
-                <Text style={styles.calculateButtonText}>Calculate Consumption</Text>
+                <Text style={styles.calculateButtonText}>
+                    Calculate Consumption
+                </Text>
             </TouchableOpacity>
 
             {result !== null && (
                 <View style={styles.resultContainer}>
-                    <Text style={styles.resultTitle}>Energy Consumption Results</Text>
+                    <Text style={styles.resultTitle}>
+                        Energy Consumption Results
+                    </Text>
                     <View style={styles.resultRow}>
                         <Text style={styles.resultLabel}>Daily:</Text>
-                        <Text style={styles.resultValue}>{result.toFixed(2)} kWh</Text>
+                        <Text style={styles.resultValue}>
+                            {result.toFixed(2)} kWh
+                        </Text>
                     </View>
                     <View style={styles.resultRow}>
-                        <Text style={styles.resultLabel}>Monthly (30 days):</Text>
-                        <Text style={styles.resultValue}>{(result * 30).toFixed(2)} kWh</Text>
+                        <Text style={styles.resultLabel}>
+                            Monthly (30 days):
+                        </Text>
+                        <Text style={styles.resultValue}>
+                            {(result * 30).toFixed(2)} kWh
+                        </Text>
                     </View>
                     <View style={styles.resultRow}>
                         <Text style={styles.resultLabel}>Yearly:</Text>
-                        <Text style={styles.resultValue}>{(result * 365).toFixed(2)} kWh</Text>
+                        <Text style={styles.resultValue}>
+                            {(result * 365).toFixed(2)} kWh
+                        </Text>
                     </View>
                 </View>
             )}
@@ -139,11 +177,11 @@ const styles = StyleSheet.create({
     },
     header: {
         marginBottom: 25,
-        alignItems: 'center',
+        alignItems: "center",
     },
     title: {
         fontSize: 28,
-        fontWeight: '700',
+        fontWeight: "700",
         color: "#283F3B",
         marginBottom: 8,
     },
@@ -167,7 +205,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: "600",
         color: "#283F3B",
         marginBottom: 15,
     },
@@ -185,33 +223,33 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFE8E8",
         padding: 12,
         borderRadius: 8,
-        alignItems: 'center',
+        alignItems: "center",
         marginTop: 5,
     },
     removeButtonText: {
         color: "#D32F2F",
-        fontWeight: '600',
+        fontWeight: "600",
     },
     addButton: {
         backgroundColor: "#E8F5F2",
         padding: 16,
         borderRadius: 8,
-        alignItems: 'center',
+        alignItems: "center",
         marginBottom: 20,
         borderWidth: 1,
         borderColor: "#99DDC8",
-        borderStyle: 'dashed',
+        borderStyle: "dashed",
     },
     addButtonText: {
         color: "#283F3B",
-        fontWeight: '600',
+        fontWeight: "600",
         fontSize: 16,
     },
     calculateButton: {
         backgroundColor: "#D2D229",
         padding: 18,
         borderRadius: 8,
-        alignItems: 'center',
+        alignItems: "center",
         marginBottom: 25,
         shadowColor: "#A5A822",
         shadowOffset: {
@@ -224,7 +262,7 @@ const styles = StyleSheet.create({
     },
     calculateButtonText: {
         color: "#283F3B",
-        fontWeight: '700',
+        fontWeight: "700",
         fontSize: 18,
     },
     resultContainer: {
@@ -236,24 +274,24 @@ const styles = StyleSheet.create({
     },
     resultTitle: {
         fontSize: 18,
-        fontWeight: '700',
+        fontWeight: "700",
         color: "#283F3B",
         marginBottom: 15,
-        textAlign: 'center',
+        textAlign: "center",
     },
     resultRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        flexDirection: "row",
+        justifyContent: "space-between",
         marginBottom: 10,
     },
     resultLabel: {
         fontSize: 16,
         color: "#5A7A74",
-        fontWeight: '500',
+        fontWeight: "500",
     },
     resultValue: {
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: "600",
         color: "#283F3B",
     },
 });
