@@ -27,8 +27,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Logo/App Name */}
                 <View style={styles.logoContainer}>
-                    <Text style={styles.logoText}>Cychael</Text>
-                    <Text style={styles.logoSubtext}>of Energy</Text>
+                    <Text style={styles.logoFirst}>Cychael</Text>
+                    <Text style={styles.logoSecond}>of Energy</Text>
                 </View>
 
                 {/* Hero Image */}
@@ -99,14 +99,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 40,
     },
-    logoText: {
+
+    logoFirst: {
         fontSize: 42,
         fontWeight: '800',
         color: '#D2D229',
         fontStyle: 'italic',
     },
 
-    logoSubtext: {
+    logoSecond: {
         fontSize: 24,
         fontWeight: '300',
         color: '#99DDC8',
