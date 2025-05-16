@@ -108,6 +108,14 @@ const NavBarComponent = () => {
                                     Register
                                 </Text>
                             </TouchableOpacity>
+
+                            {/* For Debugging */}
+                            <TouchableOpacity
+                                className="px-4 py-2 bg-green-600 rounded-full"
+                                onPress={() => navigation.navigate("EnergyInputPage" as never)}
+                            >
+                                <Text className="text-white font-medium">Debug Input</Text>
+                            </TouchableOpacity>
                         </View>
                     )}
                 </View>
