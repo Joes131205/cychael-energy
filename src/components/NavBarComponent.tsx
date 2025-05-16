@@ -1,9 +1,10 @@
 import { useNavigation } from "@react-navigation/native";
 import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { app } from "../utils/firebase";
+import Button from "./common/Button";
 
 const NavBarComponent = () => {
     const navigation = useNavigation();
@@ -17,7 +18,11 @@ const NavBarComponent = () => {
 
         return () => unsubscribe();
     }, []);
+    const handleLogOut = async () => {
+        await signOut(auth);
 
+        navigation.navigate("Login" as never);
+    };
     return (
         <>
             <StatusBar backgroundColor="#ffffff" barStyle="dark-content" />
@@ -41,48 +46,35 @@ const NavBarComponent = () => {
                     </View>
 
                     {user ? (
-                        <View className="flex flex-row items-center">
+                        <View className="flex flex-row items-center space-x-4">
                             <TouchableOpacity
-                                className="px-3 py-2 mr-3 rounded-full"
+                                className="flex flex-row items-center bg-blue-50 px-4 py-2 rounded-full"
                                 onPress={() =>
-                                    navigation.navigate(
-                                        "DeviceAnalysis" as never
-                                    )
+                                    navigation.navigate("Dashboard" as never)
                                 }
                             >
                                 <Ionicons
-                                    name="hardware-chip-outline"
-                                    size={22}
-                                    color="#4B5563"
+                                    name="grid-outline"
+                                    size={20}
+                                    color="#3B82F6"
                                 />
+                                <Text className="text-blue-600 font-medium ml-2">
+                                    Dashboard
+                                </Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                className="px-3 py-2 mr-3 rounded-full"
-                                onPress={() =>
-                                    navigation.navigate("EnergyTips" as never)
-                                }
+                                className="flex flex-row items-center bg-red-50 px-4 py-2 rounded-full"
+                                onPress={handleLogOut}
                             >
                                 <Ionicons
-                                    name="bulb-outline"
-                                    size={22}
-                                    color="#4B5563"
+                                    name="log-out-outline"
+                                    size={20}
+                                    color="#EF4444"
                                 />
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                className="px-3 py-2 mr-3 rounded-full"
-                                onPress={() =>
-                                    navigation.navigate(
-                                        "SolarSimulator" as never
-                                    )
-                                }
-                            >
-                                <Ionicons
-                                    name="sunny-outline"
-                                    size={22}
-                                    color="#4B5563"
-                                />
+                                <Text className="text-red-600 font-medium ml-2">
+                                    Log Out
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     ) : (

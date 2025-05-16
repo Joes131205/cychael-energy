@@ -20,27 +20,61 @@ const LoginPage = () => {
     }, []);
 
     const handleLogin = async () => {
+        setLoading(true);
+
         if (!email || !password) {
             Alert.alert("Error", "Please enter both email and password");
             return;
         }
 
-        const userCredential = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-        );
+        try {
+            const userCredential = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
 
-        if (userCredential) {
-            Alert.alert("Success", "Login Successful!", [
-                {
-                    text: "OK",
-                    onPress: () => navigation.navigate("Dashboard" as never),
-                },
-            ]);
+            if (userCredential) {
+                Alert.alert("Success", "Login Successful!", [
+                    {
+                        text: "OK",
+                        onPress: () =>
+                            navigation.navigate("Dashboard" as never),
+                    },
+                ]);
+            }
+        } catch (error) {
+            let errorMessage = "Login failed";
+
+            const errorCode = (error as any).code;
+            switch (errorCode) {
+                case "auth/invalid-email":
+                    errorMessage = "Invalid email format.";
+                    break;
+                case "auth/user-disabled":
+                    errorMessage = "This account has been disabled.";
+                    break;
+                case "auth/user-not-found":
+                    errorMessage = "No account found with this email.";
+                    break;
+                case "auth/wrong-password":
+                    errorMessage = "Incorrect password.";
+                    break;
+                case "auth/too-many-requests":
+                    errorMessage =
+                        "Too many failed login attempts. Please try again later.";
+                    break;
+                case "auth/network-request-failed":
+                    errorMessage =
+                        "Network error. Please check your connection.";
+                    break;
+                default:
+                    errorMessage = `Login failed: ${error.message}`;
+            }
+            Alert.alert("Error", errorMessage);
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(true);
     };
 
     return (
