@@ -69,7 +69,11 @@ const LoginPage = () => {
                         "Network error. Please check your connection.";
                     break;
                 default:
-                    errorMessage = `Login failed: ${error.message}`;
+                    if (error && typeof error === "object" && "message" in error) {
+                        errorMessage = `Login failed: ${(error as { message: string }).message}`;
+                    } else {
+                        errorMessage = "Login failed: Unknown error";
+                    }
             }
             Alert.alert("Error", errorMessage);
         } finally {
