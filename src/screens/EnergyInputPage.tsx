@@ -17,7 +17,7 @@ interface Device {
 }
 
 const EnergyInputPage = () => {
-    const [devices, setDevices] = useState<Device[]>([]);
+    const [devices, setDevices] = useState<Device[]>([{ name: "", watt: 0, hours: 0 }]);
     const [result, setResult] = useState<number | null>(null);
 
     const handleAddDevice = () => {
@@ -31,10 +31,12 @@ const EnergyInputPage = () => {
     ) => {
         const updated = [...devices];
         if (key === "watt" || key === "hours") {
-            updated[index][key] = parseFloat(value);
+            updated[index][key] = value === "" ? 0 : parseFloat(value);
         } else {
             updated[index][key] = value;
         }
+
+        
         setDevices(updated);
     };
 
@@ -91,7 +93,7 @@ const EnergyInputPage = () => {
                     <TextInput
                         placeholder="Power (Watt)"
                         placeholderTextColor="#95A3A1"
-                        value={String(device.watt)}
+                        value={device.watt === 0 ? "" : String(device.watt)}
                         onChangeText={(text) =>
                             handleChange(index, "watt", text)
                         }
@@ -101,7 +103,7 @@ const EnergyInputPage = () => {
                     <TextInput
                         placeholder="Usage per day (Hours)"
                         placeholderTextColor="#95A3A1"
-                        value={String(device.hours)}
+                        value={device.hours === 0 ? "" : String(device.hours)}
                         onChangeText={(text) =>
                             handleChange(index, "hours", text)
                         }
