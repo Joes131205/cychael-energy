@@ -5,11 +5,13 @@ import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { app } from "../utils/firebase";
 import Button from "./common/Button";
+import { useTheme } from "../hooks/useTheme";
 
 const NavBarComponent = () => {
     const navigation = useNavigation();
     const auth = getAuth(app);
     const [user, setUser] = useState<User | null>(null);
+    const { colors, isDarkMode } = useTheme();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -25,8 +27,23 @@ const NavBarComponent = () => {
     };
     return (
         <>
-            <StatusBar backgroundColor="#ffffff" barStyle="dark-content" />
-            <View className="px-5 py-4 bg-white border-b border-gray-200 shadow-sm">
+            <StatusBar
+                backgroundColor={colors.background}
+                barStyle={isDarkMode ? "light-content" : "dark-content"}
+            />
+            <View
+                style={{
+                    paddingHorizontal: 20,
+                    paddingVertical: 16,
+                    backgroundColor: colors.card,
+                    borderTopColor: colors.border,
+                    borderTopWidth: 1,
+                    shadowColor: colors.primary,
+                    shadowOpacity: 0.1,
+                    shadowRadius: 5,
+                    elevation: 5,
+                }}
+            >
                 <View className="flex flex-row justify-between items-center w-full">
                     {user ? (
                         <View className="flex flex-row items-center justify-center w-full gap-10">
@@ -39,19 +56,21 @@ const NavBarComponent = () => {
                                 <Ionicons
                                     name="home-outline"
                                     size={30}
-                                    color="#000000"
+                                    color={colors.text}
                                 />
                             </TouchableOpacity>
                             <TouchableOpacity
                                 className="flex flex-col items-center px-4 py-2 rounded-full justify-center"
                                 onPress={() =>
-                                    navigation.navigate("Settings" as never)
+                                    navigation.navigate(
+                                        "EnergyAnalysisResultPage" as never
+                                    )
                                 }
                             >
                                 <Ionicons
                                     name="bar-chart-outline"
                                     size={30}
-                                    color="#000000"
+                                    color={colors.text}
                                 />
                             </TouchableOpacity>
                             <TouchableOpacity
@@ -65,7 +84,7 @@ const NavBarComponent = () => {
                                 <Ionicons
                                     name="calculator-outline"
                                     size={30}
-                                    color="#000000"
+                                    color={colors.text}
                                 />
                             </TouchableOpacity>
 
@@ -78,44 +97,74 @@ const NavBarComponent = () => {
                                 <Ionicons
                                     name="people-outline"
                                     size={30}
-                                    color="#000000"
+                                    color={colors.text}
                                 />
                             </TouchableOpacity>
                         </View>
                     ) : (
                         <View className="flex flex-row space-x-3">
                             <TouchableOpacity
-                                className="px-4 py-2 border border-blue-600 rounded-full"
+                                style={{
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 8,
+                                    borderWidth: 1,
+                                    borderColor: colors.secondary,
+                                    borderRadius: 20,
+                                }}
                                 onPress={() =>
                                     navigation.navigate("Login" as never)
                                 }
                             >
-                                <Text className="text-blue-600 font-medium">
+                                <Text
+                                    style={{
+                                        color: colors.secondary,
+                                        fontWeight: "500",
+                                    }}
+                                >
                                     Login
                                 </Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                className="px-4 py-2 bg-blue-600 rounded-full"
+                                style={{
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 8,
+                                    backgroundColor: colors.accent,
+                                    borderRadius: 20,
+                                }}
                                 onPress={() =>
                                     navigation.navigate("Register" as never)
                                 }
                             >
-                                <Text className="text-white font-medium">
+                                <Text
+                                    style={{
+                                        color: colors.primary,
+                                        fontWeight: "500",
+                                    }}
+                                >
                                     Register
                                 </Text>
                             </TouchableOpacity>
 
-                            {/* For Debugging */}
                             <TouchableOpacity
-                                className="px-4 py-2 bg-green-600 rounded-full"
+                                style={{
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 8,
+                                    backgroundColor: colors.secondary,
+                                    borderRadius: 20,
+                                }}
                                 onPress={() =>
                                     navigation.navigate(
                                         "EnergyInputPage" as never
                                     )
                                 }
                             >
-                                <Text className="text-white font-medium">
+                                <Text
+                                    style={{
+                                        color: colors.background,
+                                        fontWeight: "500",
+                                    }}
+                                >
                                     Debug Input
                                 </Text>
                             </TouchableOpacity>

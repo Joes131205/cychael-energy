@@ -5,10 +5,13 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../utils/firebase";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "../hooks/useTheme";
 
 const DashboardPage = () => {
     const navigation = useNavigation<any>();
     const [user, setUser] = useState(auth.currentUser);
+    const { colors, isDarkMode, toggleTheme } = useTheme();
+
     const [energyData, setEnergyData] = useState({
         dailyUsage: 5.7,
         monthlyUsage: 172.3,
@@ -38,18 +41,44 @@ const DashboardPage = () => {
     };
 
     return (
-        <ScrollView className="flex-1 bg-[#F5F9F8]">
+        <ScrollView
+            className="flex-1"
+            style={{ backgroundColor: colors.background }}
+        >
             <LinearGradient
-                colors={["#283F3B", "#1A2E2A"]}
+                colors={
+                    isDarkMode
+                        ? [colors.secondary, colors.primary]
+                        : [colors.primary, colors.secondary]
+                }
                 className="px-5 pt-[50px] pb-[30px] rounded-b-[30px]"
             >
-                <View className="mb-5">
-                    <Text className="text-base text-[#99DDC8]">
-                        Welcome back,
-                    </Text>
-                    <Text className="text-2xl font-bold text-white">
-                        {user?.displayName || "User"}
-                    </Text>
+                <View className="flex-row justify-between items-center mb-5">
+                    <View>
+                        <Text
+                            className="text-base"
+                            style={{
+                                color: isDarkMode ? colors.text : "#99DDC8",
+                            }}
+                        >
+                            Welcome back,
+                        </Text>
+                        <Text className="text-2xl font-bold text-white">
+                            {user?.displayName || "User"}
+                        </Text>
+                    </View>
+
+                    <TouchableOpacity
+                        onPress={toggleTheme}
+                        className="p-2 rounded-full"
+                        style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+                    >
+                        <Ionicons
+                            name={isDarkMode ? "sunny" : "moon"}
+                            size={24}
+                            color="white"
+                        />
+                    </TouchableOpacity>
                 </View>
 
                 <View className="bg-white/10 rounded-[15px] p-5">
@@ -58,19 +87,35 @@ const DashboardPage = () => {
                     </Text>
                     <View className="flex-row justify-around">
                         <View className="items-center">
-                            <Text className="text-[#D2D229] text-2xl font-bold">
+                            <Text
+                                className="text-2xl font-bold"
+                                style={{ color: colors.accent }}
+                            >
                                 {energyData.dailyUsage} kWh
                             </Text>
-                            <Text className="text-[#99DDC8] text-sm mt-[5px]">
+                            <Text
+                                className="text-sm mt-[5px]"
+                                style={{
+                                    color: isDarkMode ? colors.text : "#99DDC8",
+                                }}
+                            >
                                 Today
                             </Text>
                         </View>
                         <View className="w-[1px] bg-white/20" />
                         <View className="items-center">
-                            <Text className="text-[#D2D229] text-2xl font-bold">
+                            <Text
+                                className="text-2xl font-bold"
+                                style={{ color: colors.accent }}
+                            >
                                 {energyData.monthlyUsage} kWh
                             </Text>
-                            <Text className="text-[#99DDC8] text-sm mt-[5px]">
+                            <Text
+                                className="text-sm mt-[5px]"
+                                style={{
+                                    color: isDarkMode ? colors.text : "#99DDC8",
+                                }}
+                            >
                                 This Month
                             </Text>
                         </View>
@@ -80,63 +125,89 @@ const DashboardPage = () => {
 
             <View className="p-5">
                 <TouchableOpacity
-                    className="flex-row items-center bg-white p-4 rounded-xl mb-[15px] shadow"
+                    className="flex-row items-center p-4 rounded-xl mb-[15px] shadow"
+                    style={{ backgroundColor: colors.card }}
                     onPress={() => navigation.navigate("EnergyInputPage")}
                 >
-                    <View className="w-10 h-10 rounded-full bg-[rgba(210,210,41,0.15)] justify-center items-center mr-[15px]">
+                    <View
+                        className="w-10 h-10 rounded-full justify-center items-center mr-[15px]"
+                        style={{ backgroundColor: `${colors.accent}20` }}
+                    >
                         <Ionicons
                             name="calculator-outline"
                             size={24}
-                            color="#D2D229"
+                            color={colors.accent}
                         />
                     </View>
-                    <Text className="flex-1 text-base font-semibold text-[#283F3B]">
+                    <Text
+                        className="flex-1 text-base font-semibold"
+                        style={{ color: colors.text }}
+                    >
                         Calculate Usage
                     </Text>
                     <Ionicons
                         name="chevron-forward"
                         size={18}
-                        color="#5A7A74"
+                        color={colors.textSecondary}
                     />
                 </TouchableOpacity>
 
-                <TouchableOpacity className="flex-row items-center bg-white p-4 rounded-xl mb-[15px] shadow">
-                    <View className="w-10 h-10 rounded-full bg-[rgba(153,221,200,0.15)] justify-center items-center mr-[15px]">
+                <TouchableOpacity
+                    className="flex-row items-center p-4 rounded-xl mb-[15px] shadow"
+                    style={{ backgroundColor: colors.card }}
+                >
+                    <View
+                        className="w-10 h-10 rounded-full justify-center items-center mr-[15px]"
+                        style={{ backgroundColor: `${colors.secondary}20` }}
+                    >
                         <Ionicons
                             name="analytics-outline"
                             size={24}
-                            color="#99DDC8"
+                            color={colors.secondary}
                         />
                     </View>
-                    <Text className="flex-1 text-base font-semibold text-[#283F3B]">
+                    <Text
+                        className="flex-1 text-base font-semibold"
+                        style={{ color: colors.text }}
+                    >
                         View Reports
                     </Text>
                     <Ionicons
                         name="chevron-forward"
                         size={18}
-                        color="#5A7A74"
+                        color={colors.textSecondary}
                     />
                 </TouchableOpacity>
             </View>
 
             <View className="p-5">
-                <Text className="text-lg font-bold text-[#283F3B] mb-[15px]">
+                <Text
+                    className="text-lg font-bold mb-[15px]"
+                    style={{ color: colors.text }}
+                >
                     Energy Saving Tips
                 </Text>
 
                 {energyData.savingTips.map((tip, index) => (
                     <View
                         key={index}
-                        className="flex-row items-center bg-white p-[15px] rounded-xl mb-[10px] shadow"
+                        className="flex-row items-center p-[15px] rounded-xl mb-[10px] shadow"
+                        style={{ backgroundColor: colors.card }}
                     >
-                        <View className="w-9 h-9 rounded-full bg-[rgba(210,210,41,0.15)] justify-center items-center mr-[15px]">
+                        <View
+                            className="w-9 h-9 rounded-full justify-center items-center mr-[15px]"
+                            style={{ backgroundColor: `${colors.accent}15` }}
+                        >
                             <Ionicons
                                 name="bulb-outline"
                                 size={20}
-                                color="#D2D229"
+                                color={colors.accent}
                             />
                         </View>
-                        <Text className="flex-1 text-[#283F3B] text-sm">
+                        <Text
+                            className="flex-1 text-sm"
+                            style={{ color: colors.text }}
+                        >
                             {tip}
                         </Text>
                     </View>
@@ -144,7 +215,8 @@ const DashboardPage = () => {
             </View>
 
             <TouchableOpacity
-                className="flex-row items-center justify-center bg-[#FFE8E8] p-4 rounded-xl mx-5 my-[30px]"
+                className="flex-row items-center justify-center p-4 rounded-xl mx-5 my-[30px]"
+                style={{ backgroundColor: isDarkMode ? "#3A1C1C" : "#FFE8E8" }}
                 onPress={handleLogout}
             >
                 <Ionicons name="log-out-outline" size={20} color="#EF4444" />

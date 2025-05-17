@@ -1,49 +1,104 @@
-import { createContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useState, useEffect, ReactNode } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-type Theme = "light" | "dark";
+export type ThemeType = "light" | "dark";
 
-interface ThemeContextType {
-    theme: Theme;
-    toggleTheme: () => void;
+export interface ThemeColors {
+    primary: string;
+    secondary: string;
+    background: string;
+    card: string;
+    text: string;
+    textSecondary: string;
+    border: string;
+    success: string;
+    danger: string;
+    warning: string;
+    accent: string;
 }
+
+export interface ThemeContextType {
+    theme: ThemeType;
+    colors: ThemeColors;
+    toggleTheme: () => void;
+    setTheme: (newTheme: ThemeType) => void;
+    isDarkMode: boolean;
+}
+
+export const lightColors: ThemeColors = {
+    primary: "#283F3B",
+    secondary: "#99DDC8",
+    background: "#F5F9F8",
+    card: "#FFFFFF",
+    text: "#283F3B",
+    textSecondary: "#5A7A74",
+    border: "#D0E0DD",
+    success: "#4CAF50",
+    danger: "#EF4444",
+    warning: "#F59E0B",
+    accent: "#D2D229",
+};
+
+export const darkColors: ThemeColors = {
+    primary: "#99DDC8",
+    secondary: "#1A2E2A",
+    background: "#121C1A",
+    card: "#1E2C29",
+    text: "#E0F2EF",
+    textSecondary: "#A0BCB7",
+    border: "#2E3E3B",
+    success: "#4CAF50",
+    danger: "#EF4444",
+    warning: "#F59E0B",
+    accent: "#D2D229",
+};
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({
-    children,
-}) => {
-    const getInitialTheme = (): Theme => {
-        if (typeof window !== "undefined") {
-            const savedTheme = localStorage.getItem("theme") as Theme | null;
-            if (savedTheme) {
-                return savedTheme;
-            }
+interface ThemeProviderProps {
+    children: ReactNode;
+}
 
-            const prefersDark = window.matchMedia(
-                "(prefers-color-scheme: dark)"
-            ).matches;
-            return prefersDark ? "dark" : "light";
-        }
-
-        return "light";
-    };
-    const [theme, setTheme] = useState<Theme>(getInitialTheme);
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+    const [theme, setThemeState] = useState<ThemeType>("light");
+    const isDarkMode = theme === "dark";
+    const colors = isDarkMode ? darkColors : lightColors;
 
     useEffect(() => {
-        const root = window.document.documentElement;
-
-        root.classList.remove("light", "dark");
-        root.classList.add(theme);
-
-        localStorage.setItem("theme", theme);
-    }, [theme]);
+        const getTheme = async () => {
+            try {
+                const savedTheme = await AsyncStorage.getItem("theme");
+                if (
+                    savedTheme &&
+                    (savedTheme === "light" || savedTheme === "dark")
+                ) {
+                    setThemeState(savedTheme);
+                }
+            } catch (error) {
+                console.log("Error loading theme:", error);
+            }
+        };
+        getTheme();
+    }, []);
 
     const toggleTheme = () => {
-        setTheme((prev) => (prev === "light" ? "dark" : "light"));
+        const newTheme = theme === "light" ? "dark" : "light";
+        setThemeState(newTheme);
+        AsyncStorage.setItem("theme", newTheme);
     };
+
+    const setTheme = (newTheme: ThemeType) => {
+        setThemeState(newTheme);
+        AsyncStorage.setItem("theme", newTheme);
+    };
+
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider
+            value={{ theme, colors, toggleTheme, setTheme, isDarkMode }}
+        >
             {children}
         </ThemeContext.Provider>
     );
 };
+
+export default ThemeContext;

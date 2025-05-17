@@ -1,34 +1,59 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions, ImageSourcePropType , ScrollView } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
-import { StackNavigationProp } from '@react-navigation/stack';
+import {
+    View,
+    Text,
+    Image,
+    TouchableOpacity,
+    StyleSheet,
+    Dimensions,
+    ImageSourcePropType,
+    ScrollView,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { useTheme } from "../hooks/useTheme";
 
 type RootStackParamList = {
     Login: undefined;
     Register: undefined;
 };
 
-type LandingPageNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type LandingPageNavigationProp = StackNavigationProp<
+    RootStackParamList,
+    "Login"
+>;
 
 interface LandingPageProps {
     navigation: LandingPageNavigationProp;
 }
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
-    const energyIllustration: ImageSourcePropType = require('../../assets/logo.jpg');
+    const { colors, isDarkMode } = useTheme();
+    const energyIllustration: ImageSourcePropType = require("../../assets/logo.jpg");
 
     return (
         <LinearGradient
-            colors={['#283F3B', '#1A2E2A']}
+            colors={
+                isDarkMode ? ["#121C1A", "#0A1211"] : ["#283F3B", "#1A2E2A"]
+            }
             style={styles.container}
         >
-            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                contentContainerStyle={styles.content}
+                showsVerticalScrollIndicator={false}
+            >
                 {/* Logo/App Name */}
                 <View style={styles.logoContainer}>
-                    <Text style={styles.logoFirst}>Cychael</Text>
-                    <Text style={styles.logoSecond}>of Energy</Text>
+                    <Text style={[styles.logoFirst, { color: colors.accent }]}>
+                        Cychael
+                    </Text>
+                    <Text
+                        style={[styles.logoSecond, { color: colors.secondary }]}
+                    >
+                        of Energy
+                    </Text>
                 </View>
 
                 {/* Hero Image */}
@@ -39,45 +64,111 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                 />
 
                 {/* App Description */}
-                <Text style={styles.description}>
-                    Smart energy analysis for your home. Track consumption, reduce waste, and save money with personalized recommendations.
+                <Text
+                    style={[
+                        styles.description,
+                        { color: isDarkMode ? "#E0F2EF" : "#E0F2EF" },
+                    ]}
+                >
+                    Smart energy analysis for your home. Track consumption,
+                    reduce waste, and save money with personalized
+                    recommendations.
                 </Text>
 
                 {/* Features List */}
                 <View style={styles.featuresContainer}>
                     <View style={styles.featureItem}>
-                        <View style={styles.featureIcon}>
+                        <View
+                            style={[
+                                styles.featureIcon,
+                                { backgroundColor: `${colors.accent}20` },
+                            ]}
+                        >
                             <Text style={styles.iconText}>⚡</Text>
                         </View>
-                        <Text style={styles.featureText}>Real-time energy tracking</Text>
+                        <Text
+                            style={[
+                                styles.featureText,
+                                { color: isDarkMode ? "#FFFFFF" : "#FFFFFF" },
+                            ]}
+                        >
+                            Real-time energy tracking
+                        </Text>
                     </View>
                     <View style={styles.featureItem}>
-                        <View style={styles.featureIcon}>
+                        <View
+                            style={[
+                                styles.featureIcon,
+                                { backgroundColor: `${colors.accent}20` },
+                            ]}
+                        >
                             <Text style={styles.iconText}>💡</Text>
                         </View>
-                        <Text style={styles.featureText}>Smart savings suggestions</Text>
+                        <Text
+                            style={[
+                                styles.featureText,
+                                { color: isDarkMode ? "#FFFFFF" : "#FFFFFF" },
+                            ]}
+                        >
+                            Smart savings suggestions
+                        </Text>
                     </View>
                     <View style={styles.featureItem}>
-                        <View style={styles.featureIcon}>
+                        <View
+                            style={[
+                                styles.featureIcon,
+                                { backgroundColor: `${colors.accent}20` },
+                            ]}
+                        >
                             <Text style={styles.iconText}>📊</Text>
                         </View>
-                        <Text style={styles.featureText}>Detailed consumption reports</Text>
+                        <Text
+                            style={[
+                                styles.featureText,
+                                { color: isDarkMode ? "#FFFFFF" : "#FFFFFF" },
+                            ]}
+                        >
+                            Detailed consumption reports
+                        </Text>
                     </View>
                 </View>
 
                 {/* Action Buttons */}
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                        style={[styles.button, styles.primaryButton]}
-                        onPress={() => navigation.navigate('Login')}
+                        style={[
+                            styles.button,
+                            styles.primaryButton,
+                            { backgroundColor: colors.accent },
+                        ]}
+                        onPress={() => navigation.navigate("Login")}
                     >
-                        <Text style={styles.buttonText}>Login</Text>
+                        <Text
+                            style={[
+                                styles.buttonText,
+                                { color: colors.primary },
+                            ]}
+                        >
+                            Login
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.button, styles.secondaryButton]}
-                        onPress={() => navigation.navigate('Register')}
+                        style={[
+                            styles.button,
+                            styles.secondaryButton,
+                            { borderColor: colors.secondary },
+                        ]}
+                        onPress={() => navigation.navigate("Register")}
                     >
-                        <Text style={[styles.buttonText, styles.secondaryButtonText]}>Register</Text>
+                        <Text
+                            style={[
+                                styles.buttonText,
+                                styles.secondaryButtonText,
+                                { color: colors.secondary },
+                            ]}
+                        >
+                            Register
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
@@ -93,27 +184,22 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 30,
         paddingTop: 60,
-        alignItems: 'center',
+        alignItems: "center",
     },
     logoContainer: {
-        alignItems: 'center',
+        alignItems: "center",
         marginBottom: 40,
     },
-
     logoFirst: {
         fontSize: 42,
-        fontWeight: '800',
-        color: '#D2D229',
-        fontStyle: 'italic',
+        fontWeight: "800",
+        fontStyle: "italic",
     },
-
     logoSecond: {
         fontSize: 24,
-        fontWeight: '300',
-        color: '#99DDC8',
+        fontWeight: "300",
         marginTop: -8,
     },
-
     heroImage: {
         width: 160,
         height: 160,
@@ -121,63 +207,59 @@ const styles = StyleSheet.create({
         borderRadius: 80,
     },
     description: {
-        color: '#E0F2EF',
         fontSize: 16,
-        textAlign: 'center',
+        textAlign: "center",
         lineHeight: 24,
         marginBottom: 40,
         paddingHorizontal: 20,
     },
     featuresContainer: {
-        width: '100%',
+        width: "100%",
         marginBottom: 40,
     },
     featureItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         marginBottom: 20,
     },
     featureIcon: {
-        backgroundColor: 'rgba(210, 210, 41, 0.2)',
         width: 40,
         height: 40,
         borderRadius: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         marginRight: 15,
     },
     iconText: {
         fontSize: 20,
     },
     featureText: {
-        color: '#FFFFFF',
         fontSize: 16,
         flex: 1,
     },
     buttonContainer: {
-        width: '100%',
+        width: "100%",
     },
     button: {
         padding: 16,
         borderRadius: 10,
-        alignItems: 'center',
+        alignItems: "center",
         marginBottom: 15,
     },
     primaryButton: {
-        backgroundColor: '#D2D229',
+        backgroundColor: "#D2D229",
     },
     secondaryButton: {
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         borderWidth: 1,
-        borderColor: '#99DDC8',
+        borderColor: "#99DDC8",
     },
     buttonText: {
         fontSize: 18,
-        fontWeight: '600',
-        color: '#283F3B',
+        fontWeight: "600",
     },
     secondaryButtonText: {
-        color: '#99DDC8',
+        color: "#99DDC8",
     },
 });
 

@@ -1,31 +1,51 @@
 import "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import { StyleSheet, View } from "react-native";
+import {
+    NavigationContainer,
+    DefaultTheme,
+    DarkTheme,
+} from "@react-navigation/native";
 import AppNavigator from "./navigation/AppNavigator";
 import NavBarComponent from "./components/NavBarComponent";
-
+import { ThemeProvider } from "./context/themeContext";
+import { useTheme } from "./hooks/useTheme";
 import "../global.css";
 
-export default function App() {
+const ThemedApp = () => {
+    const { theme, colors, isDarkMode } = useTheme();
+
+    const navigationTheme = {
+        ...(isDarkMode ? DarkTheme : DefaultTheme),
+        colors: {
+            ...(isDarkMode ? DarkTheme.colors : DefaultTheme.colors),
+            primary: colors.primary,
+            background: colors.background,
+            card: colors.card,
+            text: colors.text,
+            border: colors.border,
+            notification: colors.accent,
+        },
+    };
+
     return (
-        <NavigationContainer>
-            <View style={{ flex: 1 }}>
+        <NavigationContainer theme={navigationTheme}>
+            <StatusBar style={isDarkMode ? "light" : "dark"} />
+            <View style={{ flex: 1, backgroundColor: colors.background }}>
                 <AppNavigator />
                 <NavBarComponent />
             </View>
         </NavigationContainer>
     );
-}
+};
 
-// export default function App() {
-//   return (
-//     <View style={styles.container}>
-//       <Text>Open up App.tsx to start working on your app!</Text>
-//       <StatusBar style="auto" />
-//     </View>
-//   );
-// }
+export default function App() {
+    return (
+        <ThemeProvider>
+            <ThemedApp />
+        </ThemeProvider>
+    );
+}
 
 const styles = StyleSheet.create({
     container: {

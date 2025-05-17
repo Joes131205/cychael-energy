@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { Alert } from "react-native";
+import { useTheme } from "../hooks/useTheme";
 
 interface Device {
     name: string;
@@ -17,8 +18,11 @@ interface Device {
 }
 
 const EnergyInputPage = () => {
-    const [devices, setDevices] = useState<Device[]>([{ name: "", watt: 0, hours: 0 }]);
+    const [devices, setDevices] = useState<Device[]>([
+        { name: "", watt: 0, hours: 0 },
+    ]);
     const [result, setResult] = useState<number | null>(null);
+    const { colors, isDarkMode } = useTheme();
 
     const handleAddDevice = () => {
         setDevices([...devices, { name: "", watt: 0, hours: 0 }]);
@@ -36,7 +40,6 @@ const EnergyInputPage = () => {
             updated[index][key] = value;
         }
 
-        
         setDevices(updated);
     };
 
@@ -70,51 +73,102 @@ const EnergyInputPage = () => {
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView
+            style={[styles.container, { backgroundColor: colors.background }]}
+        >
             <View style={styles.header}>
-                <Text style={styles.title}>Energy Usage Calculator</Text>
-                <Text style={styles.subtitle}>
+                <Text style={[styles.title, { color: colors.text }]}>
+                    Energy Usage Calculator
+                </Text>
+                <Text
+                    style={[styles.subtitle, { color: colors.textSecondary }]}
+                >
                     Estimate your daily power consumption
                 </Text>
             </View>
 
             {devices.map((device, index) => (
-                <View key={index} style={styles.deviceCard}>
-                    <Text style={styles.cardTitle}>Device #{index + 1}</Text>
+                <View
+                    key={index}
+                    style={[
+                        styles.deviceCard,
+                        {
+                            backgroundColor: colors.card,
+                            shadowColor: colors.text,
+                        },
+                    ]}
+                >
+                    <Text style={[styles.cardTitle, { color: colors.text }]}>
+                        Device #{index + 1}
+                    </Text>
                     <TextInput
                         placeholder="Device Name"
-                        placeholderTextColor="#95A3A1"
+                        placeholderTextColor={colors.textSecondary}
                         value={device.name}
                         onChangeText={(text) =>
                             handleChange(index, "name", text)
                         }
-                        style={styles.input}
+                        style={[
+                            styles.input,
+                            {
+                                borderColor: colors.border,
+                                backgroundColor: isDarkMode
+                                    ? colors.background
+                                    : "#FAFDFC",
+                                color: colors.text,
+                            },
+                        ]}
                     />
                     <TextInput
                         placeholder="Power (Watt)"
-                        placeholderTextColor="#95A3A1"
+                        placeholderTextColor={colors.textSecondary}
                         value={device.watt === 0 ? "" : String(device.watt)}
                         onChangeText={(text) =>
                             handleChange(index, "watt", text)
                         }
                         keyboardType="numeric"
-                        style={styles.input}
+                        style={[
+                            styles.input,
+                            {
+                                borderColor: colors.border,
+                                backgroundColor: isDarkMode
+                                    ? colors.background
+                                    : "#FAFDFC",
+                                color: colors.text,
+                            },
+                        ]}
                     />
                     <TextInput
                         placeholder="Usage per day (Hours)"
-                        placeholderTextColor="#95A3A1"
+                        placeholderTextColor={colors.textSecondary}
                         value={device.hours === 0 ? "" : String(device.hours)}
                         onChangeText={(text) =>
                             handleChange(index, "hours", text)
                         }
                         keyboardType="numeric"
-                        style={styles.input}
+                        style={[
+                            styles.input,
+                            {
+                                borderColor: colors.border,
+                                backgroundColor: isDarkMode
+                                    ? colors.background
+                                    : "#FAFDFC",
+                                color: colors.text,
+                            },
+                        ]}
                     />
 
                     {devices.length > 1 && (
                         <TouchableOpacity
                             onPress={() => handleRemoveDevice(index)}
-                            style={styles.removeButton}
+                            style={[
+                                styles.removeButton,
+                                {
+                                    backgroundColor: isDarkMode
+                                        ? "#3A1C1C"
+                                        : "#FFE8E8",
+                                },
+                            ]}
                         >
                             <Text style={styles.removeButtonText}>
                                 Remove Device
@@ -126,42 +180,98 @@ const EnergyInputPage = () => {
 
             <TouchableOpacity
                 onPress={handleAddDevice}
-                style={styles.addButton}
+                style={[
+                    styles.addButton,
+                    {
+                        backgroundColor: isDarkMode
+                            ? `${colors.secondary}30`
+                            : "#E8F5F2",
+                        borderColor: colors.secondary,
+                    },
+                ]}
             >
-                <Text style={styles.addButtonText}>+ Add Another Device</Text>
+                <Text style={[styles.addButtonText, { color: colors.text }]}>
+                    + Add Another Device
+                </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
                 onPress={calculate}
-                style={styles.calculateButton}
+                style={[
+                    styles.calculateButton,
+                    {
+                        backgroundColor: colors.accent,
+                        shadowColor: isDarkMode ? colors.accent : "#A5A822",
+                    },
+                ]}
             >
-                <Text style={styles.calculateButtonText}>
+                <Text
+                    style={[
+                        styles.calculateButtonText,
+                        { color: colors.primary },
+                    ]}
+                >
                     Calculate Consumption
                 </Text>
             </TouchableOpacity>
 
             {result !== null && (
-                <View style={styles.resultContainer}>
-                    <Text style={styles.resultTitle}>
+                <View
+                    style={[
+                        styles.resultContainer,
+                        {
+                            backgroundColor: isDarkMode
+                                ? `${colors.secondary}30`
+                                : "#E8F5F2",
+                            borderLeftColor: colors.secondary,
+                        },
+                    ]}
+                >
+                    <Text style={[styles.resultTitle, { color: colors.text }]}>
                         Energy Consumption Results
                     </Text>
                     <View style={styles.resultRow}>
-                        <Text style={styles.resultLabel}>Daily:</Text>
-                        <Text style={styles.resultValue}>
+                        <Text
+                            style={[
+                                styles.resultLabel,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            Daily:
+                        </Text>
+                        <Text
+                            style={[styles.resultValue, { color: colors.text }]}
+                        >
                             {result.toFixed(2)} kWh
                         </Text>
                     </View>
                     <View style={styles.resultRow}>
-                        <Text style={styles.resultLabel}>
+                        <Text
+                            style={[
+                                styles.resultLabel,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
                             Monthly (30 days):
                         </Text>
-                        <Text style={styles.resultValue}>
+                        <Text
+                            style={[styles.resultValue, { color: colors.text }]}
+                        >
                             {(result * 30).toFixed(2)} kWh
                         </Text>
                     </View>
                     <View style={styles.resultRow}>
-                        <Text style={styles.resultLabel}>Yearly:</Text>
-                        <Text style={styles.resultValue}>
+                        <Text
+                            style={[
+                                styles.resultLabel,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            Yearly:
+                        </Text>
+                        <Text
+                            style={[styles.resultValue, { color: colors.text }]}
+                        >
                             {(result * 365).toFixed(2)} kWh
                         </Text>
                     </View>
@@ -174,7 +284,6 @@ const EnergyInputPage = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#F5F9F8",
         padding: 20,
     },
     header: {
@@ -184,19 +293,15 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: "700",
-        color: "#283F3B",
         marginBottom: 8,
     },
     subtitle: {
         fontSize: 16,
-        color: "#5A7A74",
     },
     deviceCard: {
-        backgroundColor: "#FFFFFF",
         borderRadius: 12,
         padding: 20,
         marginBottom: 20,
-        shadowColor: "#283F3B",
         shadowOffset: {
             width: 0,
             height: 2,
@@ -208,21 +313,16 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 18,
         fontWeight: "600",
-        color: "#283F3B",
         marginBottom: 15,
     },
     input: {
         borderWidth: 1,
-        borderColor: "#D0E0DD",
         borderRadius: 8,
         padding: 14,
         marginBottom: 15,
         fontSize: 16,
-        color: "#283F3B",
-        backgroundColor: "#FAFDFC",
     },
     removeButton: {
-        backgroundColor: "#FFE8E8",
         padding: 12,
         borderRadius: 8,
         alignItems: "center",
@@ -233,27 +333,22 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
     addButton: {
-        backgroundColor: "#E8F5F2",
         padding: 16,
         borderRadius: 8,
         alignItems: "center",
         marginBottom: 20,
         borderWidth: 1,
-        borderColor: "#99DDC8",
         borderStyle: "dashed",
     },
     addButtonText: {
-        color: "#283F3B",
         fontWeight: "600",
         fontSize: 16,
     },
     calculateButton: {
-        backgroundColor: "#D2D229",
         padding: 18,
         borderRadius: 8,
         alignItems: "center",
         marginBottom: 25,
-        shadowColor: "#A5A822",
         shadowOffset: {
             width: 0,
             height: 3,
@@ -263,21 +358,17 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     calculateButtonText: {
-        color: "#283F3B",
         fontWeight: "700",
         fontSize: 18,
     },
     resultContainer: {
-        backgroundColor: "#E8F5F2",
         borderRadius: 12,
         padding: 20,
         borderLeftWidth: 5,
-        borderLeftColor: "#99DDC8",
     },
     resultTitle: {
         fontSize: 18,
         fontWeight: "700",
-        color: "#283F3B",
         marginBottom: 15,
         textAlign: "center",
     },
@@ -288,13 +379,11 @@ const styles = StyleSheet.create({
     },
     resultLabel: {
         fontSize: 16,
-        color: "#5A7A74",
         fontWeight: "500",
     },
     resultValue: {
         fontSize: 16,
         fontWeight: "600",
-        color: "#283F3B",
     },
 });
 
