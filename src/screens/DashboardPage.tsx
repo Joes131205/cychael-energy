@@ -6,30 +6,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../utils/firebase";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../hooks/useTheme";
+import { useUser } from "../hooks/useUser";
 
 const DashboardPage = () => {
     const navigation = useNavigation<any>();
-    const [user, setUser] = useState(auth.currentUser);
     const { colors, isDarkMode, toggleTheme } = useTheme();
+    const user = useUser();
 
-    const [energyData, setEnergyData] = useState({
-        dailyUsage: 5.7,
-        monthlyUsage: 172.3,
-        savingTips: [
-            "Replace incandescent bulbs with LED lighting",
-            "Unplug devices when not in use",
-            "Set your thermostat to optimal temperatures",
-            "Seal air leaks around windows and doors",
-        ],
-    });
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-        });
-
-        return () => unsubscribe();
-    }, []);
+    console.log(user.userData.energyData);
 
     const handleLogout = async () => {
         try {
@@ -64,7 +48,7 @@ const DashboardPage = () => {
                             Welcome back,
                         </Text>
                         <Text className="text-2xl font-bold text-white">
-                            {user?.displayName || "User"}
+                            {user?.user?.displayName || "User"}
                         </Text>
                     </View>
 
@@ -91,7 +75,7 @@ const DashboardPage = () => {
                                 className="text-2xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {energyData.dailyUsage} kWh
+                                {user?.userData?.energyData?.dailyUsage} kWh
                             </Text>
                             <Text
                                 className="text-sm mt-[5px]"
@@ -108,7 +92,7 @@ const DashboardPage = () => {
                                 className="text-2xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {energyData.monthlyUsage} kWh
+                                {user?.userData?.energyData?.monthlyUsage} kWh
                             </Text>
                             <Text
                                 className="text-sm mt-[5px]"
@@ -187,31 +171,6 @@ const DashboardPage = () => {
                 >
                     Energy Saving Tips
                 </Text>
-
-                {energyData.savingTips.map((tip, index) => (
-                    <View
-                        key={index}
-                        className="flex-row items-center p-[15px] rounded-xl mb-[10px] shadow"
-                        style={{ backgroundColor: colors.card }}
-                    >
-                        <View
-                            className="w-9 h-9 rounded-full justify-center items-center mr-[15px]"
-                            style={{ backgroundColor: `${colors.accent}15` }}
-                        >
-                            <Ionicons
-                                name="bulb-outline"
-                                size={20}
-                                color={colors.accent}
-                            />
-                        </View>
-                        <Text
-                            className="flex-1 text-sm"
-                            style={{ color: colors.text }}
-                        >
-                            {tip}
-                        </Text>
-                    </View>
-                ))}
             </View>
 
             <TouchableOpacity

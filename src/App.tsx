@@ -11,6 +11,7 @@ import NavBarComponent from "./components/NavBarComponent";
 import { ThemeProvider } from "./context/themeContext";
 import { useTheme } from "./hooks/useTheme";
 import "../global.css";
+import { UserProvider } from "./context/userContext";
 
 const ThemedApp = () => {
     const { theme, colors, isDarkMode } = useTheme();
@@ -41,9 +42,11 @@ const ThemedApp = () => {
 
 export default function App() {
     return (
-        <ThemeProvider>
-            <ThemedApp />
-        </ThemeProvider>
+        <UserProvider>
+            <ThemeProvider>
+                <ThemedApp />
+            </ThemeProvider>
+        </UserProvider>
     );
 }
 

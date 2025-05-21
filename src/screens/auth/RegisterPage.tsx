@@ -9,7 +9,7 @@ import {
     Platform,
 } from "react-native";
 import { useEffect, useState } from "react";
-import { app, auth } from "../../utils/firebase";
+import { app, auth, db } from "../../utils/firebase";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { RootStackParamList } from "../../navigation/Navigation";
@@ -17,6 +17,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
 import { useTheme } from "../../hooks/useTheme";
+import { addDoc, collection } from "firebase/firestore";
 
 type RegisterScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -75,6 +76,17 @@ const Register = () => {
             if (userCredential) {
                 await updateProfile(userCredential.user, {
                     displayName: name,
+                });
+
+                await addDoc(collection(db, "users"), {
+                    uid: userCredential.user.uid,
+                    displayName: name,
+                    email: userCredential.user.email,
+                    createdAt: new Date(),
+                    energyData: {
+                        dailyUsage: 0,
+                        monthlyUsage: 0,
+                    },
                 });
 
                 Alert.alert("Success", "Registration successful!", [
@@ -235,8 +247,8 @@ const Register = () => {
                                         ? "#4B5563"
                                         : "#C4C4C4"
                                     : isDarkMode
-                                    ? "#60A5FA"
-                                    : colors.accent,
+                                      ? "#60A5FA"
+                                      : colors.accent,
                             },
                         ]}
                         onPress={handleRegister}
