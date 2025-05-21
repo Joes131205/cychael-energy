@@ -10,6 +10,10 @@ import {
 import { useState } from "react";
 import { Alert } from "react-native";
 import { useTheme } from "../hooks/useTheme";
+import Button from "../components/common/Button";
+import { db } from "../utils/firebase";
+import { doc, updateDoc } from "firebase/firestore";
+import { useUser } from "../hooks/useUser";
 
 interface Device {
     name: string;
@@ -23,6 +27,7 @@ const EnergyInputPage = () => {
     ]);
     const [result, setResult] = useState<number | null>(null);
     const { colors, isDarkMode } = useTheme();
+    const { user, userData } = useUser();
 
     const handleAddDevice = () => {
         setDevices([...devices, { name: "", watt: 0, hours: 0 }]);
@@ -70,6 +75,26 @@ const EnergyInputPage = () => {
         });
 
         setResult(totalKWhPerDay);
+    };
+
+    const saveEnergyData = async () => {
+        try {
+            const docRef = doc(db, "users", userData.id);
+            await updateDoc(docRef, {
+                "energyData.dailyUsage": result,
+                "energyData.monthlyUsage": result! * 30,
+            });
+
+            Alert.alert(
+                "Success",
+                "Your energy consumption data has been saved successfully!"
+            );
+        } catch (error) {
+            Alert.alert(
+                "Error",
+                "Failed to save energy consumption data. Please try again."
+            );
+        }
     };
 
     return (
@@ -274,6 +299,30 @@ const EnergyInputPage = () => {
                         >
                             {(result * 365).toFixed(2)} kWh
                         </Text>
+                    </View>
+
+                    <View>
+                        <TouchableOpacity
+                            onPress={saveEnergyData}
+                            style={[
+                                styles.calculateButton,
+                                {
+                                    backgroundColor: colors.accent,
+                                    shadowColor: isDarkMode
+                                        ? colors.accent
+                                        : "#A5A822",
+                                },
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.calculateButtonText,
+                                    { color: colors.primary },
+                                ]}
+                            >
+                                Save Energy Consumption
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             )}

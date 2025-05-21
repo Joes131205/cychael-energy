@@ -168,6 +168,29 @@ const NavBarComponent = () => {
                                     Debug Input
                                 </Text>
                             </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={{
+                                    paddingHorizontal: 16,
+                                    paddingVertical: 8,
+                                    backgroundColor: colors.secondary,
+                                    borderRadius: 20,
+                                }}
+                                onPress={() =>
+                                    navigation.navigate(
+                                        "EnergyAnalysisResultPage" as never
+                                    )
+                                }
+                            >
+                                <Text
+                                    style={{
+                                        color: colors.background,
+                                        fontWeight: "500",
+                                    }}
+                                >
+                                    Debug Input
+                                </Text>
+                            </TouchableOpacity>
                         </View>
                     )}
                 </View>
