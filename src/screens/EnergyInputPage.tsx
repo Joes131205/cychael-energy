@@ -200,8 +200,8 @@ const EnergyInputPage = () => {
                 style={[
                     styles.calculateButton,
                     {
-                        backgroundColor: colors.accent,
-                        shadowColor: isDarkMode ? colors.accent : "#A5A822",
+                        backgroundColor: isDarkMode ? "#198754" : colors.accent,
+                        shadowColor: isDarkMode ? "#FFFFF" : "#A5A822",
                     },
                 ]}
             >
@@ -211,7 +211,7 @@ const EnergyInputPage = () => {
                         { color: colors.primary },
                     ]}
                 >
-                    Calculate Consumption
+                    Consumptions
                 </Text>
             </TouchableOpacity>
 

@@ -96,7 +96,7 @@ const DashboardPage = () => {
                             <Text
                                 className="text-sm mt-[5px]"
                                 style={{
-                                    color: isDarkMode ? colors.text : "#99DDC8",
+                                    color: "white" ,
                                 }}
                             >
                                 Today
@@ -113,7 +113,8 @@ const DashboardPage = () => {
                             <Text
                                 className="text-sm mt-[5px]"
                                 style={{
-                                    color: isDarkMode ? colors.text : "#99DDC8",
+                                    color: "white" ,
+
                                 }}
                             >
                                 This Month
@@ -163,7 +164,7 @@ const DashboardPage = () => {
                         <Ionicons
                             name="analytics-outline"
                             size={24}
-                            color={colors.secondary}
+                            color={colors.textSecondary}
                         />
                     </View>
                     <Text
