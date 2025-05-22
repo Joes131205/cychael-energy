@@ -25,7 +25,7 @@ const EnergyInputPage = () => {
     const [devices, setDevices] = useState<Device[]>([
         { name: "", watt: 0, hours: 0 },
     ]);
-    const [result, setResult] = useState<number | null>(null);
+    const [result, setResult] = useState<number>(0);
     const { colors, isDarkMode } = useTheme();
     const { user, userData } = useUser();
 
@@ -81,8 +81,24 @@ const EnergyInputPage = () => {
         try {
             const docRef = doc(db, "users", userData.id);
             await updateDoc(docRef, {
-                "energyData.dailyUsage": result,
-                "energyData.monthlyUsage": result! * 30,
+                energyData: userData.energyData
+                    ? [
+                          ...userData.energyData,
+                          {
+                              date: new Date().toISOString(),
+                              deviceList: devices.map((device) => ({
+                                  name: device.name,
+                                  watt: device.watt,
+                                  hours: device.hours,
+                              })),
+                              energyUsage: {
+                                  daily: result,
+                                  monthly: result * 30,
+                                  yearly: result * 365,
+                              },
+                          },
+                      ]
+                    : [],
             });
 
             Alert.alert(

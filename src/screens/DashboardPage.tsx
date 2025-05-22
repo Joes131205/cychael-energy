@@ -13,7 +13,7 @@ const DashboardPage = () => {
     const { colors, isDarkMode, toggleTheme } = useTheme();
     const user = useUser();
 
-    console.log(user.userData.energyData);
+    console.log(user);
 
     const handleLogout = async () => {
         try {
@@ -75,12 +75,17 @@ const DashboardPage = () => {
                                 className="text-2xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {user?.userData?.energyData?.dailyUsage} kWh
+                                {user?.userData?.energyData?.length > 0
+                                    ? user.userData.energyData[
+                                          user.userData.energyData.length - 1
+                                      ].energyUsage.daily.toFixed(2)
+                                    : "0"}{" "}
+                                kWh{" "}
                             </Text>
                             <Text
                                 className="text-sm mt-[5px]"
                                 style={{
-                                    color: isDarkMode ? colors.text : "#99DDC8",
+                                    color: "white",
                                 }}
                             >
                                 Today
@@ -92,15 +97,42 @@ const DashboardPage = () => {
                                 className="text-2xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {user?.userData?.energyData?.monthlyUsage} kWh
+                                {user?.userData?.energyData?.length > 0
+                                    ? user.userData.energyData[
+                                          user.userData.energyData.length - 1
+                                      ].energyUsage.monthly.toFixed(2)
+                                    : "0"}{" "}
+                                kWh{" "}
                             </Text>
                             <Text
                                 className="text-sm mt-[5px]"
                                 style={{
-                                    color: isDarkMode ? colors.text : "#99DDC8",
+                                    color: "white",
                                 }}
                             >
                                 This Month
+                            </Text>
+                        </View>
+                        <View className="w-[1px] bg-white/20" />
+                        <View className="items-center">
+                            <Text
+                                className="text-2xl font-bold"
+                                style={{ color: colors.accent }}
+                            >
+                                {user?.userData?.energyData?.length > 0
+                                    ? user.userData.energyData[
+                                          user.userData.energyData.length - 1
+                                      ].energyUsage.yearly.toFixed(2)
+                                    : "0"}{" "}
+                                kWh{" "}
+                            </Text>
+                            <Text
+                                className="text-sm mt-[5px]"
+                                style={{
+                                    color: "white",
+                                }}
+                            >
+                                This Year
                             </Text>
                         </View>
                     </View>

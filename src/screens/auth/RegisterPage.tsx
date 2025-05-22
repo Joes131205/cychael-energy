@@ -83,10 +83,16 @@ const Register = () => {
                     displayName: name,
                     email: userCredential.user.email,
                     createdAt: new Date(),
-                    energyData: {
-                        dailyUsage: 0,
-                        monthlyUsage: 0,
-                    },
+
+                    // Energy Data should be an array of obj instead xd
+                    /*
+                        {
+                            energyUsage: {}
+                            deviceList: {}
+                            date: Date
+                        }
+                    */
+                    energyData: [],
                 });
 
                 Alert.alert("Success", "Registration successful!", [
