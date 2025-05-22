@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../utils/firebase";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,7 +13,10 @@ const DashboardPage = () => {
     const { colors, isDarkMode, toggleTheme } = useTheme();
     const user = useUser();
 
-    console.log(user.userData.energyData);
+    const dailyUsage = user?.userData?.energyData?.dailyUsage ?? 0;
+    const monthlyUsage = user?.userData?.energyData?.monthlyUsage ?? 0;
+
+    const displayName = user?.user?.displayName ?? "User";
 
     const handleLogout = async () => {
         try {
@@ -48,7 +51,7 @@ const DashboardPage = () => {
                             Welcome back,
                         </Text>
                         <Text className="text-2xl font-bold text-white">
-                            {user?.user?.displayName || "User"}
+                            {displayName}
                         </Text>
                     </View>
 
@@ -75,13 +78,11 @@ const DashboardPage = () => {
                                 className="text-2xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {user?.userData?.energyData?.dailyUsage} kWh
+                                {dailyUsage} kWh
                             </Text>
                             <Text
                                 className="text-sm mt-[5px]"
-                                style={{
-                                    color: "white" ,
-                                }}
+                                style={{ color: "white" }}
                             >
                                 Today
                             </Text>
@@ -92,14 +93,11 @@ const DashboardPage = () => {
                                 className="text-2xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {user?.userData?.energyData?.monthlyUsage} kWh
+                                {monthlyUsage} kWh
                             </Text>
                             <Text
                                 className="text-sm mt-[5px]"
-                                style={{
-                                    color: "white" ,
-
-                                }}
+                                style={{ color: "white" }}
                             >
                                 This Month
                             </Text>
