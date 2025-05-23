@@ -10,6 +10,7 @@ export interface ThemeColors {
     card: string;
     text: string;
     textSecondary: string;
+    iconSecondary: string;
     border: string;
     success: string;
     danger: string;
@@ -30,6 +31,7 @@ export const lightColors: ThemeColors = {
     secondary: "#99DDC8",
     background: "#F5F9F8",
     card: "#FFFFFF",
+    iconSecondary: "#000000",
     text: "#283F3B",
     textSecondary: "#5A7A74",
     border: "#D0E0DD",
@@ -42,6 +44,7 @@ export const lightColors: ThemeColors = {
 export const darkColors: ThemeColors = {
     primary: "#99DDC8",
     secondary: "#1A2E2A",
+    iconSecondary: "#FFFFFF",
     background: "#121C1A",
     card: "#1E2C29",
     text: "#E0F2EF",
@@ -50,7 +53,7 @@ export const darkColors: ThemeColors = {
     success: "#4CAF50",
     danger: "#EF4444",
     warning: "#F59E0B",
-    accent: "#D2D229",
+    accent: "#198754",
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);

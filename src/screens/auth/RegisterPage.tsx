@@ -83,10 +83,7 @@ const Register = () => {
                     displayName: name,
                     email: userCredential.user.email,
                     createdAt: new Date(),
-                    energyData: {
-                        dailyUsage: 0,
-                        monthlyUsage: 0,
-                    },
+                    energyData: [],
                 });
 
                 Alert.alert("Success", "Registration successful!", [

@@ -54,7 +54,7 @@ const SettingsPage = () => {
                         <Ionicons
                             name="person-outline"
                             size={22}
-                            color={colors.secondary}
+                            color={colors.iconSecondary}
                         />
                     </View>
                     <Text style={[styles.settingText, { color: colors.text }]}>
@@ -77,7 +77,7 @@ const SettingsPage = () => {
                         <Ionicons
                             name="shield-checkmark-outline"
                             size={22}
-                            color={colors.secondary}
+                            color={colors.iconSecondary}
                         />
                     </View>
                     <Text style={[styles.settingText, { color: colors.text }]}>
@@ -109,7 +109,7 @@ const SettingsPage = () => {
                         <Ionicons
                             name={isDarkMode ? "sunny-outline" : "moon-outline"}
                             size={22}
-                            color={colors.secondary}
+                            color={colors.iconSecondary}
                         />
                     </View>
                     <Text style={[styles.settingText, { color: colors.text }]}>
@@ -120,7 +120,7 @@ const SettingsPage = () => {
                             styles.themeToggle,
                             {
                                 backgroundColor: isDarkMode
-                                    ? colors.secondary
+                                    ? colors.iconSecondary
                                     : colors.border,
                             },
                         ]}
@@ -155,7 +155,7 @@ const SettingsPage = () => {
                         <Ionicons
                             name="information-circle-outline"
                             size={22}
-                            color={colors.secondary}
+                            color={colors.iconSecondary}
                         />
                     </View>
                     <Text style={[styles.settingText, { color: colors.text }]}>
@@ -178,7 +178,7 @@ const SettingsPage = () => {
                         <Ionicons
                             name="document-text-outline"
                             size={22}
-                            color={colors.secondary}
+                            color={colors.iconSecondary}
                         />
                     </View>
                     <Text style={[styles.settingText, { color: colors.text }]}>
@@ -201,7 +201,7 @@ const SettingsPage = () => {
                         <Ionicons
                             name="help-circle-outline"
                             size={22}
-                            color={colors.secondary}
+                            color={colors.iconSecondary}
                         />
                     </View>
                     <Text style={[styles.settingText, { color: colors.text }]}>

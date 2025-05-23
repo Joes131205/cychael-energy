@@ -20,11 +20,7 @@ const NavBarComponent = () => {
 
         return () => unsubscribe();
     }, []);
-    const handleLogOut = async () => {
-        await signOut(auth);
 
-        navigation.navigate("Login" as never);
-    };
     return (
         <>
             <StatusBar
