@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../utils/firebase";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,10 +13,7 @@ const DashboardPage = () => {
     const { colors, isDarkMode, toggleTheme } = useTheme();
     const user = useUser();
 
-    const dailyUsage = user?.userData?.energyData?.dailyUsage ?? 0;
-    const monthlyUsage = user?.userData?.energyData?.monthlyUsage ?? 0;
-
-    const displayName = user?.user?.displayName ?? "User";
+    console.log(user);
 
     const handleLogout = async () => {
         try {
@@ -35,10 +32,12 @@ const DashboardPage = () => {
             <LinearGradient
                 colors={
                     isDarkMode
-                        ? [colors.secondary, colors.primary]
-                        : [colors.primary, colors.secondary]
+                        ? ["#1A2E2A", "#121C1A"] // Dark mode gradient (darker to lighter)
+                        : ["#283F3B", "#99DDC8"] // Light mode gradient (primary to secondary)
                 }
-                className="px-5 pt-[50px] pb-[30px] rounded-b-[30px]"
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="px-5 pt-[60px] pb-[35px] rounded-b-[30px]"
             >
                 <View className="flex-row justify-between items-center mb-5">
                     <View>
@@ -51,7 +50,7 @@ const DashboardPage = () => {
                             Welcome back,
                         </Text>
                         <Text className="text-2xl font-bold text-white">
-                            {displayName}
+                            {user?.user?.displayName || "User"}
                         </Text>
                     </View>
 
@@ -67,39 +66,113 @@ const DashboardPage = () => {
                         />
                     </TouchableOpacity>
                 </View>
-
-                <View className="bg-white/10 rounded-[15px] p-5">
-                    <Text className="text-white text-base font-bold mb-[15px]">
+                <View className="bg-white/10 rounded-[15px] p-5 mb-3">
+                    <Text className="text-white text-base font-bold mb-4">
                         Your Energy Summary
-                    </Text>
-                    <View className="flex-row justify-around">
-                        <View className="items-center">
+                        {user?.userData?.energyData?.length > 0 && (
+                            <Text className="text-white/70 text-xs font-normal">
+                                {"\n"}Last updated:{" "}
+                                {new Date(
+                                    user.userData.energyData[
+                                        user.userData.energyData.length - 1
+                                    ].date
+                                ).toLocaleDateString("en-US", {
+                                    weekday: "short",
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                })}{" "}
+                                at{" "}
+                                {new Date(
+                                    user.userData.energyData[
+                                        user.userData.energyData.length - 1
+                                    ].date
+                                ).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
+                            </Text>
+                        )}
+                    </Text>{" "}
+                    <View className="flex-row justify-between">
+                        {/* Daily Usage */}
+                        <View className="items-center flex-1">
+                            <View className="bg-white/5 rounded-full h-16 w-16 items-center justify-center mb-2">
+                                <Ionicons
+                                    name="flash-outline"
+                                    size={24}
+                                    color={colors.accent}
+                                />
+                            </View>
                             <Text
-                                className="text-2xl font-bold"
+                                className="text-xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {dailyUsage} kWh
+                                {user?.userData?.energyData?.length > 0
+                                    ? user.userData.energyData[
+                                          user.userData.energyData.length - 1
+                                      ].energyUsage.daily.toFixed(1)
+                                    : "0"}
                             </Text>
                             <Text
-                                className="text-sm mt-[5px]"
+                                className="text-xs"
                                 style={{ color: "white" }}
                             >
-                                Today
+                                kWh Today
                             </Text>
                         </View>
-                        <View className="w-[1px] bg-white/20" />
-                        <View className="items-center">
+
+                        {/* Monthly Usage */}
+                        <View className="items-center flex-1">
+                            <View className="bg-white/5 rounded-full h-16 w-16 items-center justify-center mb-2">
+                                <Ionicons
+                                    name="calendar-outline"
+                                    size={22}
+                                    color={colors.accent}
+                                />
+                            </View>
                             <Text
-                                className="text-2xl font-bold"
+                                className="text-xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {monthlyUsage} kWh
+                                {user?.userData?.energyData?.length > 0
+                                    ? user.userData.energyData[
+                                          user.userData.energyData.length - 1
+                                      ].energyUsage.monthly.toFixed(1)
+                                    : "0"}
                             </Text>
                             <Text
-                                className="text-sm mt-[5px]"
+                                className="text-xs"
                                 style={{ color: "white" }}
                             >
-                                This Month
+                                kWh Monthly
+                            </Text>
+                        </View>
+
+                        {/* Yearly Usage */}
+                        <View className="items-center flex-1">
+                            <View className="bg-white/5 rounded-full h-16 w-16 items-center justify-center mb-2">
+                                <Ionicons
+                                    name="trending-up-outline"
+                                    size={22}
+                                    color={colors.accent}
+                                />
+                            </View>
+                            <Text
+                                className="text-xl font-bold"
+                                style={{ color: colors.accent }}
+                            >
+                                {user?.userData?.energyData?.length > 0
+                                    ? user.userData.energyData[
+                                          user.userData.energyData.length - 1
+                                      ].energyUsage.yearly.toFixed(1)
+                                    : "0"}
+                            </Text>
+                            <Text
+                                className="text-xs"
+                                style={{ color: "white" }}
+                            >
+                                kWh Yearly
                             </Text>
                         </View>
                     </View>
@@ -146,7 +219,7 @@ const DashboardPage = () => {
                         <Ionicons
                             name="analytics-outline"
                             size={24}
-                            color={colors.textSecondary}
+                            color={colors.secondary}
                         />
                     </View>
                     <Text
