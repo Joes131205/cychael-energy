@@ -1,20 +1,157 @@
-import { View, Text, Dimensions, StyleSheet, ScrollView } from "react-native";
+import {
+    View,
+    Text,
+    Dimensions,
+    StyleSheet,
+    ScrollView,
+    ActivityIndicator,
+} from "react-native";
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../hooks/useTheme";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useUser } from "../hooks/useUser";
 
 const screenWidth = Dimensions.get("window").width;
 
 const EnergyAnalysisResultPage = () => {
     const { colors, isDarkMode } = useTheme();
-    const user = useUser();
+    const { userData, loading } = useUser();
 
-    console.log(user);
+    const [data, setData] = useState(userData?.energyData || []);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const [data, setData] = useState(user.userData.energyData);
-    // Dynamic chart config based on theme
+    useEffect(() => {
+        if (!loading) {
+            if (userData?.energyData) {
+                const sortedData = [...userData.energyData].sort(
+                    (a, b) =>
+                        new Date(a.date).getTime() - new Date(b.date).getTime()
+                );
+                setData(sortedData);
+            } else {
+                setData([]);
+            }
+            setIsLoading(false);
+        }
+    }, [userData, loading]);
+
+    const applianceUsageData = useMemo(() => {
+        if (!data || data.length === 0) return [];
+
+        const latestEntry = [...data].sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        )[0];
+
+        if (!latestEntry?.deviceList) return [];
+
+        const totalWattage = latestEntry.deviceList.reduce(
+            (total, device) => total + (device.watt * device.hours || 0),
+            0
+        );
+
+        const deviceMap = new Map();
+        latestEntry.deviceList.forEach((device) => {
+            const deviceUsage =
+                ((device.watt * device.hours) / totalWattage) * 100;
+            deviceMap.set(
+                device.name,
+                (deviceMap.get(device.name) || 0) + deviceUsage
+            );
+        });
+
+        const colorPalette = [
+            colors.accent,
+            colors.secondary,
+            "#8AC6B0",
+            colors.primary,
+            "#C4DFDA",
+            "#FFA69E",
+            "#AED9E0",
+        ];
+
+        return Array.from(deviceMap.entries())
+            .map(([name, usage], index) => ({
+                name,
+                usage: parseFloat(usage.toFixed(1)),
+                color: colorPalette[index % colorPalette.length],
+                legendFontColor: colors.textSecondary,
+            }))
+            .sort((a, b) => b.usage - a.usage)
+            .slice(0, 5);
+    }, [data, colors]);
+
+    const monthlyData = useMemo(() => {
+        if (!data || data.length === 0)
+            return {
+                labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+                datasets: [{ data: [0, 0, 0, 0] }],
+            };
+
+        const last28Days = data.slice(-28);
+
+        const weeks = [
+            last28Days.slice(0, 7),
+            last28Days.slice(7, 14),
+            last28Days.slice(14, 21),
+            last28Days.slice(21, 28),
+        ];
+
+        const weeklyTotals = weeks.map((week) =>
+            week.reduce(
+                (total, day) => total + (day.energyUsage?.daily || 0),
+                0
+            )
+        );
+
+        return {
+            labels: ["W1", "W2", "W3", "W4"],
+            datasets: [
+                {
+                    data:
+                        weeklyTotals.length === 4 ? weeklyTotals : [0, 0, 0, 0],
+                },
+            ],
+        };
+    }, [data]);
+
+    const comparisonData = useMemo(() => {
+        if (!data || data.length < 8)
+            return {
+                currentWeek: 0,
+                previousWeek: 0,
+                savingsPercentage: 0,
+                peakHour: "N/A",
+                lowestHour: "N/A",
+            };
+
+        const currentWeekData = data.slice(-7);
+        const previousWeekData = data.slice(-14, -7);
+
+        const currentWeekTotal = currentWeekData.reduce(
+            (total: number, day) => total + (day.energyUsage?.daily || 0),
+            0
+        );
+
+        const previousWeekTotal = previousWeekData.reduce(
+            (total, day) => total + (day.energyUsage?.daily || 0),
+            0
+        );
+
+        const savingsPercentage =
+            previousWeekTotal === 0
+                ? 0
+                : ((previousWeekTotal - currentWeekTotal) / previousWeekTotal) *
+                  100;
+
+        return {
+            currentWeek: currentWeekTotal,
+            previousWeek: previousWeekTotal,
+            savingsPercentage: parseFloat(savingsPercentage.toFixed(1)),
+            peakHour: "7-8 PM",
+            lowestHour: "3-4 AM",
+        };
+    }, [data]);
     const chartConfig = {
         backgroundGradientFrom: isDarkMode ? colors.card : colors.background,
         backgroundGradientTo: isDarkMode ? colors.card : colors.background,
@@ -22,10 +159,10 @@ const EnergyAnalysisResultPage = () => {
         labelColor: (opacity = 1) =>
             `rgba(${hexToRgb(colors.textSecondary)}, ${opacity})`,
         strokeWidth: 3,
-        barPercentage: 0.7,
+        barPercentage: 0.65,
         decimalPlaces: 0,
         propsForDots: {
-            r: "5",
+            r: "4",
             strokeWidth: "2",
             stroke: colors.accent,
         },
@@ -34,86 +171,29 @@ const EnergyAnalysisResultPage = () => {
             stroke: colors.border,
             strokeWidth: 0.5,
         },
+        formatXLabel: (label: string) => label.substring(0, 3), // Shorten labels if needed
+        horizontalLabelRotation: 0,
+        useShadowColorFromDataset: false,
     };
-
-    // Enhanced dummy data
-    const energyData = {
-        weekly: {
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-                {
-                    data:
-                        Array.isArray(data) && data.length > 0
-                            ? data
-                                  .slice(0, 7)
-                                  .map((item) => item.energyUsage?.daily || 0)
-                            : [0, 0, 0, 0, 0, 0, 0],
-                    color: (opacity = 1) =>
-                        `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-                    strokeWidth: 3,
-                },
-            ],
-            legend: ["Weekly Energy Output (kWh)"],
-        },
-        monthly: {
-            labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-            datasets: [
-                {
-                    data: [320, 350, 310, 380],
-                    colors: [
-                        (opacity = 1) =>
-                            `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-                        (opacity = 1) =>
-                            `rgba(${hexToRgb(colors.secondary)}, ${opacity})`,
-                        (opacity = 1) =>
-                            `rgba(${hexToRgb(colors.primary)}, ${opacity})`,
-                        (opacity = 1) =>
-                            `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-                    ],
-                },
-            ],
-            legend: ["Monthly Energy Output (kWh)"],
-        },
-        applianceUsage: [
-            {
-                name: "AC",
-                usage: 35,
-                color: colors.accent,
-                legendFontColor: colors.textSecondary,
-            },
-            {
-                name: "Lights",
-                usage: 20,
-                color: colors.secondary,
-                legendFontColor: colors.textSecondary,
-            },
-            {
-                name: "Fridge",
-                usage: 25,
-                color: "#8AC6B0",
-                legendFontColor: colors.textSecondary,
-            },
-            {
-                name: "TV",
-                usage: 10,
-                color: colors.primary,
-                legendFontColor: colors.textSecondary,
-            },
-            {
-                name: "Others",
-                usage: 10,
-                color: "#C4DFDA",
-                legendFontColor: colors.textSecondary,
-            },
-        ],
-        comparison: {
-            currentMonth: 1360,
-            previousMonth: 1420,
-            savingsPercentage: 4.2,
-            peakHour: "7-8 PM",
-            lowestHour: "3-4 AM",
-        },
-    };
+    if (isLoading || loading) {
+        return (
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                        justifyContent: "center",
+                        alignItems: "center",
+                    },
+                ]}
+            >
+                <ActivityIndicator size="large" color={colors.accent} />
+                <Text style={{ marginTop: 20, color: colors.text }}>
+                    Loading energy data...
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <ScrollView
@@ -136,15 +216,45 @@ const EnergyAnalysisResultPage = () => {
                     Your comprehensive energy usage analysis
                 </Text>
             </LinearGradient>
-
             {/* Weekly Energy Chart */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Weekly Energy Consumption
-                </Text>
+                </Text>{" "}
                 <LineChart
-                    data={energyData.weekly}
-                    width={screenWidth - 40}
+                    data={{
+                        labels: [
+                            "Mon",
+                            "Tue",
+                            "Wed",
+                            "Thu",
+                            "Fri",
+                            "Sat",
+                            "Sun",
+                        ],
+                        datasets: [
+                            {
+                                data:
+                                    Array.isArray(data) && data.length > 0
+                                        ? data
+                                              .slice(-7)
+                                              .reverse()
+                                              .map(
+                                                  (item) =>
+                                                      item.energyUsage?.daily ||
+                                                      0
+                                              )
+                                        : [0, 0, 0, 0, 0, 0, 0],
+                                color: (opacity = 1) =>
+                                    `rgba(${hexToRgb(
+                                        colors.accent
+                                    )}, ${opacity})`,
+                                strokeWidth: 3,
+                            },
+                        ],
+                        legend: ["Weekly Energy Output (kWh)"],
+                    }}
+                    width={screenWidth - 60}
                     height={240}
                     chartConfig={chartConfig}
                     bezier
@@ -152,6 +262,7 @@ const EnergyAnalysisResultPage = () => {
                     withVerticalLines={false}
                     withHorizontalLines={true}
                     withShadow={true}
+                    withInnerLines={false}
                 />
                 <View style={styles.statsRow}>
                     <View style={styles.statItem}>
@@ -205,15 +316,14 @@ const EnergyAnalysisResultPage = () => {
                     </View>
                 </View>
             </View>
-
             {/* Monthly Energy Chart */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Monthly Energy Trend
-                </Text>
+                </Text>{" "}
                 <BarChart
-                    data={energyData.monthly}
-                    width={screenWidth - 40}
+                    data={monthlyData}
+                    width={screenWidth - 60}
                     height={220}
                     chartConfig={chartConfig}
                     style={styles.chart}
@@ -221,6 +331,7 @@ const EnergyAnalysisResultPage = () => {
                     showBarTops={false}
                     fromZero={true}
                     yAxisLabel={""}
+                    withInnerLines={false}
                 />
                 <View style={styles.statsRow}>
                     <View style={styles.statItem}>
@@ -235,7 +346,10 @@ const EnergyAnalysisResultPage = () => {
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
                         >
-                            1,360 kWh
+                            {monthlyData.datasets[0].data
+                                .reduce((a, b) => a + b, 0)
+                                .toFixed(1)}{" "}
+                            kWh
                         </Text>
                     </View>
                     <View style={styles.statItem}>
@@ -251,210 +365,83 @@ const EnergyAnalysisResultPage = () => {
                             style={[
                                 styles.statValue,
                                 styles.savingsText,
-                                { color: colors.success },
+                                {
+                                    color:
+                                        comparisonData.savingsPercentage >= 0
+                                            ? colors.success
+                                            : "#FF5252",
+                                },
                             ]}
                         >
-                            ↓ {energyData.comparison.savingsPercentage}%
+                            {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}{" "}
+                            {Math.abs(comparisonData.savingsPercentage).toFixed(
+                                1
+                            )}
+                            %
                         </Text>
                     </View>
                 </View>
-            </View>
-
+            </View>{" "}
             {/* Appliance Breakdown */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Appliance Energy Usage
                 </Text>
-                <PieChart
-                    data={energyData.applianceUsage}
-                    width={screenWidth - 40}
-                    height={200}
-                    chartConfig={chartConfig}
-                    accessor="usage"
-                    backgroundColor="transparent"
-                    paddingLeft="15"
-                    absolute
-                    style={styles.chart}
-                />
-                <View style={styles.applianceList}>
-                    {energyData.applianceUsage.map((item, index) => (
-                        <View key={index} style={styles.applianceItem}>
-                            <View
-                                style={[
-                                    styles.colorIndicator,
-                                    { backgroundColor: item.color },
-                                ]}
-                            />
-                            <Text
-                                style={[
-                                    styles.applianceName,
-                                    { color: colors.textSecondary },
-                                ]}
-                            >
-                                {item.name}
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.applianceValue,
-                                    { color: colors.text },
-                                ]}
-                            >
-                                {item.usage}%
-                            </Text>
+                {applianceUsageData.length > 0 ? (
+                    <>
+                        {" "}
+                        <PieChart
+                            data={applianceUsageData}
+                            width={screenWidth - 60}
+                            height={200}
+                            chartConfig={chartConfig}
+                            accessor="usage"
+                            backgroundColor="transparent"
+                            paddingLeft="25"
+                            absolute
+                            style={styles.chart}
+                            hasLegend={false}
+                        />{" "}
+                        <View style={styles.applianceList}>
+                            {applianceUsageData.map((item, index) => (
+                                <View key={index} style={styles.applianceItem}>
+                                    <View
+                                        style={[
+                                            styles.colorIndicator,
+                                            { backgroundColor: item.color },
+                                        ]}
+                                    />
+                                    <Text
+                                        style={[
+                                            styles.applianceName,
+                                            { color: colors.textSecondary },
+                                        ]}
+                                    >
+                                        {item.name}
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.applianceValue,
+                                            { color: colors.text },
+                                        ]}
+                                    >
+                                        {item.usage}%
+                                    </Text>
+                                </View>
+                            ))}{" "}
                         </View>
-                    ))}
-                </View>
-            </View>
-
-            {/* Insights Section */}
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
-                <Text style={[styles.cardTitle, { color: colors.text }]}>
-                    Energy Insights
-                </Text>
-                <View
-                    style={[
-                        styles.insightItem,
-                        {
-                            backgroundColor: isDarkMode
-                                ? colors.secondary
-                                : colors.background,
-                        },
-                    ]}
-                >
+                    </>
+                ) : (
                     <Text
-                        style={[
-                            styles.insightText,
-                            { color: colors.textSecondary },
-                        ]}
+                        style={{
+                            color: colors.textSecondary,
+                            textAlign: "center",
+                            padding: 20,
+                        }}
                     >
-                        Your peak usage hour is{" "}
-                        <Text
-                            style={[styles.highlight, { color: colors.text }]}
-                        >
-                            {energyData.comparison.peakHour}
-                        </Text>
+                        No appliance data available
                     </Text>
-                </View>
-                <View
-                    style={[
-                        styles.insightItem,
-                        {
-                            backgroundColor: isDarkMode
-                                ? colors.secondary
-                                : colors.background,
-                        },
-                    ]}
-                >
-                    <Text
-                        style={[
-                            styles.insightText,
-                            { color: colors.textSecondary },
-                        ]}
-                    >
-                        You've saved{" "}
-                        <Text
-                            style={[styles.highlight, { color: colors.text }]}
-                        >
-                            {energyData.comparison.savingsPercentage}%
-                        </Text>{" "}
-                        compared to last month
-                    </Text>
-                </View>
-                <View
-                    style={[
-                        styles.insightItem,
-                        {
-                            backgroundColor: isDarkMode
-                                ? colors.secondary
-                                : colors.background,
-                        },
-                    ]}
-                >
-                    <Text
-                        style={[
-                            styles.insightText,
-                            { color: colors.textSecondary },
-                        ]}
-                    >
-                        Best time for energy-saving activities:{" "}
-                        <Text
-                            style={[styles.highlight, { color: colors.text }]}
-                        >
-                            {energyData.comparison.lowestHour}
-                        </Text>
-                    </Text>
-                </View>
-            </View>
-
-            {/* Recommendations */}
-            <View
-                style={[
-                    styles.card,
-                    styles.recommendationCard,
-                    {
-                        backgroundColor: colors.card,
-                        borderLeftColor: colors.accent,
-                    },
-                ]}
-            >
-                <Text style={[styles.cardTitle, { color: colors.text }]}>
-                    Recommendations
-                </Text>
-                <View style={styles.recommendationItem}>
-                    <Text
-                        style={[
-                            styles.recommendationBullet,
-                            { color: colors.accent },
-                        ]}
-                    >
-                        •
-                    </Text>
-                    <Text
-                        style={[
-                            styles.recommendationText,
-                            { color: colors.textSecondary },
-                        ]}
-                    >
-                        Consider upgrading your AC unit to an energy-efficient
-                        model
-                    </Text>
-                </View>
-                <View style={styles.recommendationItem}>
-                    <Text
-                        style={[
-                            styles.recommendationBullet,
-                            { color: colors.accent },
-                        ]}
-                    >
-                        •
-                    </Text>
-                    <Text
-                        style={[
-                            styles.recommendationText,
-                            { color: colors.textSecondary },
-                        ]}
-                    >
-                        Install smart plugs to reduce standby power consumption
-                    </Text>
-                </View>
-                <View style={styles.recommendationItem}>
-                    <Text
-                        style={[
-                            styles.recommendationBullet,
-                            { color: colors.accent },
-                        ]}
-                    >
-                        •
-                    </Text>
-                    <Text
-                        style={[
-                            styles.recommendationText,
-                            { color: colors.textSecondary },
-                        ]}
-                    >
-                        Shift laundry to off-peak hours (after 9 PM)
-                    </Text>
-                </View>
+                )}{" "}
             </View>
         </ScrollView>
     );
@@ -504,6 +491,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 4,
+        overflow: "hidden", // Prevent content from overflowing card bounds
     },
     recommendationCard: {
         borderLeftWidth: 4,
@@ -516,6 +504,7 @@ const styles = StyleSheet.create({
     chart: {
         borderRadius: 12,
         marginBottom: 16,
+        marginLeft: -15, // Adjust horizontal positioning to prevent overflow
     },
     statsRow: {
         flexDirection: "row",

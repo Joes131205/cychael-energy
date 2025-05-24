@@ -1,4 +1,8 @@
-import { useNavigation } from "@react-navigation/native";
+import {
+    useNavigation,
+    useNavigationState,
+    useRoute,
+} from "@react-navigation/native";
 import { View, Text, TouchableOpacity, StatusBar } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { getAuth, onAuthStateChanged, signOut, User } from "firebase/auth";
@@ -12,6 +16,14 @@ const NavBarComponent = () => {
     const auth = getAuth(app);
     const [user, setUser] = useState<User | null>(null);
     const { colors, isDarkMode } = useTheme();
+
+    const routeName = useNavigationState(
+        (state) => state?.routes[state.index]?.name || "Dashboard"
+    );
+
+    const isRouteActive = (route: string) => {
+        return routeName === route;
+    };
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -50,9 +62,17 @@ const NavBarComponent = () => {
                                 }
                             >
                                 <Ionicons
-                                    name="home-outline"
+                                    name={
+                                        isRouteActive("Dashboard")
+                                            ? "home"
+                                            : "home-outline"
+                                    }
                                     size={30}
-                                    color={colors.text}
+                                    color={
+                                        isRouteActive("Dashboard")
+                                            ? colors.primary
+                                            : colors.text
+                                    }
                                 />
                             </TouchableOpacity>
                             <TouchableOpacity
@@ -64,9 +84,21 @@ const NavBarComponent = () => {
                                 }
                             >
                                 <Ionicons
-                                    name="bar-chart-outline"
+                                    name={
+                                        isRouteActive(
+                                            "EnergyAnalysisResultPage"
+                                        )
+                                            ? "bar-chart"
+                                            : "bar-chart-outline"
+                                    }
                                     size={30}
-                                    color={colors.text}
+                                    color={
+                                        isRouteActive(
+                                            "EnergyAnalysisResultPage"
+                                        )
+                                            ? colors.primary
+                                            : colors.text
+                                    }
                                 />
                             </TouchableOpacity>
                             <TouchableOpacity
@@ -78,9 +110,17 @@ const NavBarComponent = () => {
                                 }
                             >
                                 <Ionicons
-                                    name="calculator-outline"
+                                    name={
+                                        isRouteActive("EnergyInputPage")
+                                            ? "calculator"
+                                            : "calculator-outline"
+                                    }
                                     size={30}
-                                    color={colors.text}
+                                    color={
+                                        isRouteActive("EnergyInputPage")
+                                            ? colors.primary
+                                            : colors.text
+                                    }
                                 />
                             </TouchableOpacity>
 
@@ -91,9 +131,17 @@ const NavBarComponent = () => {
                                 }
                             >
                                 <Ionicons
-                                    name="people-outline"
+                                    name={
+                                        isRouteActive("Settings")
+                                            ? "people"
+                                            : "people-outline"
+                                    }
                                     size={30}
-                                    color={colors.text}
+                                    color={
+                                        isRouteActive("Settings")
+                                            ? colors.primary
+                                            : colors.text
+                                    }
                                 />
                             </TouchableOpacity>
                         </View>

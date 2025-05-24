@@ -31,9 +31,7 @@ const DashboardPage = () => {
         >
             <LinearGradient
                 colors={
-                    isDarkMode
-                        ? ["#1A2E2A", "#121C1A"] // Dark mode gradient (darker to lighter)
-                        : ["#283F3B", "#99DDC8"] // Light mode gradient (primary to secondary)
+                    isDarkMode ? ["#1A2E2A", "#121C1A"] : ["#283F3B", "#99DDC8"]
                 }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -211,6 +209,9 @@ const DashboardPage = () => {
                 <TouchableOpacity
                     className="flex-row items-center p-4 rounded-xl mb-[15px] shadow"
                     style={{ backgroundColor: colors.card }}
+                    onPress={() =>
+                        navigation.navigate("EnergyAnalysisResultPage")
+                    }
                 >
                     <View
                         className="w-10 h-10 rounded-full justify-center items-center mr-[15px]"
@@ -219,7 +220,7 @@ const DashboardPage = () => {
                         <Ionicons
                             name="analytics-outline"
                             size={24}
-                            color={colors.secondary}
+                            color={colors.accent}
                         />
                     </View>
                     <Text
@@ -235,26 +236,6 @@ const DashboardPage = () => {
                     />
                 </TouchableOpacity>
             </View>
-
-            <View className="p-5">
-                <Text
-                    className="text-lg font-bold mb-[15px]"
-                    style={{ color: colors.text }}
-                >
-                    Energy Saving Tips
-                </Text>
-            </View>
-
-            <TouchableOpacity
-                className="flex-row items-center justify-center p-4 rounded-xl mx-5 my-[30px]"
-                style={{ backgroundColor: isDarkMode ? "#3A1C1C" : "#FFE8E8" }}
-                onPress={handleLogout}
-            >
-                <Ionicons name="log-out-outline" size={20} color="#EF4444" />
-                <Text className="text-[#EF4444] font-semibold text-base ml-2">
-                    Log Out
-                </Text>
-            </TouchableOpacity>
         </ScrollView>
     );
 };
