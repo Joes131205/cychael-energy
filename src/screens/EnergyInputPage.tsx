@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     View,
     Text,
@@ -19,23 +19,51 @@ interface Device {
     name: string;
     watt: number;
     hours: number;
+    category?: string;
 }
+
+const deviceCategories = [
+    { id: "lighting", name: "Lights", examples: "Bulbs, Lamps, LED Strips" },
+    {
+        id: "kitchen",
+        name: "Kitchen",
+        examples: "Refrigerator, Microwave, Rice Cooker",
+    },
+    {
+        id: "entertainment",
+        name: "Entertainment",
+        examples: "TV, Game Console, Speakers",
+    },
+    { id: "cooling", name: "Cooling", examples: "AC, Fan, Air Cooler" },
+    {
+        id: "office",
+        name: "Computer & Office",
+        examples: "Laptop, PC, Printer",
+    },
+    { id: "bathroom", name: "Bathroom", examples: "Water Heater, Hair Dryer" },
+    { id: "laundry", name: "Laundry", examples: "Washing Machine, Iron" },
+    { id: "other", name: "Other Devices", examples: "Chargers, Power Tools" },
+];
 
 const EnergyInputPage = () => {
     const [devices, setDevices] = useState<Device[]>([
-        { name: "", watt: 0, hours: 0 },
+        { name: "", watt: 0, hours: 0, category: "other" },
     ]);
+
     const [result, setResult] = useState<number | null>(null);
     const { colors, isDarkMode } = useTheme();
     const { user, userData } = useUser();
 
     const handleAddDevice = () => {
-        setDevices([...devices, { name: "", watt: 0, hours: 0 }]);
+        setDevices([
+            ...devices,
+            { name: "", watt: 0, hours: 0, category: "other" },
+        ]);
     };
 
     const handleChange = (
         index: number,
-        key: "name" | "watt" | "hours",
+        key: "name" | "watt" | "hours" | "category",
         value: string
     ) => {
         const updated = [...devices];
@@ -80,26 +108,19 @@ const EnergyInputPage = () => {
     const saveEnergyData = async () => {
         try {
             const docRef = doc(db, "users", userData.id);
+            const now = new Date().toISOString();
+
             await updateDoc(docRef, {
-                energyData: userData.energyData
-                    ? [
-                          ...userData.energyData,
-                          {
-                              date: new Date().toISOString(),
-                              deviceList: devices.map((device) => ({
-                                  name: device.name,
-                                  watt: device.watt,
-                                  hours: device.hours,
-                              })),
-                              energyUsage: {
-                                  daily: result,
-                                  monthly: result! * 30,
-                                  yearly: result! * 365,
-                              },
-                          },
-                      ]
-                    : [],
+                "deviceList.updatedAt": now,
+                "deviceList.devices": devices.map((device) => ({
+                    name: device.name,
+                    watt: device.watt,
+                    hours: device.hours,
+                    category: device.category || "other",
+                    addedAt: now,
+                })),
             });
+
             Alert.alert(
                 "Success",
                 "Your energy consumption data has been saved successfully!"
@@ -111,6 +132,21 @@ const EnergyInputPage = () => {
             );
         }
     };
+
+    useEffect(() => {
+        if (userData?.deviceList?.devices) {
+            const storedDevices = userData.deviceList.devices.map(
+                (device: any) => ({
+                    name: device.name || "",
+                    watt: device.watt || 0,
+                    hours: device.hours || 0,
+                    category: device.category || "other",
+                })
+            );
+
+            setDevices(storedDevices);
+        }
+    }, [userData]);
 
     return (
         <ScrollView
@@ -159,6 +195,78 @@ const EnergyInputPage = () => {
                             },
                         ]}
                     />
+                    <View style={styles.categorySection}>
+                        <Text
+                            style={[
+                                styles.categoryLabel,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            Device Type:
+                        </Text>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                        >
+                            <View style={styles.categoryButtonsContainer}>
+                                {deviceCategories.map((cat) => (
+                                    <TouchableOpacity
+                                        key={cat.id}
+                                        style={[
+                                            styles.categoryButton,
+                                            {
+                                                backgroundColor:
+                                                    device.category === cat.id
+                                                        ? colors.accent
+                                                        : isDarkMode
+                                                          ? colors.background
+                                                          : "#F0F0F0",
+                                                borderColor:
+                                                    device.category === cat.id
+                                                        ? colors.accent
+                                                        : colors.border,
+                                            },
+                                        ]}
+                                        onPress={() =>
+                                            handleChange(
+                                                index,
+                                                "category",
+                                                cat.id
+                                            )
+                                        }
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.categoryButtonText,
+                                                {
+                                                    color:
+                                                        device.category ===
+                                                        cat.id
+                                                            ? colors.primary
+                                                            : colors.text,
+                                                },
+                                            ]}
+                                        >
+                                            {cat.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </ScrollView>
+
+                        {/* Show examples for the selected category */}
+                        <Text
+                            style={[
+                                styles.examplesText,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            Examples:{" "}
+                            {deviceCategories.find(
+                                (cat) => cat.id === device.category
+                            )?.examples || "Any electronic device"}
+                        </Text>
+                    </View>
                     <TextInput
                         placeholder="Power (Watt)"
                         placeholderTextColor={colors.textSecondary}
@@ -259,17 +367,13 @@ const EnergyInputPage = () => {
                 <View
                     style={[
                         styles.resultContainer,
-                        {
-                            backgroundColor: isDarkMode
-                                ? `${colors.secondary}30`
-                                : "#E8F5F2",
-                            borderLeftColor: colors.secondary,
-                        },
+                        { backgroundColor: colors.card },
                     ]}
                 >
                     <Text style={[styles.resultTitle, { color: colors.text }]}>
-                        Energy Consumption Results
+                        Estimated Energy Consumption
                     </Text>
+
                     <View style={styles.resultRow}>
                         <Text
                             style={[
@@ -277,7 +381,7 @@ const EnergyInputPage = () => {
                                 { color: colors.textSecondary },
                             ]}
                         >
-                            Daily:
+                            Daily Energy Usage:
                         </Text>
                         <Text
                             style={[styles.resultValue, { color: colors.text }]}
@@ -285,6 +389,7 @@ const EnergyInputPage = () => {
                             {result.toFixed(2)} kWh
                         </Text>
                     </View>
+
                     <View style={styles.resultRow}>
                         <Text
                             style={[
@@ -292,7 +397,7 @@ const EnergyInputPage = () => {
                                 { color: colors.textSecondary },
                             ]}
                         >
-                            Monthly (30 days):
+                            Monthly Energy Usage:
                         </Text>
                         <Text
                             style={[styles.resultValue, { color: colors.text }]}
@@ -300,44 +405,9 @@ const EnergyInputPage = () => {
                             {(result * 30).toFixed(2)} kWh
                         </Text>
                     </View>
-                    <View style={styles.resultRow}>
-                        <Text
-                            style={[
-                                styles.resultLabel,
-                                { color: colors.textSecondary },
-                            ]}
-                        >
-                            Yearly:
-                        </Text>
-                        <Text
-                            style={[styles.resultValue, { color: colors.text }]}
-                        >
-                            {(result * 365).toFixed(2)} kWh
-                        </Text>
-                    </View>
 
-                    <View>
-                        <TouchableOpacity
-                            onPress={saveEnergyData}
-                            style={[
-                                styles.calculateButton,
-                                {
-                                    backgroundColor: colors.accent,
-                                    shadowColor: isDarkMode
-                                        ? colors.accent
-                                        : "#A5A822",
-                                },
-                            ]}
-                        >
-                            <Text
-                                style={[
-                                    styles.calculateButtonText,
-                                    { color: colors.primary },
-                                ]}
-                            >
-                                Save Energy Consumption
-                            </Text>
-                        </TouchableOpacity>
+                    <View style={[styles.categoryButton, { marginTop: 20 }]}>
+                        <Button title="Save Devices" onPress={saveEnergyData} />
                     </View>
                 </View>
             )}
@@ -448,6 +518,34 @@ const styles = StyleSheet.create({
     resultValue: {
         fontSize: 16,
         fontWeight: "600",
+    },
+    categorySection: {
+        marginBottom: 15,
+    },
+    categoryLabel: {
+        fontSize: 14,
+        marginBottom: 8,
+    },
+    categoryButtonsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+    },
+    categoryButton: {
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 20,
+        marginRight: 8,
+        marginBottom: 8,
+        borderWidth: 1,
+    },
+    categoryButtonText: {
+        fontSize: 14,
+        fontWeight: "500",
+    },
+    examplesText: {
+        fontSize: 12,
+        fontStyle: "italic",
+        marginTop: 4,
     },
 });
 

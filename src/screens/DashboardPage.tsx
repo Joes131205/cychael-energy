@@ -11,18 +11,32 @@ import { useUser } from "../hooks/useUser";
 const DashboardPage = () => {
     const navigation = useNavigation<any>();
     const { colors, isDarkMode, toggleTheme } = useTheme();
-    const user = useUser();
+    const { user, userData } = useUser();
 
-    console.log(user);
+    const [energyData, setEnergyData] = useState({
+        today: 0,
+        weekly: 0,
+        monthly: 0,
+        yearly: 0,
+    });
 
-    const handleLogout = async () => {
-        try {
-            await signOut(auth);
-            navigation.navigate("Login");
-        } catch (error) {
-            console.error("Logout error:", error);
-        }
-    };
+    useEffect(() => {
+        const totalEnergy =
+            parseFloat(
+                (
+                    userData?.deviceList?.devices
+                        ?.map((device: any) => device.watt * device.hours)
+                        .reduce((a: number, b: number) => a + b, 0) / 1000
+                ).toFixed(2)
+            ) || 0;
+
+        setEnergyData({
+            today: totalEnergy,
+            weekly: totalEnergy * 7,
+            monthly: totalEnergy * 30,
+            yearly: totalEnergy * 365,
+        });
+    }, [user, userData]);
 
     return (
         <ScrollView
@@ -48,7 +62,7 @@ const DashboardPage = () => {
                             Welcome back,
                         </Text>
                         <Text className="text-2xl font-bold text-white">
-                            {user?.user?.displayName || "User"}
+                            {user?.displayName || "User"}
                         </Text>
                     </View>
 
@@ -67,30 +81,24 @@ const DashboardPage = () => {
                 <View className="bg-white/10 rounded-[15px] p-5 mb-3">
                     <Text className="text-white text-base font-bold mb-4">
                         Your Energy Summary
-                        {user?.userData?.energyData?.length > 0 && (
-                            <Text className="text-white/70 text-xs font-normal">
-                                {"\n"}Last updated:{" "}
-                                {new Date(
-                                    user.userData.energyData[
-                                        user.userData.energyData.length - 1
-                                    ].date
-                                ).toLocaleDateString("en-US", {
-                                    weekday: "short",
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                })}{" "}
-                                at{" "}
-                                {new Date(
-                                    user.userData.energyData[
-                                        user.userData.energyData.length - 1
-                                    ].date
-                                ).toLocaleTimeString("en-US", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </Text>
-                        )}
+                        <Text className="text-white/70 text-xs font-normal">
+                            {"\n"}Last updated:{" "}
+                            {new Date(
+                                userData?.deviceList?.updatedAt
+                            ).toLocaleDateString("en-US", {
+                                weekday: "short",
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                            })}{" "}
+                            at{" "}
+                            {new Date(
+                                userData?.deviceList?.updatedAt
+                            ).toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            })}
+                        </Text>
                     </Text>{" "}
                     <View className="flex-row justify-between">
                         {/* Daily Usage */}
@@ -106,11 +114,7 @@ const DashboardPage = () => {
                                 className="text-xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {user?.userData?.energyData?.length > 0
-                                    ? user.userData.energyData[
-                                          user.userData.energyData.length - 1
-                                      ].energyUsage.daily.toFixed(1)
-                                    : "0"}
+                                {energyData.today.toFixed(1)}
                             </Text>
                             <Text
                                 className="text-xs"
@@ -133,11 +137,7 @@ const DashboardPage = () => {
                                 className="text-xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {user?.userData?.energyData?.length > 0
-                                    ? user.userData.energyData[
-                                          user.userData.energyData.length - 1
-                                      ].energyUsage.monthly.toFixed(1)
-                                    : "0"}
+                                {energyData.monthly.toFixed(1)}
                             </Text>
                             <Text
                                 className="text-xs"
@@ -160,11 +160,7 @@ const DashboardPage = () => {
                                 className="text-xl font-bold"
                                 style={{ color: colors.accent }}
                             >
-                                {user?.userData?.energyData?.length > 0
-                                    ? user.userData.energyData[
-                                          user.userData.energyData.length - 1
-                                      ].energyUsage.yearly.toFixed(1)
-                                    : "0"}
+                                {energyData.yearly.toFixed(1)}
                             </Text>
                             <Text
                                 className="text-xs"

@@ -82,8 +82,11 @@ const Register = () => {
                     uid: userCredential.user.uid,
                     displayName: name,
                     email: userCredential.user.email,
-                    createdAt: new Date(),
-                    energyData: [],
+                    createdAt: new Date().toISOString(),
+                    deviceList: {
+                        updatedAt: new Date().toISOString(),
+                        devices: [],
+                    },
                 });
 
                 Alert.alert("Success", "Registration successful!", [

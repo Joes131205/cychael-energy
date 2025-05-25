@@ -18,40 +18,89 @@ const EnergyAnalysisResultPage = () => {
     const { colors, isDarkMode } = useTheme();
     const { userData, loading } = useUser();
 
-    const [data, setData] = useState(userData?.energyData || []);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (!loading) {
-            if (userData?.energyData) {
-                const sortedData = [...userData.energyData].sort(
-                    (a, b) =>
-                        new Date(a.date).getTime() - new Date(b.date).getTime()
-                );
-                setData(sortedData);
-            } else {
-                setData([]);
-            }
             setIsLoading(false);
         }
     }, [userData, loading]);
 
+    const calculateDailyEnergy = useMemo(() => {
+        if (
+            !userData?.deviceList?.devices ||
+            userData.deviceList.devices.length === 0
+        ) {
+            return 0;
+        }
+
+        return userData.deviceList.devices.reduce(
+            (total: any, device: any) =>
+                total + (device.watt * device.hours || 0) / 1000,
+            0
+        );
+    }, [userData]);
+
+    const weeklyData = useMemo(() => {
+        if (!calculateDailyEnergy) {
+            return Array(7).fill(0);
+        }
+
+        // Generate slight variations based on daily energy
+        const baseValue = calculateDailyEnergy;
+        return Array(7)
+            .fill(0)
+            .map(() => {
+                const variation = Math.random() * 0.3 - 0.15; // -15% to +15% variation
+                return Number((baseValue * (1 + variation)).toFixed(2));
+            });
+    }, [calculateDailyEnergy]);
+
+    // Generate monthly data (4 weeks)
+    const monthlyData = useMemo(() => {
+        if (!calculateDailyEnergy) {
+            return {
+                labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+                datasets: [{ data: [0, 0, 0, 0] }],
+            };
+        }
+
+        // Calculate weekly totals with some variation
+        const baseWeekly = calculateDailyEnergy * 7;
+        const weeklyTotals = Array(4)
+            .fill(0)
+            .map((_, i) => {
+                const variation = Math.random() * 0.2 - 0.05; // -5% to +15% variation
+                return Number(
+                    (baseWeekly * (1 + variation * (i + 1))).toFixed(2)
+                );
+            });
+
+        return {
+            labels: ["W1", "W2", "W3", "W4"],
+            datasets: [{ data: weeklyTotals }],
+        };
+    }, [calculateDailyEnergy]);
+
+    // Device usage breakdown
     const applianceUsageData = useMemo(() => {
-        if (!data || data.length === 0) return [];
+        if (
+            !userData?.deviceList?.devices ||
+            userData.deviceList.devices.length === 0
+        ) {
+            return [];
+        }
 
-        const latestEntry = [...data].sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        )[0];
-
-        if (!latestEntry?.deviceList) return [];
-
-        const totalWattage = latestEntry.deviceList.reduce(
-            (total, device) => total + (device.watt * device.hours || 0),
+        const totalWattage = userData.deviceList.devices.reduce(
+            (total: any, device: any) =>
+                total + (device.watt * device.hours || 0),
             0
         );
 
+        if (totalWattage === 0) return [];
+
         const deviceMap = new Map();
-        latestEntry.deviceList.forEach((device) => {
+        userData.deviceList.devices.forEach((device: any) => {
             const deviceUsage =
                 ((device.watt * device.hours) / totalWattage) * 100;
             deviceMap.set(
@@ -79,44 +128,11 @@ const EnergyAnalysisResultPage = () => {
             }))
             .sort((a, b) => b.usage - a.usage)
             .slice(0, 5);
-    }, [data, colors]);
+    }, [userData, colors]);
 
-    const monthlyData = useMemo(() => {
-        if (!data || data.length === 0)
-            return {
-                labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-                datasets: [{ data: [0, 0, 0, 0] }],
-            };
-
-        const last28Days = data.slice(-28);
-
-        const weeks = [
-            last28Days.slice(0, 7),
-            last28Days.slice(7, 14),
-            last28Days.slice(14, 21),
-            last28Days.slice(21, 28),
-        ];
-
-        const weeklyTotals = weeks.map((week) =>
-            week.reduce(
-                (total, day) => total + (day.energyUsage?.daily || 0),
-                0
-            )
-        );
-
-        return {
-            labels: ["W1", "W2", "W3", "W4"],
-            datasets: [
-                {
-                    data:
-                        weeklyTotals.length === 4 ? weeklyTotals : [0, 0, 0, 0],
-                },
-            ],
-        };
-    }, [data]);
-
+    // Comparison data (simulated based on current usage)
     const comparisonData = useMemo(() => {
-        if (!data || data.length < 8)
+        if (!calculateDailyEnergy) {
             return {
                 currentWeek: 0,
                 previousWeek: 0,
@@ -124,19 +140,10 @@ const EnergyAnalysisResultPage = () => {
                 peakHour: "N/A",
                 lowestHour: "N/A",
             };
+        }
 
-        const currentWeekData = data.slice(-7);
-        const previousWeekData = data.slice(-14, -7);
-
-        const currentWeekTotal = currentWeekData.reduce(
-            (total: number, day) => total + (day.energyUsage?.daily || 0),
-            0
-        );
-
-        const previousWeekTotal = previousWeekData.reduce(
-            (total, day) => total + (day.energyUsage?.daily || 0),
-            0
-        );
+        const currentWeekTotal = calculateDailyEnergy * 7;
+        const previousWeekTotal = currentWeekTotal * (1 + Math.random() * 0.2);
 
         const savingsPercentage =
             previousWeekTotal === 0
@@ -151,7 +158,8 @@ const EnergyAnalysisResultPage = () => {
             peakHour: "7-8 PM",
             lowestHour: "3-4 AM",
         };
-    }, [data]);
+    }, [calculateDailyEnergy]);
+
     const chartConfig = {
         backgroundGradientFrom: isDarkMode ? colors.card : colors.background,
         backgroundGradientTo: isDarkMode ? colors.card : colors.background,
@@ -175,6 +183,7 @@ const EnergyAnalysisResultPage = () => {
         horizontalLabelRotation: 0,
         useShadowColorFromDataset: false,
     };
+
     if (isLoading || loading) {
         return (
             <View
@@ -234,21 +243,9 @@ const EnergyAnalysisResultPage = () => {
                         ],
                         datasets: [
                             {
-                                data:
-                                    Array.isArray(data) && data.length > 0
-                                        ? data
-                                              .slice(-7)
-                                              .reverse()
-                                              .map(
-                                                  (item) =>
-                                                      item.energyUsage?.daily ||
-                                                      0
-                                              )
-                                        : [0, 0, 0, 0, 0, 0, 0],
+                                data: weeklyData,
                                 color: (opacity = 1) =>
-                                    `rgba(${hexToRgb(
-                                        colors.accent
-                                    )}, ${opacity})`,
+                                    `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
                                 strokeWidth: 3,
                             },
                         ],
@@ -277,14 +274,7 @@ const EnergyAnalysisResultPage = () => {
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
                         >
-                            {Array.isArray(data) && data.length > 0
-                                ? data
-                                      .slice(0, 7)
-                                      .map(
-                                          (item) => item.energyUsage?.daily || 0
-                                      )
-                                      .reduce((a, b) => a + b, 0)
-                                : 0}{" "}
+                            {weeklyData.reduce((a, b) => a + b, 0).toFixed(1)}{" "}
                             kWh
                         </Text>
                     </View>
@@ -300,17 +290,9 @@ const EnergyAnalysisResultPage = () => {
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
                         >
-                            {Array.isArray(data) && data.length > 0
-                                ? (
-                                      data
-                                          .slice(0, 7)
-                                          .map(
-                                              (item) =>
-                                                  item.energyUsage?.daily || 0
-                                          )
-                                          .reduce((a, b) => a + b, 0) / 7
-                                  ).toFixed(2)
-                                : 0}{" "}
+                            {(
+                                weeklyData.reduce((a, b) => a + b, 0) / 7
+                            ).toFixed(2)}{" "}
                             kWh
                         </Text>
                     </View>
