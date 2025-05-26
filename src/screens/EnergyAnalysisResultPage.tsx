@@ -229,7 +229,7 @@ const EnergyAnalysisResultPage = () => {
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Weekly Energy Consumption
-                </Text>{" "}
+                </Text>
                 <LineChart
                     data={{
                         labels: [
@@ -276,7 +276,7 @@ const EnergyAnalysisResultPage = () => {
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
                         >
-                            {weeklyData.reduce((a, b) => a + b, 0).toFixed(1)}{" "}
+                            {weeklyData.reduce((a, b) => a + b, 0).toFixed(1)}
                             kWh
                         </Text>
                     </View>
@@ -294,7 +294,7 @@ const EnergyAnalysisResultPage = () => {
                         >
                             {(
                                 weeklyData.reduce((a, b) => a + b, 0) / 7
-                            ).toFixed(2)}{" "}
+                            ).toFixed(2)}
                             kWh
                         </Text>
                     </View>
@@ -304,7 +304,7 @@ const EnergyAnalysisResultPage = () => {
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Monthly Energy Trend
-                </Text>{" "}
+                </Text>
                 <BarChart
                     data={monthlyData}
                     width={screenWidth - 60}
@@ -332,7 +332,7 @@ const EnergyAnalysisResultPage = () => {
                         >
                             {monthlyData.datasets[0].data
                                 .reduce((a, b) => a + b, 0)
-                                .toFixed(1)}{" "}
+                                .toFixed(1)}
                             kWh
                         </Text>
                     </View>
@@ -357,7 +357,7 @@ const EnergyAnalysisResultPage = () => {
                                 },
                             ]}
                         >
-                            {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}{" "}
+                            {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}
                             {Math.abs(comparisonData.savingsPercentage).toFixed(
                                 1
                             )}
@@ -365,7 +365,7 @@ const EnergyAnalysisResultPage = () => {
                         </Text>
                     </View>
                 </View>
-            </View>{" "}
+            </View>
             {/* Appliance Breakdown */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
@@ -373,7 +373,6 @@ const EnergyAnalysisResultPage = () => {
                 </Text>
                 {applianceUsageData.length > 0 ? (
                     <>
-                        {" "}
                         <PieChart
                             data={applianceUsageData}
                             width={screenWidth - 60}
@@ -385,7 +384,7 @@ const EnergyAnalysisResultPage = () => {
                             absolute
                             style={styles.chart}
                             hasLegend={false}
-                        />{" "}
+                        />
                         <View style={styles.applianceList}>
                             {applianceUsageData.map((item, index) => (
                                 <View key={index} style={styles.applianceItem}>
@@ -412,7 +411,7 @@ const EnergyAnalysisResultPage = () => {
                                         {item.usage}%
                                     </Text>
                                 </View>
-                            ))}{" "}
+                            ))}
                         </View>
                     </>
                 ) : (
@@ -425,7 +424,7 @@ const EnergyAnalysisResultPage = () => {
                     >
                         No appliance data available
                     </Text>
-                )}{" "}
+                )}
             </View>
         </ScrollView>
     );

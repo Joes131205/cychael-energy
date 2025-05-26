@@ -146,7 +146,7 @@ const DashboardPage = () => {
                     <Text className="text-white text-base font-bold mb-4">
                         Your Energy Summary
                         <Text className="text-white/70 text-xs font-normal">
-                            {"\n"}Last updated:{" "}
+                            {"\n"}Last updated:
                             {new Date(
                                 userData?.deviceList?.updatedAt
                             ).toLocaleDateString("en-US", {
@@ -154,8 +154,8 @@ const DashboardPage = () => {
                                 month: "short",
                                 day: "numeric",
                                 year: "numeric",
-                            })}{" "}
-                            at{" "}
+                            })}
+                            at
                             {new Date(
                                 userData?.deviceList?.updatedAt
                             ).toLocaleTimeString("en-US", {
@@ -163,7 +163,7 @@ const DashboardPage = () => {
                                 minute: "2-digit",
                             })}
                         </Text>
-                    </Text>{" "}
+                    </Text>
                     <View className="flex-row justify-between">
                         {/* Daily Usage */}
                         <View className="items-center flex-1">

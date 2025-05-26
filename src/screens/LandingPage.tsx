@@ -48,7 +48,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
             }
             style={styles.container}
         >
-            {" "}
             <ScrollView
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
