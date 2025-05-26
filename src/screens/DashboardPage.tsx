@@ -20,6 +20,21 @@ const DashboardPage = () => {
         yearly: 0,
     });
 
+    const [deviceCategories, setDeviceCategories] = useState<
+        {
+            category: string;
+            totalEnergy: number;
+            percentage: number;
+            color: string;
+        }[]
+    >([]);
+
+    useEffect(() => {
+        if (!user) {
+            navigation.navigate("LandingPage" as never);
+        }
+    }, [user]);
+
     useEffect(() => {
         const totalEnergy =
             parseFloat(
@@ -36,6 +51,55 @@ const DashboardPage = () => {
             monthly: totalEnergy * 30,
             yearly: totalEnergy * 365,
         });
+
+        // Calculate device categories and their energy consumption
+        if (
+            userData?.deviceList?.devices &&
+            userData.deviceList.devices.length > 0
+        ) {
+            const devicesByCategory: {
+                [key: string]: { totalEnergy: number; devices: any[] };
+            } = {};
+            let totalDevicesEnergy = 0;
+
+            // Group devices by category
+            userData.deviceList.devices.forEach((device: any) => {
+                const category = device.category || "Other";
+                const energyUsage = (device.watt * device.hours) / 1000; // kWh
+                totalDevicesEnergy += energyUsage;
+
+                if (!devicesByCategory[category]) {
+                    devicesByCategory[category] = {
+                        totalEnergy: 0,
+                        devices: [],
+                    };
+                }
+
+                devicesByCategory[category].totalEnergy += energyUsage;
+                devicesByCategory[category].devices.push(device);
+            });
+
+            const categoryColors = [
+                "#4CAF50",
+                "#2196F3",
+                "#FFC107",
+                "#FF5722",
+                "#9C27B0",
+                "#607D8B",
+            ];
+            const formattedCategories = Object.entries(devicesByCategory)
+                .map(([category, data], index) => ({
+                    category,
+                    totalEnergy: data.totalEnergy,
+                    percentage: (data.totalEnergy / totalDevicesEnergy) * 100,
+                    color: categoryColors[index % categoryColors.length],
+                }))
+                .sort((a, b) => b.totalEnergy - a.totalEnergy); // Sort by highest usage
+
+            setDeviceCategories(formattedCategories);
+        } else {
+            setDeviceCategories([]);
+        }
     }, [user, userData]);
 
     return (
@@ -170,6 +234,105 @@ const DashboardPage = () => {
                             </Text>
                         </View>
                     </View>
+                </View>
+                {/* Device Categorization Section */}
+                <View
+                    className="rounded-xl mb-[15px] p-5 shadow"
+                    style={{ backgroundColor: colors.card }}
+                >
+                    <View className="flex-row items-center mb-4">
+                        <View
+                            className="w-10 h-10 rounded-full justify-center items-center mr-[15px]"
+                            style={{ backgroundColor: `${colors.accent}20` }}
+                        >
+                            <Ionicons
+                                name="pie-chart-outline"
+                                size={24}
+                                color={colors.accent}
+                            />
+                        </View>
+                        <Text
+                            className="text-base font-semibold"
+                            style={{ color: colors.text }}
+                        >
+                            Highest Energy Consumers
+                        </Text>
+                    </View>
+
+                    {deviceCategories.length === 0 ? (
+                        <Text
+                            className="text-sm text-center my-3"
+                            style={{ color: colors.textSecondary }}
+                        >
+                            No device data available.
+                        </Text>
+                    ) : (
+                        deviceCategories.slice(0, 3).map((device, index) => (
+                            <View
+                                key={index}
+                                className="flex-row items-center justify-between mb-3"
+                            >
+                                <View className="flex-row items-center flex-1 pr-2">
+                                    <View
+                                        className="w-3 h-3 rounded-full mr-2"
+                                        style={{
+                                            backgroundColor: device.color,
+                                        }}
+                                    />
+                                    <View>
+                                        <Text
+                                            className="font-semibold"
+                                            style={{ color: colors.text }}
+                                        >
+                                            {device.category}
+                                        </Text>
+                                        <Text
+                                            className="text-xs"
+                                            style={{
+                                                color: colors.textSecondary,
+                                            }}
+                                        >
+                                            {device.totalEnergy.toFixed(1)} kWh
+                                            ({device.percentage.toFixed(0)}%)
+                                        </Text>
+                                    </View>
+                                </View>
+                                <View
+                                    className="w-[120px] h-2.5 rounded-full"
+                                    style={{
+                                        backgroundColor: `${colors.accent}20`,
+                                    }}
+                                >
+                                    <View
+                                        className="h-full rounded-full"
+                                        style={{
+                                            width: `${Math.min(
+                                                device.percentage,
+                                                100
+                                            )}%`,
+                                            backgroundColor: device.color,
+                                        }}
+                                    />
+                                </View>
+                            </View>
+                        ))
+                    )}
+
+                    {deviceCategories.length > 3 && (
+                        <TouchableOpacity
+                            className="mt-2 items-center py-2"
+                            onPress={() =>
+                                navigation.navigate("EnergyAnalysisResultPage")
+                            }
+                        >
+                            <Text
+                                className="text-xs font-semibold"
+                                style={{ color: colors.accent }}
+                            >
+                                View All Categories
+                            </Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </LinearGradient>
 

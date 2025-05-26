@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
     View,
     Text,
@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useTheme } from "../hooks/useTheme";
+import { useUser } from "../hooks/useUser";
 
 type RootStackParamList = {
     Login: undefined;
@@ -32,6 +33,13 @@ const { width } = Dimensions.get("window");
 const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
     const { colors, isDarkMode } = useTheme();
     const energyIllustration: ImageSourcePropType = require("../../assets/logo.jpg");
+    const { user, userData } = useUser();
+
+    useEffect(() => {
+        if (user) {
+            navigation.navigate("Dashboard" as never);
+        }
+    }, [user]);
 
     return (
         <LinearGradient
@@ -40,9 +48,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
             }
             style={styles.container}
         >
+            {" "}
             <ScrollView
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
+                scrollEnabled={true}
             >
                 {/* Logo/App Name */}
                 <View style={styles.logoContainer}>
@@ -179,12 +189,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        height: "100%",
     },
     content: {
-        flex: 1,
         padding: 30,
         paddingTop: 60,
+        paddingBottom: 40,
         alignItems: "center",
+        minHeight: "100%",
     },
     logoContainer: {
         alignItems: "center",

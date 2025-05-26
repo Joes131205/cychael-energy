@@ -245,7 +245,9 @@ const EnergyAnalysisResultPage = () => {
                             {
                                 data: weeklyData,
                                 color: (opacity = 1) =>
-                                    `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
+                                    `rgba(${hexToRgb(
+                                        colors.accent
+                                    )}, ${opacity})`,
                                 strokeWidth: 3,
                             },
                         ],

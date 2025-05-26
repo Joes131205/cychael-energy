@@ -219,8 +219,8 @@ const EnergyInputPage = () => {
                                                     device.category === cat.id
                                                         ? colors.accent
                                                         : isDarkMode
-                                                          ? colors.background
-                                                          : "#F0F0F0",
+                                                        ? colors.background
+                                                        : "#F0F0F0",
                                                 borderColor:
                                                     device.category === cat.id
                                                         ? colors.accent
@@ -359,7 +359,7 @@ const EnergyInputPage = () => {
                         { color: colors.primary },
                     ]}
                 >
-                    Consumptions
+                    Calculate Energy Usage
                 </Text>
             </TouchableOpacity>
 
