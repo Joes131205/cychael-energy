@@ -50,6 +50,9 @@ const EnergyInputPage = () => {
         { name: "", watt: 0, hours: 0, category: "other" },
     ]);
 
+    // Ini Heddy:
+    const [isCalculating, setIsCalculating] = useState(false);
+
     const [result, setResult] = useState<number | null>(null);
     const { colors, isDarkMode } = useTheme();
     const { user, userData } = useUser();
@@ -100,6 +103,10 @@ const EnergyInputPage = () => {
             }
         }
 
+        // Ini Heddy: Buat "Mematikan" Button
+        // Tandanya dia lagi Loading
+        setIsCalculating(true);
+
         let totalKWhPerDay = 0;
 
         devices.forEach((device) => {
@@ -111,7 +118,11 @@ const EnergyInputPage = () => {
         setResult(totalKWhPerDay);
 
         setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+            
+            // Ini Heddy: "Menghidupkan" kembali Button
+            // Tandanya dia sudah selesai Loading
+            setIsCalculating(false);
         }, 100);
     };
 
@@ -354,25 +365,38 @@ const EnergyInputPage = () => {
                 </Text>
             </TouchableOpacity>
 
+            {/* Ini Heddy: Cek yg ada isCalculating di bawah ini */}
+            {/* IsCalculating = True Style bakal berubah */}
             <TouchableOpacity
                 onPress={calculate}
+                disabled={isCalculating}
+                activeOpacity={0.8}
                 style={[
                     styles.calculateButton,
                     {
-                        backgroundColor: isDarkMode ? "#198754" : colors.accent,
-                        shadowColor: isDarkMode ? "#FFFFF" : "#A5A822",
+                        backgroundColor: isCalculating
+                            ? "#A5A822" 
+                            : isDarkMode
+                            ? "#198754"
+                            : colors.accent,
+                        shadowColor: isDarkMode ? "#FFFFFF" : "#A5A822",
+                        opacity: isCalculating ? 0.5 : 1,
                     },
                 ]}
             >
                 <Text
                     style={[
                         styles.calculateButtonText,
-                        { color: colors.primary },
+                        {
+                            color: isCalculating ? "#F0F0F0" : colors.primary,
+                            fontStyle: isCalculating ? "italic" : "normal",
+                        },
                     ]}
                 >
-                    Calculate Energy Usage
+                    {isCalculating ? "Calculating..." : "Calculate Energy Usage"}
                 </Text>
             </TouchableOpacity>
+
 
             {result !== null && (
                 <View
