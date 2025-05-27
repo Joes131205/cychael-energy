@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
+import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
+
 import { getFirestore } from "firebase/firestore";
 //@ts-ignore
 import { getReactNativePersistence } from "@firebase/auth/dist/rn/index.js";
@@ -20,4 +22,14 @@ const db = getFirestore(app);
 const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(AsyncStorage),
 });
-export { app, db, auth };
+const ai = getAI(app, { backend: new GoogleAIBackend() });
+
+// Create a `GenerativeModel` instance with a model that supports your use case
+const model = getGenerativeModel(ai, { model: "gemini-2.0-flash" });
+
+export { app, db, auth,model };
+
+
+// Initialize FirebaseApp
+
+// Initialize the Gemini Developer API backend service
