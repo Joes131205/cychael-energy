@@ -242,6 +242,7 @@ const styles = StyleSheet.create({
 
     avatarContainer: {
         marginBottom: 16,
+        alignItems: "center",
     },
     avatar: {
         width: 100,
@@ -264,9 +265,11 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "700",
         marginBottom: 4,
+        textAlign: "center",
     },
     userEmail: {
         fontSize: 16,
+        textAlign: "center",
     },
 
 
