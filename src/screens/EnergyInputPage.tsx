@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect , useRef } from "react";
 import {
     View,
     Text,
@@ -53,12 +53,18 @@ const EnergyInputPage = () => {
     const [result, setResult] = useState<number | null>(null);
     const { colors, isDarkMode } = useTheme();
     const { user, userData } = useUser();
+    const scrollViewRef = useRef<ScrollView>(null);
+
 
     const handleAddDevice = () => {
         setDevices([
             ...devices,
             { name: "", watt: 0, hours: 0, category: "other" },
         ]);
+
+        setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
     };
 
     const handleChange = (
@@ -103,6 +109,10 @@ const EnergyInputPage = () => {
         });
 
         setResult(totalKWhPerDay);
+
+        setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
     };
 
     const saveEnergyData = async () => {
@@ -150,6 +160,7 @@ const EnergyInputPage = () => {
 
     return (
         <ScrollView
+            ref = {scrollViewRef}
             style={[styles.container, { backgroundColor: colors.background }]}
         >
             <View style={styles.header}>
