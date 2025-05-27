@@ -50,8 +50,9 @@ const EnergyInputPage = () => {
         { name: "", watt: 0, hours: 0, category: "other" },
     ]);
 
-    // Ini Heddy:
+    // Ini Heddy: Boolean (True / False) menyatakan lagi Loading atau tidak
     const [isCalculating, setIsCalculating] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     const [result, setResult] = useState<number | null>(null);
     const { colors, isDarkMode } = useTheme();
@@ -60,6 +61,9 @@ const EnergyInputPage = () => {
 
 
     const handleAddDevice = () => {
+        // === TUGAS Heddy: ===
+        // Set IsSaving ke True / False di sini
+
         setDevices([
             ...devices,
             { name: "", watt: 0, hours: 0, category: "other" },
@@ -348,6 +352,8 @@ const EnergyInputPage = () => {
                 </View>
             ))}
 
+            {/* === Tugas Heddy === */}
+            {/* Bikin Style Ketika dia Loading */}
             <TouchableOpacity
                 onPress={handleAddDevice}
                 style={[
