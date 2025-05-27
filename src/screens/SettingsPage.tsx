@@ -58,7 +58,7 @@ const SettingsPage = () => {
 
                 <TouchableOpacity
                 style={[styles.settingItem, { backgroundColor: colors.card }]}
-                // onPress={() => navigation.navigate("EditProfile" as never)}
+                onPress={() => navigation.navigate("EditProfile" as never)}
                 >
                 <View style={styles.settingIcon}>
                     <Ionicons
