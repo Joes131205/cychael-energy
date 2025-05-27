@@ -17,6 +17,8 @@ const SettingsPage = () => {
     const navigation = useNavigation();
     const { colors, isDarkMode, toggleTheme } = useTheme();
 
+    const user = auth.currentUser;
+
     const handleLogout = async () => {
         await signOut(auth);
         navigation.navigate("LandingPage" as never);
@@ -26,11 +28,83 @@ const SettingsPage = () => {
         <ScrollView
             style={[styles.container, { backgroundColor: colors.background }]}
         >
+            {/* Profile Header */}
+            <View style={[styles.header, { marginBottom: 30 }]}>
+                <View style={styles.avatarContainer}>
+                <View
+                    style={[
+                        styles.avatarPlaceholder,
+                        { backgroundColor: colors.accent },
+                    ]}
+                >
+                    <Text style={styles.avatarText}>
+                        {user?.displayName?.charAt(0).toUpperCase() || "U"}
+                    </Text>
+                </View>
+                </View>
+                <Text style={[styles.userName, { color: colors.text }]}>
+                {user?.displayName || "User"}
+                </Text>
+                <Text style={[styles.userEmail, { color: colors.textSecondary }]}>
+                {user?.email || "user@example.com"}
+                </Text>
+            </View>
+            
+            {/* Account Section */}
+            <View style={[styles.section, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                Account
+                </Text>
+
+                <TouchableOpacity
+                style={[styles.settingItem, { backgroundColor: colors.card }]}
+                // onPress={() => navigation.navigate("EditProfile" as never)}
+                >
+                <View style={styles.settingIcon}>
+                    <Ionicons
+                    name="person-outline"
+                    size={22}
+                    color={colors.iconSecondary}
+                    />
+                </View>
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                    Edit Profile
+                </Text>
+                <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.textSecondary}
+                />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                style={[styles.settingItem, { backgroundColor: colors.card }]}
+                // onPress={() => navigation.navigate("ChangePassword" as never)}
+                >
+                <View style={styles.settingIcon}>
+                    <Ionicons
+                    name="lock-closed-outline"
+                    size={22}
+                    color={colors.iconSecondary}
+                    />
+                </View>
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                    Change Password
+                </Text>
+                <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.textSecondary}
+                />
+                </TouchableOpacity>
+            </View>
+
+            {/* Preferences Section */}
             <View
                 style={[styles.section, { borderBottomColor: colors.border }]}
             >
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>
-                    Appearance
+                    Preferencess
                 </Text>
 
                 <TouchableOpacity
@@ -73,9 +147,75 @@ const SettingsPage = () => {
                         />
                     </View>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.settingItem, { backgroundColor: colors.card }]}
+                    // onPress={() => navigation.navigate("NotificationSettings" as never)}
+                    >
+                    <View style={styles.settingIcon}>
+                        <Ionicons
+                        name="notifications-outline"
+                        size={22}
+                        color={colors.iconSecondary}
+                        />
+                    </View>
+                    <Text style={[styles.settingText, { color: colors.text }]}>
+                        Notification Settings
+                    </Text>
+                    <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color={colors.textSecondary}
+                    />
+                </TouchableOpacity>
+            </View>
+            
+            {/* About Section */}
+            <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                About
+                </Text>
+
+                <TouchableOpacity
+                style={[styles.settingItem, { backgroundColor: colors.card }]}
+                // onPress={() => navigation.navigate("TermsOfService" as never)}
+                >
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                    Terms of Service
+                </Text>
+                <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.textSecondary}
+                />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                style={[styles.settingItem, { backgroundColor: colors.card }]}
+                // onPress={() => navigation.navigate("PrivacyPolicy" as never)}
+                >
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                    Privacy Policy
+                </Text>
+                <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.textSecondary}
+                />
+                </TouchableOpacity>
             </View>
 
-            <Button title="Log Out" variant="danger" onPress={handleLogout} />
+            {/* App Version */}
+            <Text style={[styles.versionText, { color: colors.textSecondary }]}>
+                Cychael of Energy v1.0.0
+            </Text>
+
+            {/* Logout Button */}
+            <Button
+                title="Log Out"
+                variant="danger"
+                onPress={handleLogout}
+            />
 
             <View style={{ height: 30 }} />
         </ScrollView>
@@ -98,6 +238,41 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 16,
     },
+
+
+    avatarContainer: {
+        marginBottom: 16,
+        alignItems: "center",
+    },
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
+    avatarPlaceholder: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    avatarText: {
+        fontSize: 40,
+        fontWeight: "bold",
+        color: "#fff",
+    },
+    userName: {
+        fontSize: 24,
+        fontWeight: "700",
+        marginBottom: 4,
+        textAlign: "center",
+    },
+    userEmail: {
+        fontSize: 16,
+        textAlign: "center",
+    },
+
+
     section: {
         marginBottom: 30,
         paddingBottom: 15,
@@ -139,6 +314,12 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20,
         borderRadius: 10,
+    },
+    versionText: {
+        textAlign: "center",
+        fontSize: 14,
+        // marginTop: 10,
+        marginBottom: 30,
     },
 });
 
