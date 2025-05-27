@@ -13,9 +13,19 @@ import { updateProfile, updateEmail } from "firebase/auth";
 
 const EditProfilePage = () => {
     const user = auth.currentUser;
+    const [initialName, setInitialName] = useState(user?.displayName || "");
+    const [initialEmail, setInitialEmail] = useState(user?.email || "");
     const [name, setName] = useState(user?.displayName || "");
     const [email, setEmail] = useState(user?.email || "");
     const navigation = useNavigation();
+
+    const handleDiscard = () => {
+        setName(initialName);
+        setEmail(initialEmail);
+        Alert.alert("Discarded", "Changes have been reverted.");
+        navigation.goBack();
+    };
+
 
     const handleSave = async () => {
         if (!user) return;
@@ -67,6 +77,13 @@ const EditProfilePage = () => {
             <TouchableOpacity style={styles.button} onPress={handleSave}>
                 <Text style={styles.buttonText}>Save Changes</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[styles.button, styles.discardButton]}
+                onPress={handleDiscard}
+            >
+                <Text style={[styles.buttonText, { color: "#D32F2F" }]}>Discard Changes</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -105,6 +122,11 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
     },
+    discardButton: {
+        backgroundColor: "#FFECEC",
+        marginTop: 10,
+    },
+
 });
 
 export default EditProfilePage;
