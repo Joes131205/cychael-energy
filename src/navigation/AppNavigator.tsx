@@ -7,6 +7,7 @@ import EnergyInputPage from "../screens/EnergyInputPage";
 import SettingsPage from "../screens/SettingsPage";
 import EnergyAnalysisResultPage from "../screens/EnergyAnalysisResultPage";
 import EditProfilePage from "../screens/EditProfilePage";
+import ChangePasswordPage from "../screens/ChangePasswordPage";
 
 const Stack = createNativeStackNavigator();
 
@@ -55,6 +56,11 @@ export default function AppNavigator() {
                 name="EditProfile"
                 component={EditProfilePage}
                 options={{ title: "Edit Profile", headerShown: true }}
+            />
+            <Stack.Screen
+                name="ChangePassword"
+                component={ChangePasswordPage}
+                options={{ title: "Change Password", headerShown: false }}
             />
         </Stack.Navigator>
     );

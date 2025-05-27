@@ -91,7 +91,7 @@ const SettingsPage = () => {
 
                 <TouchableOpacity
                 style={[styles.settingItem, { backgroundColor: colors.card }]}
-                // onPress={() => navigation.navigate("ChangePassword" as never)}
+                onPress={() => navigation.navigate("ChangePassword" as never)}
                 >
                 <View style={styles.settingIcon}>
                     <Ionicons
