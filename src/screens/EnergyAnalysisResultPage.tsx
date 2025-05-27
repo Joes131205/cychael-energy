@@ -5,9 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import {collection, query, where, getDocs, Timestamp} from "firebase/firestore";
-import {db} from "../utils/firebase";
+import {db, model} from "../utils/firebase";
 
 import {LineChart, BarChart, PieChart} from "react-native-chart-kit";
 import {LinearGradient} from "expo-linear-gradient";
@@ -19,7 +20,8 @@ const screenWidth = Dimensions.get("window").width;
 const EnergyAnalysisResultPage = () => {
   const {colors, isDarkMode} = useTheme();
   const [groupedData, setGroupedData] = useState<Record<string, any[]>>({});
-
+  const [isLoadingAdvise, setIsLoadingAdvise] = useState(false);
+  const [adviseText, setAdviseText] = useState("");
   const {userData, loading} = useUser();
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
@@ -27,6 +29,7 @@ const EnergyAnalysisResultPage = () => {
       setIsLoading(false);
     }
   }, [userData, loading]);
+
   const getLastWeekDevices = async () => {
     try {
       const deviceList = userData.deviceList?.devices || [];
@@ -104,18 +107,18 @@ const EnergyAnalysisResultPage = () => {
     );
   }, [userData]);
 
-//   const weeklyData = useMemo(() => {
-//     getLastWeekDevices().then((groupedDevices) => {});
-//     // Generate slight variations based on daily energy
-//     const baseValue = calculateDailyEnergy;
-    
-//     return Array(7)
-//       .fill(0)
-//       .map(() => {
-//         const variation = Math.random() * 0.3 - 0.15; // -15% to +15% variation
-//         return Number((baseValue * (1 + variation)).toFixed(2));
-//       });
-//   }, [calculateDailyEnergy]);
+  //   const weeklyData = useMemo(() => {
+  //     getLastWeekDevices().then((groupedDevices) => {});
+  //     // Generate slight variations based on daily energy
+  //     const baseValue = calculateDailyEnergy;
+
+  //     return Array(7)
+  //       .fill(0)
+  //       .map(() => {
+  //         const variation = Math.random() * 0.3 - 0.15; // -15% to +15% variation
+  //         return Number((baseValue * (1 + variation)).toFixed(2));
+  //       });
+  //   }, [calculateDailyEnergy]);
 
   // Generate monthly data (4 weeks)
   const monthlyData = useMemo(() => {
@@ -140,7 +143,58 @@ const EnergyAnalysisResultPage = () => {
       datasets: [{data: weeklyTotals}],
     };
   }, [calculateDailyEnergy]);
+  const handleAdvise = () => {
+    const today = new Date();
+    const result: {
+      date: string;
+      data: {name: string; watt: number; usage: number}[];
+      totalkWh: number;
+    }[] = [];
 
+    for (let i = 6; i >= 0; i--) {
+      const day = new Date(today);
+      day.setDate(today.getDate() - i);
+      const dateKey = day.toISOString().split("T")[0];
+      const devices = groupedData[dateKey] || [];
+      let dayTotal = 0;
+      const deviceData = devices.map((device: any) => {
+        const hours = device.hours || 0;
+        const watt = device.watt || 0;
+        const usage = (watt * hours) / 1000;
+        dayTotal += usage;
+
+        return {
+          name: device.name || "Unknown",
+          watt,
+          usage: Number(usage.toFixed(2)),
+        };
+      });
+      result.push({
+        date: dateKey,
+        data: deviceData,
+        totalkWh: Number(dayTotal.toFixed(2)),
+      });
+    }
+    const textSummary = result
+      .map((entry) => {
+        const deviceDetails = entry.data
+          .map((d) => `- ${d.name}: ${d.watt}W, Usage: ${d.usage} kWh`)
+          .join("\n");
+
+        return `📅 ${entry.date}\n${deviceDetails}\n🔋 Total: ${entry.totalkWh} kWh\n`;
+      })
+      .join("\n");
+    setIsLoading(true);
+    setAdviseText("");
+    const prompt = `${textSummary}\nbased on that data, what your advise and analysis? short, only under 350 words without asterisk (*) in result`;
+    const ai = model.generateContent(prompt);
+
+    ai.then((res): void => {
+        let x = res.response.text;
+        setAdviseText(x);
+        setIsLoading(false);
+    });
+  };
   // Device usage breakdown
   const applianceUsageData = useMemo(() => {
     if (
@@ -427,6 +481,23 @@ const EnergyAnalysisResultPage = () => {
             No appliance data available
           </Text>
         )}
+      </View>
+      {/* Saran */}
+      <View style={[styles.card, {backgroundColor: colors.card}]}>
+        <Text style={[styles.cardTitle, {color: colors.text}]}>AI Advisor</Text>
+        <Text style={[styles.applianceName, {color: colors.textSecondary}]}>
+          {adviseText}
+        </Text>
+
+        <TouchableOpacity
+          className="mt-2 items-center py-2"
+          onPress={() => handleAdvise()}>
+          <Text
+            className="text-xs font-semibold"
+            style={{color: colors.accent}}>
+            click here to get helpful advise
+          </Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
