@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
     View,
     Text,
@@ -9,7 +9,7 @@ import {
 import Button from "../components/common/Button";
 import { auth } from "../utils/firebase";
 import { signOut } from "@firebase/auth";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -17,7 +17,19 @@ const SettingsPage = () => {
     const navigation = useNavigation();
     const { colors, isDarkMode, toggleTheme } = useTheme();
 
-    const user = auth.currentUser;
+    const [user, setUser] = useState(auth.currentUser);
+
+    useFocusEffect(
+        useCallback(() => {
+            const refresh = async () => {
+                await auth.currentUser?.reload();
+                setUser(auth.currentUser);
+            };
+            refresh();
+        }, [])
+    );
+
+
 
     const handleLogout = async () => {
         await signOut(auth);
