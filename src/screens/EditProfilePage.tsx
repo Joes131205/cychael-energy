@@ -138,7 +138,6 @@ const styles = StyleSheet.create({
         fontWeight: "600",
     },
     discardButton: {
-        backgroundColor: "#FFECEC",
         marginTop: 10,
     },
 });

@@ -95,6 +95,20 @@ const ChangePasswordPage = () => {
                     {loading ? "Updating..." : "Update Password"}
                 </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[
+                    styles.button,
+                    // styles.cancelButton,
+                    { backgroundColor: "transparent", borderColor: colors.border, borderWidth: 1 },
+                ]}
+                onPress={() => navigation.goBack()}
+            >
+                <Text style={[styles.buttonText, { color: colors.danger }]}>
+                    Cancel
+                </Text>
+            </TouchableOpacity>
+
         </View>
     );
 };
