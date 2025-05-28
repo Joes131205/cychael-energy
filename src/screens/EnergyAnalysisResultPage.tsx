@@ -9,24 +9,45 @@ import {
     Animated,
 } from "react-native";
 
+import {
+    collection,
+    query,
+    where,
+    getDocs,
+    Timestamp,
+} from "firebase/firestore";
+import { db, model } from "../utils/firebase";
 
-import {collection, query, where, getDocs, Timestamp} from "firebase/firestore";
-import {db, model} from "../utils/firebase";
-
-import {LineChart, BarChart, PieChart} from "react-native-chart-kit";
-import {LinearGradient} from "expo-linear-gradient";
-import {useTheme} from "../hooks/useTheme";
-import React, {useRef, useState, useEffect, useMemo} from "react";
-import {useUser} from "../hooks/useUser";
+import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
+import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "../hooks/useTheme";
+import React, { useRef, useState, useEffect, useMemo } from "react";
+import { useUser } from "../hooks/useUser";
 
 const screenWidth = Dimensions.get("window").width;
 const EnergyAnalysisResultPage = () => {
-    const {colors, isDarkMode} = useTheme();
+    const { colors, isDarkMode } = useTheme();
+    const { userData, loading } = useUser();
+
+    const scrollViewRef = useRef<ScrollView>(null);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
     const [groupedData, setGroupedData] = useState<Record<string, any[]>>({});
     const [isLoadingAdvise, setIsLoadingAdvise] = useState(false);
     const [adviseText, setAdviseText] = useState("");
-    const {userData, loading} = useUser();
     const [isLoading, setIsLoading] = useState(true);
+
+    // LineChart - MXA
+    // NEW: State for line chart tooltip
+    const [lineTooltipVisible, setLineTooltipVisible] = useState(false);
+    const [lineTooltipData, setLineTooltipData] = useState<{
+        x: number;
+        y: number;
+        label: string;
+        value: number;
+        date: string;
+    } | null>(null);
+    const lineFadeAnim = useRef(new Animated.Value(0)).current;
 
     // State for Tooltip - MXA
     const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -37,93 +58,90 @@ const EnergyAnalysisResultPage = () => {
         value: number | string;
         type: string;
     } | null>(null);
-    const scrollViewRef = useRef<ScrollView>(null);
-    const fadeAnim = useRef(new Animated.Value(0)).current;
-
-
-
 
     useEffect(() => {
-    if (!loading) {
-        setIsLoading(false);
-    }
+        if (!loading) {
+            setIsLoading(false);
+        }
     }, [userData, loading]);
 
-    const getLastWeekDevices = async () => {
-    try {
-        const deviceList = userData.deviceList?.devices || [];
-
-        const now = new Date();
-        const lastWeekStart = new Date();
-        lastWeekStart.setDate(now.getDate() - 7);
-        lastWeekStart.setHours(0, 0, 0, 0);
-
-        // Grouping result object
-        const grouped: Record<string, any[]> = {};
-
-        deviceList.forEach((device: any) => {
-        const addedAt = new Date(device.addedAt); // If Timestamp: device.addedAt.toDate()
-
-        if (addedAt >= lastWeekStart && addedAt <= now) {
-            const dateKey = addedAt.toISOString().split("T")[0]; // e.g., "2025-05-26"
-            if (!grouped[dateKey]) {
-            grouped[dateKey] = [];
-            }
-            grouped[dateKey].push(device);
-        }
-        });
-
-        console.log("Grouped devices by date:", grouped);
-        return grouped;
-    } catch (error) {
-        console.error("Error grouping devices:", error);
-        return {};
-    }
-    };
     useEffect(() => {
-    const fetchGroupedData = async () => {
-        const data = await getLastWeekDevices();
-        setGroupedData(data);
-    };
-    fetchGroupedData();
+        const fetchGroupedData = async () => {
+            const data = await getLastWeekDevices();
+            setGroupedData(data);
+        };
+        fetchGroupedData();
     }, []);
+
+    const getLastWeekDevices = async () => {
+        try {
+            const deviceList = userData.deviceList?.devices || [];
+
+            const now = new Date();
+            const lastWeekStart = new Date();
+            lastWeekStart.setDate(now.getDate() - 7);
+            lastWeekStart.setHours(0, 0, 0, 0);
+
+            // Grouping result object
+            const grouped: Record<string, any[]> = {};
+
+            deviceList.forEach((device: any) => {
+                const addedAt = new Date(device.addedAt); // If Timestamp: device.addedAt.toDate()
+
+                if (addedAt >= lastWeekStart && addedAt <= now) {
+                    const dateKey = addedAt.toISOString().split("T")[0]; // e.g., "2025-05-26"
+                    if (!grouped[dateKey]) {
+                        grouped[dateKey] = [];
+                    }
+                    grouped[dateKey].push(device);
+                }
+            });
+
+            console.log("Grouped devices by date:", grouped);
+            return grouped;
+        } catch (error) {
+            console.error("Error grouping devices:", error);
+            return {};
+        }
+    };
+
     const weeklyGroupData = useMemo(() => {
-    const today = new Date();
-    const result: number[] = [];
+        const today = new Date();
+        const result: number[] = [];
 
-    for (let i = 6; i >= 0; i--) {
-        const day = new Date(today);
-        day.setDate(today.getDate() - i);
-        const dateKey = day.toISOString().split("T")[0];
+        for (let i = 6; i >= 0; i--) {
+            const day = new Date(today);
+            day.setDate(today.getDate() - i);
+            const dateKey = day.toISOString().split("T")[0];
 
-        const devices = groupedData[dateKey] || [];
+            const devices = groupedData[dateKey] || [];
 
-        const totalKwh = devices.reduce((sum, device) => {
-        const hours = device.hours || 0;
-        const watt = device.watt || 0;
-        const kwh = (watt * hours) / 1000;
-        return sum + kwh;
-        }, 0);
+            const totalKwh = devices.reduce((sum, device) => {
+                const hours = device.hours || 0;
+                const watt = device.watt || 0;
+                const kwh = (watt * hours) / 1000;
+                return sum + kwh;
+            }, 0);
 
-        result.push(Number(totalKwh.toFixed(2)));
-    }
-    console.log("Weekly grouped data:", result);
-    return result;
+            result.push(Number(totalKwh.toFixed(2)));
+        }
+        console.log("Weekly grouped data:", result);
+        return result;
     }, [groupedData]);
 
     const calculateDailyEnergy = useMemo(() => {
-    if (
-        !userData?.deviceList?.devices ||
-        userData.deviceList.devices.length === 0
-    ) {
-        return 0;
-    }
+        if (
+            !userData?.deviceList?.devices ||
+            userData.deviceList.devices.length === 0
+        ) {
+            return 0;
+        }
 
-    return userData.deviceList.devices.reduce(
-        (total: any, device: any) =>
-        total + (device.watt * device.hours || 0) / 1000,
-        0
-    );
+        return userData.deviceList.devices.reduce(
+            (total: any, device: any) =>
+                total + (device.watt * device.hours || 0) / 1000,
+            0
+        );
     }, [userData]);
 
     //   const weeklyData = useMemo(() => {
@@ -141,195 +159,203 @@ const EnergyAnalysisResultPage = () => {
 
     // Generate monthly data (4 weeks)
     const monthlyData = useMemo(() => {
-    if (!calculateDailyEnergy) {
+        if (!calculateDailyEnergy) {
+            return {
+                labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+                datasets: [{ data: [0, 0, 0, 0] }],
+            };
+        }
+
+        // Calculate weekly totals with some variation
+        const baseWeekly = calculateDailyEnergy * 7;
+        const weeklyTotals = Array(4)
+            .fill(0)
+            .map((_, i) => {
+                const variation = Math.random() * 0.2 - 0.05; // -5% to +15% variation
+                return Number(
+                    (baseWeekly * (1 + variation * (i + 1))).toFixed(2)
+                );
+            });
+
         return {
-        labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-        datasets: [{data: [0, 0, 0, 0]}],
+            labels: ["W1", "W2", "W3", "W4"],
+            datasets: [{ data: weeklyTotals }],
         };
-    }
-
-    // Calculate weekly totals with some variation
-    const baseWeekly = calculateDailyEnergy * 7;
-    const weeklyTotals = Array(4)
-        .fill(0)
-        .map((_, i) => {
-        const variation = Math.random() * 0.2 - 0.05; // -5% to +15% variation
-        return Number((baseWeekly * (1 + variation * (i + 1))).toFixed(2));
-        });
-
-    return {
-        labels: ["W1", "W2", "W3", "W4"],
-        datasets: [{data: weeklyTotals}],
-    };
     }, [calculateDailyEnergy]);
     const handleAdvise = () => {
-    const today = new Date();
-    const result: {
-        date: string;
-        data: {name: string; watt: number; usage: number}[];
-        totalkWh: number;
-    }[] = [];
+        const today = new Date();
+        const result: {
+            date: string;
+            data: { name: string; watt: number; usage: number }[];
+            totalkWh: number;
+        }[] = [];
 
-    for (let i = 6; i >= 0; i--) {
-        const day = new Date(today);
-        day.setDate(today.getDate() - i);
-        const dateKey = day.toISOString().split("T")[0];
-        const devices = groupedData[dateKey] || [];
-        let dayTotal = 0;
-        const deviceData = devices.map((device: any) => {
-        const hours = device.hours || 0;
-        const watt = device.watt || 0;
-        const usage = (watt * hours) / 1000;
-        dayTotal += usage;
+        for (let i = 6; i >= 0; i--) {
+            const day = new Date(today);
+            day.setDate(today.getDate() - i);
+            const dateKey = day.toISOString().split("T")[0];
+            const devices = groupedData[dateKey] || [];
+            let dayTotal = 0;
+            const deviceData = devices.map((device: any) => {
+                const hours = device.hours || 0;
+                const watt = device.watt || 0;
+                const usage = (watt * hours) / 1000;
+                dayTotal += usage;
 
-        return {
-            name: device.name || "Unknown",
-            watt,
-            usage: Number(usage.toFixed(2)),
-        };
-        });
-        result.push({
-        date: dateKey,
-        data: deviceData,
-        totalkWh: Number(dayTotal.toFixed(2)),
-        });
-    }
-    const textSummary = result
-        .map((entry) => {
-        const deviceDetails = entry.data
-            .map((d) => `- ${d.name}: ${d.watt}W, Usage: ${d.usage} kWh`)
+                return {
+                    name: device.name || "Unknown",
+                    watt,
+                    usage: Number(usage.toFixed(2)),
+                };
+            });
+            result.push({
+                date: dateKey,
+                data: deviceData,
+                totalkWh: Number(dayTotal.toFixed(2)),
+            });
+        }
+        const textSummary = result
+            .map((entry) => {
+                const deviceDetails = entry.data
+                    .map(
+                        (d) => `- ${d.name}: ${d.watt}W, Usage: ${d.usage} kWh`
+                    )
+                    .join("\n");
+
+                return `📅 ${entry.date}\n${deviceDetails}\n🔋 Total: ${entry.totalkWh} kWh\n`;
+            })
             .join("\n");
+        setIsLoading(true);
+        setAdviseText("");
+        const prompt = `${textSummary}\nbased on that data, what your advise and analysis? short, only under 350 words without asterisk (*) in result`;
+        const ai = model.generateContent(prompt);
 
-        return `📅 ${entry.date}\n${deviceDetails}\n🔋 Total: ${entry.totalkWh} kWh\n`;
-        })
-        .join("\n");
-    setIsLoading(true);
-    setAdviseText("");
-    const prompt = `${textSummary}\nbased on that data, what your advise and analysis? short, only under 350 words without asterisk (*) in result`;
-    const ai = model.generateContent(prompt);
-
-    ai.then((res): void => {
-        let x = res.response.text;
-        setAdviseText(x);
-        setIsLoading(false);
-    });
+        ai.then((res): void => {
+            let x = res.response.text;
+            setAdviseText(x);
+            setIsLoading(false);
+        });
     };
     // Device usage breakdown
     const applianceUsageData = useMemo(() => {
-    if (
-        !userData?.deviceList?.devices ||
-        userData.deviceList.devices.length === 0
-    ) {
-        return [];
-    }
+        if (
+            !userData?.deviceList?.devices ||
+            userData.deviceList.devices.length === 0
+        ) {
+            return [];
+        }
 
-    const totalWattage = userData.deviceList.devices.reduce(
-        (total: any, device: any) => total + (device.watt * device.hours || 0),
-        0
-    );
-
-    if (totalWattage === 0) return [];
-
-    const deviceMap = new Map();
-    userData.deviceList.devices.forEach((device: any) => {
-        const deviceUsage = ((device.watt * device.hours) / totalWattage) * 100;
-        deviceMap.set(
-        device.name,
-        (deviceMap.get(device.name) || 0) + deviceUsage
+        const totalWattage = userData.deviceList.devices.reduce(
+            (total: any, device: any) =>
+                total + (device.watt * device.hours || 0),
+            0
         );
-    });
 
-    const colorPalette = [
-        colors.accent,
-        colors.secondary,
-        "#8AC6B0",
-        colors.primary,
-        "#C4DFDA",
-        "#FFA69E",
-        "#AED9E0",
-    ];
+        if (totalWattage === 0) return [];
 
-    return Array.from(deviceMap.entries())
-        .map(([name, usage], index) => ({
-        name,
-        usage: parseFloat(usage.toFixed(1)),
-        color: colorPalette[index % colorPalette.length],
-        legendFontColor: colors.textSecondary,
-        }))
-        .sort((a, b) => b.usage - a.usage)
-        .slice(0, 5);
+        const deviceMap = new Map();
+        userData.deviceList.devices.forEach((device: any) => {
+            const deviceUsage =
+                ((device.watt * device.hours) / totalWattage) * 100;
+            deviceMap.set(
+                device.name,
+                (deviceMap.get(device.name) || 0) + deviceUsage
+            );
+        });
+
+        const colorPalette = [
+            colors.accent,
+            colors.secondary,
+            "#8AC6B0",
+            colors.primary,
+            "#C4DFDA",
+            "#FFA69E",
+            "#AED9E0",
+        ];
+
+        return Array.from(deviceMap.entries())
+            .map(([name, usage], index) => ({
+                name,
+                usage: parseFloat(usage.toFixed(1)),
+                color: colorPalette[index % colorPalette.length],
+                legendFontColor: colors.textSecondary,
+            }))
+            .sort((a, b) => b.usage - a.usage)
+            .slice(0, 5);
     }, [userData, colors]);
 
     // Comparison data (simulated based on current usage)
     const comparisonData = useMemo(() => {
-    if (!calculateDailyEnergy) {
+        if (!calculateDailyEnergy) {
+            return {
+                currentWeek: 0,
+                previousWeek: 0,
+                savingsPercentage: 0,
+                peakHour: "N/A",
+                lowestHour: "N/A",
+            };
+        }
+
+        const currentWeekTotal = calculateDailyEnergy * 7;
+        const previousWeekTotal = currentWeekTotal * (1 + Math.random() * 0.2);
+
+        const savingsPercentage =
+            previousWeekTotal === 0
+                ? 0
+                : ((previousWeekTotal - currentWeekTotal) / previousWeekTotal) *
+                  100;
+
         return {
-        currentWeek: 0,
-        previousWeek: 0,
-        savingsPercentage: 0,
-        peakHour: "N/A",
-        lowestHour: "N/A",
+            currentWeek: currentWeekTotal,
+            previousWeek: previousWeekTotal,
+            savingsPercentage: parseFloat(savingsPercentage.toFixed(1)),
+            peakHour: "7-8 PM",
+            lowestHour: "3-4 AM",
         };
-    }
-
-    const currentWeekTotal = calculateDailyEnergy * 7;
-    const previousWeekTotal = currentWeekTotal * (1 + Math.random() * 0.2);
-
-    const savingsPercentage =
-        previousWeekTotal === 0
-        ? 0
-        : ((previousWeekTotal - currentWeekTotal) / previousWeekTotal) * 100;
-
-    return {
-        currentWeek: currentWeekTotal,
-        previousWeek: previousWeekTotal,
-        savingsPercentage: parseFloat(savingsPercentage.toFixed(1)),
-        peakHour: "7-8 PM",
-        lowestHour: "3-4 AM",
-    };
     }, [calculateDailyEnergy]);
 
     const chartConfig = {
-    backgroundGradientFrom: isDarkMode ? colors.card : colors.background,
-    backgroundGradientTo: isDarkMode ? colors.card : colors.background,
-    color: (opacity = 1) => `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-    labelColor: (opacity = 1) =>
-        `rgba(${hexToRgb(colors.textSecondary)}, ${opacity})`,
-    strokeWidth: 3,
-    barPercentage: 0.65,
-    decimalPlaces: 0,
-    propsForDots: {
-        r: "4",
-        strokeWidth: "2",
-        stroke: colors.accent,
-    },
-    propsForBackgroundLines: {
-        strokeDasharray: "",
-        stroke: colors.border,
-        strokeWidth: 0.5,
-    },
-    formatXLabel: (label: string) => label.substring(0, 3), // Shorten labels if needed
-    horizontalLabelRotation: 0,
-    useShadowColorFromDataset: false,
+        backgroundGradientFrom: isDarkMode ? colors.card : colors.background,
+        backgroundGradientTo: isDarkMode ? colors.card : colors.background,
+        color: (opacity = 1) => `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
+        labelColor: (opacity = 1) =>
+            `rgba(${hexToRgb(colors.textSecondary)}, ${opacity})`,
+        strokeWidth: 3,
+        barPercentage: 0.65,
+        decimalPlaces: 0,
+        propsForDots: {
+            r: "4",
+            strokeWidth: "2",
+            stroke: colors.accent,
+        },
+        propsForBackgroundLines: {
+            strokeDasharray: "",
+            stroke: colors.border,
+            strokeWidth: 0.5,
+        },
+        formatXLabel: (label: string) => label.substring(0, 3), // Shorten labels if needed
+        horizontalLabelRotation: 0,
+        useShadowColorFromDataset: false,
     };
 
     if (isLoading || loading) {
-    return (
-        <View
-        style={[
-            styles.container,
-            {
-            backgroundColor: colors.background,
-            justifyContent: "center",
-            alignItems: "center",
-            },
-        ]}>
-        <ActivityIndicator size="large" color={colors.accent} />
-        <Text style={{marginTop: 20, color: colors.text}}>
-            Loading energy data...
-        </Text>
-        </View>
-    );
+        return (
+            <View
+                style={[
+                    styles.container,
+                    {
+                        backgroundColor: colors.background,
+                        justifyContent: "center",
+                        alignItems: "center",
+                    },
+                ]}
+            >
+                <ActivityIndicator size="large" color={colors.accent} />
+                <Text style={{ marginTop: 20, color: colors.text }}>
+                    Loading energy data...
+                </Text>
+            </View>
+        );
     }
 
     // Handle Chart - MXA
@@ -337,19 +363,19 @@ const EnergyAnalysisResultPage = () => {
         if (data && data.length > 0) {
             const point = data[0];
             let label, value;
-            
-            if (chartType === 'weekly') {
-                label = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][point.index];
+
+            if (chartType === "weekly") {
+                label = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
+                    point.index
+                ];
                 value = weeklyGroupData[point.index];
-            } 
-            else if (chartType === 'monthly') {
+            } else if (chartType === "monthly") {
                 label = ["W1", "W2", "W3", "W4"][point.index];
                 value = monthlyData.datasets[0].data[point.index];
-            } 
-            else if (chartType === 'pie') {
+            } else if (chartType === "pie") {
                 const item = applianceUsageData[point.index];
                 label = item.name;
-                value = item.usage + '%';
+                value = item.usage + "%";
             }
 
             setTooltipData({
@@ -357,7 +383,7 @@ const EnergyAnalysisResultPage = () => {
                 y: point.y ?? 0,
                 label,
                 value: value ?? "",
-                type: chartType
+                type: chartType,
             });
 
             // Animate tooltip appearance
@@ -394,51 +420,46 @@ const EnergyAnalysisResultPage = () => {
         return (
             <TouchableOpacity
                 key={`bar-${index}`}
-                onPress={() => handleChartPress([{ index, x, y }], 'monthly')}
+                onPress={() => handleChartPress([{ index, x, y }], "monthly")}
                 style={{
                     position: "absolute",
                     left: x,
                     top: y,
                     width,
                     height,
-                    backgroundColor: tooltipVisible && tooltipData?.type === 'monthly' && tooltipData?.label === monthlyData.labels[index]
-                        ? colors.accent 
-                        : `rgba(${hexToRgb(colors.accent)}, 0.7)`,
+                    backgroundColor:
+                        tooltipVisible &&
+                        tooltipData?.type === "monthly" &&
+                        tooltipData?.label === monthlyData.labels[index]
+                            ? colors.accent
+                            : `rgba(${hexToRgb(colors.accent)}, 0.7)`,
                 }}
             />
         );
     };
-
-    // LineChart - MXA
-    // NEW: State for line chart tooltip
-    const [lineTooltipVisible, setLineTooltipVisible] = useState(false);
-    const [lineTooltipData, setLineTooltipData] = useState<{
-        x: number;
-        y: number;
-        label: string;
-        value: number;
-        date: string;
-    } | null>(null);
-    const lineFadeAnim = useRef(new Animated.Value(0)).current;
 
     // NEW: Handle line chart press
     const handleLinePress = (data: any) => {
         if (data && data.length > 0) {
             const point = data[0];
             const dayIndex = point.index;
-            const dayLabel = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][dayIndex];
-            
+            const dayLabel = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
+                dayIndex
+            ];
+
             // Get the actual date from groupedData if available
             const dates = Object.keys(groupedData);
             const dateKey = dates[dayIndex] || "";
-            const formattedDate = dateKey ? new Date(dateKey).toLocaleDateString() : "";
+            const formattedDate = dateKey
+                ? new Date(dateKey).toLocaleDateString()
+                : "";
 
             setLineTooltipData({
                 x: point.x ?? 0,
                 y: point.y ?? 0,
                 label: dayLabel,
                 value: weeklyGroupData[dayIndex],
-                date: formattedDate
+                date: formattedDate,
             });
 
             // Animate tooltip appearance
@@ -471,149 +492,69 @@ const EnergyAnalysisResultPage = () => {
                 key={`dot-${index}`}
                 onPress={() => handleLinePress([{ ...props }])}
                 style={{
-                    position: 'absolute',
+                    position: "absolute",
                     left: x - 15,
                     top: y - 15,
                     width: 30,
                     height: 30,
                     borderRadius: 15,
-                    backgroundColor: 'transparent',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    backgroundColor: "transparent",
+                    justifyContent: "center",
+                    alignItems: "center",
                 }}
             >
-                <View style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 5,
-                    backgroundColor: colors.accent,
-                }} />
+                <View
+                    style={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        backgroundColor: colors.accent,
+                    }}
+                />
             </TouchableOpacity>
         );
     };
 
-
     // Ini Return
     return (
-    <ScrollView
-        ref={scrollViewRef}
-        style={[styles.container, {backgroundColor: colors.background}]}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-    >
-        <LinearGradient
-        colors={
-            isDarkMode
-            ? [colors.card, colors.secondary]
-            : [colors.background, colors.background]
-        }
-        style={[styles.header, {backgroundColor: colors.card}]}>
-        <Text style={[styles.title, {color: colors.text}]}>
-            Energy Analytics Dashboard
-        </Text>
-        <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
-            Your comprehensive energy usage analysis
-        </Text>
-        </LinearGradient>
-        
-        {/* Tooltip component */}
-        {tooltipVisible && tooltipData && (
-            <Animated.View
-                style={[
-                    styles.tooltip,
-                    {
-                        left: tooltipData.x - 50,
-                        top: tooltipData.y - 60,
-                        backgroundColor: colors.card,
-                        borderColor: colors.border,
-                        opacity: fadeAnim,
-                        transform: [
-                            { translateY: fadeAnim.interpolate({
-                                inputRange: [0, 1],
-                                outputRange: [10, 0]
-                            })}
-                        ]
-                    }
-                ]}
-                pointerEvents="none"
+        <ScrollView
+            ref={scrollViewRef}
+            style={[styles.container, { backgroundColor: colors.background }]}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+        >
+            <LinearGradient
+                colors={
+                    isDarkMode
+                        ? [colors.card, colors.secondary]
+                        : [colors.background, colors.background]
+                }
+                style={[styles.header, { backgroundColor: colors.card }]}
             >
-                <Text style={[styles.tooltipLabel, {color: colors.text}]}>
-                    {tooltipData.label}
+                <Text style={[styles.title, { color: colors.text }]}>
+                    Energy Analytics Dashboard
                 </Text>
-                <Text style={[styles.tooltipValue, {color: colors.accent}]}>
-                    {tooltipData.value} {tooltipData.type === 'pie' ? '' : 'kWh'}
+                <Text
+                    style={[styles.subtitle, { color: colors.textSecondary }]}
+                >
+                    Your comprehensive energy usage analysis
                 </Text>
-            </Animated.View>
-        )}
-
-
-        {/* Weekly Energy Chart with interactive dots */}
-        <View style={[styles.card, {backgroundColor: colors.card}]}>
-            <Text style={[styles.cardTitle, {color: colors.text}]}>
-                Weekly Energy Consumption
-            </Text>
-
-            <LineChart
-                data={{
-                    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-                    datasets: [
-                        {
-                            data: weeklyGroupData,
-                            color: (opacity = 1) =>
-                                `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-                            strokeWidth: 3,
-                        },
-                    ],
-                    legend: ["Weekly Energy Output (kWh)"],
-                }}
-                width={screenWidth - 60}
-                height={240}
-                chartConfig={chartConfig}
-                bezier
-                style={styles.chart}
-                withVerticalLines={false}
-                withHorizontalLines={true}
-                withShadow={true}
-                withInnerLines={false}
-                decorator={renderDots} // Tambahkan untuk tooltip support
-
-                onDataPointClick={({ value, dataset, getColor, index, x, y }) => {
-                const dayLabel = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][index];
-                const dateKey = Object.keys(groupedData)[index] || "";
-                const formattedDate = dateKey ? new Date(dateKey).toLocaleDateString() : "";
-
-                setLineTooltipData({
-                x,
-                y,
-                label: dayLabel,
-                value,
-                date: formattedDate,
-                });
-
-                Animated.timing(lineFadeAnim, {
-                toValue: 1,
-                duration: 200,
-                useNativeDriver: true,
-                }).start();
-
-                setLineTooltipVisible(true);
-            }}
-            />
+            </LinearGradient>
 
             {/* Tooltip component */}
-            {lineTooltipVisible && lineTooltipData && (
+            {tooltipVisible && tooltipData && (
                 <Animated.View
                     style={[
                         styles.tooltip,
                         {
-                            left: lineTooltipData.x - 60,
-                            top: lineTooltipData.y - 80,
+                            left: tooltipData.x - 50,
+                            top: tooltipData.y - 60,
                             backgroundColor: colors.card,
                             borderColor: colors.border,
-                            opacity: lineFadeAnim,
+                            opacity: fadeAnim,
                             transform: [
                                 {
-                                    translateY: lineFadeAnim.interpolate({
+                                    translateY: fadeAnim.interpolate({
                                         inputRange: [0, 1],
                                         outputRange: [10, 0],
                                     }),
@@ -623,189 +564,375 @@ const EnergyAnalysisResultPage = () => {
                     ]}
                     pointerEvents="none"
                 >
-                    <Text style={[styles.tooltipLabel, {color: colors.text}]}>
-                        {lineTooltipData.label}
+                    <Text style={[styles.tooltipLabel, { color: colors.text }]}>
+                        {tooltipData.label}
                     </Text>
-                    {lineTooltipData.date && (
-                        <Text style={[styles.tooltipDate, {color: colors.textSecondary}]}>
-                            {lineTooltipData.date}
-                        </Text>
-                    )}
-                    <Text style={[styles.tooltipValue, {color: colors.accent}]}>
-                        {lineTooltipData.value.toFixed(2)} kWh
+                    <Text
+                        style={[styles.tooltipValue, { color: colors.accent }]}
+                    >
+                        {tooltipData.value}{" "}
+                        {tooltipData.type === "pie" ? "" : "kWh"}
                     </Text>
                 </Animated.View>
             )}
 
-            <View style={styles.statsRow}>
-                <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                        Total Weekly Usage
-                    </Text>
-                    <Text style={[styles.statValue, {color: colors.text}]}>
-                        {weeklyGroupData.reduce((a, b) => a + b, 0).toFixed(1)} kWh
-                    </Text>
-                </View>
-                <View style={styles.statItem}>
-                    <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                        Daily Average
-                    </Text>
-                    <Text style={[styles.statValue, {color: colors.text}]}>
-                        {(weeklyGroupData.reduce((a, b) => a + b, 0) / 7).toFixed(2)} kWh
-                    </Text>
-                </View>
-            </View>
-        </View>
+            {/* Weekly Energy Chart with interactive dots */}
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                    Weekly Energy Consumption
+                </Text>
 
-
-
-        {/* Monthly Energy Chart */}
-        <View style={[styles.card, {backgroundColor: colors.card}]}>
-        <Text style={[styles.cardTitle, {color: colors.text}]}>
-            Monthly Energy Trend
-        </Text>
-        <BarChart
-            data={monthlyData}
-            width={screenWidth - 60}
-            height={220}
-            chartConfig={chartConfig}
-            style={styles.chart}
-            yAxisSuffix=" kWh"
-            showBarTops={false}
-            fromZero={true}
-            yAxisLabel={""}
-            // withInnerLines={false}
-            // TBA - MXA
-
-            // renderBar={renderBar}
-        />
-        <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                Current Month
-            </Text>
-            <Text style={[styles.statValue, {color: colors.text}]}>
-                {monthlyData.datasets[0].data
-                .reduce((a, b) => a + b, 0)
-                .toFixed(1)}
-                kWh
-            </Text>
-            </View>
-            <View style={styles.statItem}>
-            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                Savings
-            </Text>
-            <Text
-                style={[
-                styles.statValue,
-                styles.savingsText,
-                {
-                    color:
-                    comparisonData.savingsPercentage >= 0
-                        ? colors.success
-                        : "#FF5252",
-                },
-                ]}>
-                {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}
-                {Math.abs(comparisonData.savingsPercentage).toFixed(1)}%
-            </Text>
-            </View>
-        </View>
-        </View>
-
-
-
-        {/* Appliance Breakdown with touchable slices */}
-        <View style={[styles.card, {backgroundColor: colors.card}]}>
-            <Text style={[styles.cardTitle, {color: colors.text}]}>
-                Appliance Energy Usage
-            </Text>
-            {applianceUsageData.length > 0 ? (
-                <>
-                <View style={{ position: 'relative' }}>
-                    <PieChart
-                    data={applianceUsageData}
-                    width={screenWidth - 60}
-                    height={200}
-                    chartConfig={chartConfig}
-                    accessor="usage"
-                    backgroundColor="transparent"
-                    paddingLeft="25"
-                    absolute
-                    hasLegend={false}
-                    style={styles.chart}
-                    />
-                    {applianceUsageData.map((_, index) => (
-                    <TouchableOpacity
-                        key={`touchable-${index}`}
-                        style={{
-                        position: 'absolute',
-                        width: (screenWidth - 60) / 2,
-                        height: 200,
-                        left: (screenWidth - 60) / 4,
-                        top: 0,
-                        transform: [
-                            { rotate: `${(index / applianceUsageData.length) * 360}deg` }
+                <LineChart
+                    data={{
+                        labels: [
+                            "Mon",
+                            "Tue",
+                            "Wed",
+                            "Thu",
+                            "Fri",
+                            "Sat",
+                            "Sun",
                         ],
-                        opacity: 0.3 // Tetap tak terlihat, tapi bisa disentuh
-                        }}
-                        onPress={() => handleChartPress([{ index }], 'pie')}
-                    />
-                    ))}
-                </View>
+                        datasets: [
+                            {
+                                data: weeklyGroupData,
+                                color: (opacity = 1) =>
+                                    `rgba(${hexToRgb(
+                                        colors.accent
+                                    )}, ${opacity})`,
+                                strokeWidth: 3,
+                            },
+                        ],
+                        legend: ["Weekly Energy Output (kWh)"],
+                    }}
+                    width={screenWidth - 60}
+                    height={240}
+                    chartConfig={chartConfig}
+                    bezier
+                    style={styles.chart}
+                    withVerticalLines={false}
+                    withHorizontalLines={true}
+                    withShadow={true}
+                    withInnerLines={false}
+                    decorator={renderDots} // Tambahkan untuk tooltip support
+                    onDataPointClick={({
+                        value,
+                        dataset,
+                        getColor,
+                        index,
+                        x,
+                        y,
+                    }) => {
+                        const dayLabel = [
+                            "Mon",
+                            "Tue",
+                            "Wed",
+                            "Thu",
+                            "Fri",
+                            "Sat",
+                            "Sun",
+                        ][index];
+                        const dateKey = Object.keys(groupedData)[index] || "";
+                        const formattedDate = dateKey
+                            ? new Date(dateKey).toLocaleDateString()
+                            : "";
 
-                <View style={styles.applianceList}>
-                    {applianceUsageData.map((item, index) => (
-                    <View key={index} style={styles.applianceItem}>
-                        <View
+                        setLineTooltipData({
+                            x,
+                            y,
+                            label: dayLabel,
+                            value,
+                            date: formattedDate,
+                        });
+
+                        Animated.timing(lineFadeAnim, {
+                            toValue: 1,
+                            duration: 200,
+                            useNativeDriver: true,
+                        }).start();
+
+                        setLineTooltipVisible(true);
+                    }}
+                />
+
+                {/* Tooltip component */}
+                {lineTooltipVisible && lineTooltipData && (
+                    <Animated.View
                         style={[
-                            styles.colorIndicator,
-                            { backgroundColor: item.color },
+                            styles.tooltip,
+                            {
+                                left: lineTooltipData.x - 60,
+                                top: lineTooltipData.y - 80,
+                                backgroundColor: colors.card,
+                                borderColor: colors.border,
+                                opacity: lineFadeAnim,
+                                transform: [
+                                    {
+                                        translateY: lineFadeAnim.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [10, 0],
+                                        }),
+                                    },
+                                ],
+                            },
                         ]}
-                        />
-                        <Text style={[styles.applianceName, { color: colors.textSecondary }]}>
-                        {item.name}
+                        pointerEvents="none"
+                    >
+                        <Text
+                            style={[
+                                styles.tooltipLabel,
+                                { color: colors.text },
+                            ]}
+                        >
+                            {lineTooltipData.label}
                         </Text>
-                        <Text style={[styles.applianceValue, { color: colors.text }]}>
-                        {item.usage}%
+                        {lineTooltipData.date && (
+                            <Text
+                                style={[
+                                    styles.tooltipDate,
+                                    { color: colors.textSecondary },
+                                ]}
+                            >
+                                {lineTooltipData.date}
+                            </Text>
+                        )}
+                        <Text
+                            style={[
+                                styles.tooltipValue,
+                                { color: colors.accent },
+                            ]}
+                        >
+                            {lineTooltipData.value.toFixed(2)} kWh
+                        </Text>
+                    </Animated.View>
+                )}
+
+                <View style={styles.statsRow}>
+                    <View style={styles.statItem}>
+                        <Text
+                            style={[
+                                styles.statLabel,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            Total Weekly Usage
+                        </Text>
+                        <Text
+                            style={[styles.statValue, { color: colors.text }]}
+                        >
+                            {weeklyGroupData
+                                .reduce((a, b) => a + b, 0)
+                                .toFixed(1)}{" "}
+                            kWh
                         </Text>
                     </View>
-                    ))}
+                    <View style={styles.statItem}>
+                        <Text
+                            style={[
+                                styles.statLabel,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            Daily Average
+                        </Text>
+                        <Text
+                            style={[styles.statValue, { color: colors.text }]}
+                        >
+                            {(
+                                weeklyGroupData.reduce((a, b) => a + b, 0) / 7
+                            ).toFixed(2)}{" "}
+                            kWh
+                        </Text>
+                    </View>
                 </View>
-                </>
-            ) : (
-                <Text
-                style={{
-                    color: colors.textSecondary,
-                    textAlign: "center",
-                    padding: 20,
-                }}
-                >
-                No appliance data available
+            </View>
+
+            {/* Monthly Energy Chart */}
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                    Monthly Energy Trend
                 </Text>
-            )}
-        </View>
+                <BarChart
+                    data={monthlyData}
+                    width={screenWidth - 60}
+                    height={220}
+                    chartConfig={chartConfig}
+                    style={styles.chart}
+                    yAxisSuffix=" kWh"
+                    showBarTops={false}
+                    fromZero={true}
+                    yAxisLabel={""}
+                    // withInnerLines={false}
+                    // TBA - MXA
 
+                    // renderBar={renderBar}
+                />
+                <View style={styles.statsRow}>
+                    <View style={styles.statItem}>
+                        <Text
+                            style={[
+                                styles.statLabel,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            Current Month
+                        </Text>
+                        <Text
+                            style={[styles.statValue, { color: colors.text }]}
+                        >
+                            {monthlyData.datasets[0].data
+                                .reduce((a, b) => a + b, 0)
+                                .toFixed(1)}
+                            kWh
+                        </Text>
+                    </View>
+                    <View style={styles.statItem}>
+                        <Text
+                            style={[
+                                styles.statLabel,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            Savings
+                        </Text>
+                        <Text
+                            style={[
+                                styles.statValue,
+                                styles.savingsText,
+                                {
+                                    color:
+                                        comparisonData.savingsPercentage >= 0
+                                            ? colors.success
+                                            : "#FF5252",
+                                },
+                            ]}
+                        >
+                            {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}
+                            {Math.abs(comparisonData.savingsPercentage).toFixed(
+                                1
+                            )}
+                            %
+                        </Text>
+                    </View>
+                </View>
+            </View>
 
+            {/* Appliance Breakdown with touchable slices */}
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                    Appliance Energy Usage
+                </Text>
+                {applianceUsageData.length > 0 ? (
+                    <>
+                        <View style={{ position: "relative" }}>
+                            <PieChart
+                                data={applianceUsageData}
+                                width={screenWidth - 60}
+                                height={200}
+                                chartConfig={chartConfig}
+                                accessor="usage"
+                                backgroundColor="transparent"
+                                paddingLeft="25"
+                                absolute
+                                hasLegend={false}
+                                style={styles.chart}
+                            />
+                            {applianceUsageData.map((_, index) => (
+                                <TouchableOpacity
+                                    key={`touchable-${index}`}
+                                    style={{
+                                        position: "absolute",
+                                        width: (screenWidth - 60) / 2,
+                                        height: 200,
+                                        left: (screenWidth - 60) / 4,
+                                        top: 0,
+                                        transform: [
+                                            {
+                                                rotate: `${
+                                                    (index /
+                                                        applianceUsageData.length) *
+                                                    360
+                                                }deg`,
+                                            },
+                                        ],
+                                        opacity: 0.3, // Tetap tak terlihat, tapi bisa disentuh
+                                    }}
+                                    onPress={() =>
+                                        handleChartPress([{ index }], "pie")
+                                    }
+                                />
+                            ))}
+                        </View>
 
-        {/* Saran */}
-        <View style={[styles.card, {backgroundColor: colors.card}]}>
-        <Text style={[styles.cardTitle, {color: colors.text}]}>AI Advisor</Text>
-        <Text style={[styles.applianceName, {color: colors.textSecondary}]}>
-            {adviseText}
-        </Text>
+                        <View style={styles.applianceList}>
+                            {applianceUsageData.map((item, index) => (
+                                <View key={index} style={styles.applianceItem}>
+                                    <View
+                                        style={[
+                                            styles.colorIndicator,
+                                            { backgroundColor: item.color },
+                                        ]}
+                                    />
+                                    <Text
+                                        style={[
+                                            styles.applianceName,
+                                            { color: colors.textSecondary },
+                                        ]}
+                                    >
+                                        {item.name}
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.applianceValue,
+                                            { color: colors.text },
+                                        ]}
+                                    >
+                                        {item.usage}%
+                                    </Text>
+                                </View>
+                            ))}
+                        </View>
+                    </>
+                ) : (
+                    <Text
+                        style={{
+                            color: colors.textSecondary,
+                            textAlign: "center",
+                            padding: 20,
+                        }}
+                    >
+                        No appliance data available
+                    </Text>
+                )}
+            </View>
 
-        <TouchableOpacity
-            className="mt-2 items-center py-2"
-            onPress={() => handleAdvise()}>
-            <Text
-            className="text-xs font-semibold"
-            style={{color: colors.accent}}>
-            click here to get helpful advise
-            </Text>
-        </TouchableOpacity>
-        </View>
-    </ScrollView>
+            {/* Saran */}
+            <View style={[styles.card, { backgroundColor: colors.card }]}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                    AI Advisor
+                </Text>
+                <Text
+                    style={[
+                        styles.applianceName,
+                        { color: colors.textSecondary },
+                    ]}
+                >
+                    {adviseText}
+                </Text>
+
+                <TouchableOpacity
+                    className="mt-2 items-center py-2"
+                    onPress={() => handleAdvise()}
+                >
+                    <Text
+                        className="text-xs font-semibold"
+                        style={{ color: colors.accent }}
+                    >
+                        click here to get helpful advise
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
     );
 };
 
@@ -828,7 +955,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 20,
         marginBottom: 16,
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 10,
         elevation: 5,
@@ -849,7 +976,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginBottom: 20,
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 4},
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 4,
@@ -936,27 +1063,27 @@ const styles = StyleSheet.create({
     },
 
     tooltip: {
-        position: 'absolute',
+        position: "absolute",
         padding: 10,
         borderRadius: 8,
         borderWidth: 1,
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 5,
         zIndex: 100,
         minWidth: 100,
-        alignItems: 'center',
+        alignItems: "center",
     },
     tooltipLabel: {
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: "600",
         marginBottom: 4,
     },
     tooltipValue: {
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: "700",
     },
     tooltipDate: {
         fontSize: 12,
