@@ -6,7 +6,17 @@ import {
     ScrollView,
     ActivityIndicator,
     TouchableOpacity,
+    Modal,
+    Pressable,
 } from "react-native";
+// import {
+//     VictoryBar,
+//     VictoryChart,
+//     VictoryTheme,
+//     VictoryAxis,
+//     VictoryTooltip
+// } from 'victory-native';
+
 import {collection, query, where, getDocs, Timestamp} from "firebase/firestore";
 import {db, model} from "../utils/firebase";
 
@@ -24,6 +34,124 @@ const EnergyAnalysisResultPage = () => {
     const [adviseText, setAdviseText] = useState("");
     const {userData, loading} = useUser();
     const [isLoading, setIsLoading] = useState(true);
+
+    // Selected Data
+    const [selectedChartData, setSelectedChartData] = useState<{
+        type: string;
+        label: string;
+        value: number;
+        details?: any;
+    } | null>(null);
+
+    const [selectedBarIndex, setSelectedBarIndex] = useState<number | null>(null);
+    const [selectedPieIndex, setSelectedPieIndex] = useState<number | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalData, setModalData] = useState<any>(null);
+
+    const handleChartPress = (data: any, chartType: string) => {
+        if (data && data.length > 0) {
+            // For weekly chart
+            if (chartType === 'weekly') {
+                const dayIndex = data[0].index;
+                const dayLabel = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][dayIndex];
+                setSelectedChartData({
+                    type: 'Daily',
+                    label: dayLabel,
+                    value: weeklyGroupData[dayIndex],
+                    details: {
+                        // You can add more details here from your groupedData
+                        devices: groupedData[Object.keys(groupedData)[dayIndex]] || []
+                    }
+                });
+            }
+            // For monthly chart
+            else if (chartType === 'monthly') {
+                const weekIndex = data[0].index;
+                const weekLabel = ["W1", "W2", "W3", "W4"][weekIndex];
+                setSelectedChartData({
+                    type: 'Weekly',
+                    label: weekLabel,
+                    value: monthlyData.datasets[0].data[weekIndex],
+                });
+            }
+            // For pie chart
+            else if (chartType === 'pie') {
+                const item = applianceUsageData[data[0].index];
+                setSelectedChartData({
+                    type: 'Appliance',
+                    label: item.name,
+                    value: item.usage,
+                });
+            }
+            setModalVisible(true);
+        }
+    };
+
+    // Handle Bar Chart
+    const handleBarSelect = (index: number) => {
+        setSelectedBarIndex(index);
+        setModalData({
+        type: "Weekly",
+        label: monthlyData.labels[index],
+        value: monthlyData.datasets[0].data[index],
+        });
+        setModalVisible(true);
+    };
+
+    const renderBar = (props: any) => {
+        const { index, x, y, width, height } = props;
+        return (
+        <TouchableOpacity
+            key={`bar-${index}`}
+            onPress={() => handleBarSelect(index)}
+            style={{
+            position: "absolute",
+            left: x,
+            top: y,
+            width,
+            height,
+            backgroundColor: selectedBarIndex === index 
+                ? colors.accent 
+                : `rgba(${hexToRgb(colors.accent)}, 0.7)`,
+            }}
+        />
+        );
+    };
+
+    // Handle Pie Chart
+    const handlePieSelect = (index: number) => {
+        setSelectedPieIndex(index);
+        setModalData({
+        type: "Appliance",
+        label: applianceUsageData[index].name,
+        value: applianceUsageData[index].usage,
+        });
+        setModalVisible(true);
+    };
+
+    const renderPieSlice = (props: any) => {
+        const { centeredSlice, index } = props;
+        const sliceColor = centeredSlice?.color || colors.accent;
+        
+        return (
+        <TouchableOpacity
+            key={`pie-${index}`}
+            onPress={() => handlePieSelect(index)}
+            style={{
+            backgroundColor: selectedPieIndex === index 
+                ? sliceColor 
+                : `${sliceColor}80`, // 80 = 50% opacity
+            borderRadius: 50,
+            padding: 10,
+            margin: 2,
+            }}
+        />
+        );
+    };
+
+    
+
+
     useEffect(() => {
     if (!loading) {
         setIsLoading(false);
@@ -313,6 +441,7 @@ const EnergyAnalysisResultPage = () => {
     );
     }
 
+    // == Ini Return View nya ==
     return (
     <ScrollView
         style={[styles.container, {backgroundColor: colors.background}]}>
@@ -330,105 +459,174 @@ const EnergyAnalysisResultPage = () => {
             Your comprehensive energy usage analysis
         </Text>
         </LinearGradient>
+
+        {/* == Modal == */}
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}>
+            <View style={styles.modalContainer}>
+                <Pressable 
+                    style={styles.modalBackground}
+                    onPress={() => setModalVisible(false)} 
+                />
+                <View style={[styles.modalContent, {backgroundColor: colors.card}]}>
+                    {selectedChartData && (
+                        <>
+                            <Text style={[styles.modalTitle, {color: colors.text}]}>
+                                {selectedChartData.type} Details
+                            </Text>
+                            <Text style={[styles.modalText, {color: colors.text}]}>
+                                <Text style={{fontWeight: 'bold'}}>{selectedChartData.label}:</Text> {selectedChartData.value} kWh
+                            </Text>
+                            
+                            {/* Show device details for weekly chart */}
+                            {selectedChartData.details?.devices && (
+                                <View style={styles.deviceDetails}>
+                                    <Text style={[styles.modalSubtitle, {color: colors.text}]}>
+                                        Devices:
+                                    </Text>
+                                    {selectedChartData.details.devices.map((device: any, index: number) => (
+                                        <Text key={index} style={[styles.modalText, {color: colors.textSecondary}]}>
+                                            - {device.name}: {(device.watt * device.hours / 1000).toFixed(2)} kWh
+                                        </Text>
+                                    ))}
+                                </View>
+                            )}
+                        </>
+                    )}
+                    <TouchableOpacity
+                        style={[styles.modalButton, {backgroundColor: colors.accent}]}
+                        onPress={() => setModalVisible(false)}>
+                        <Text style={[styles.modalButtonText, {color: colors.text}]}>Close</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </Modal>
+
+
         {/* Weekly Energy Chart */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
-        <Text style={[styles.cardTitle, {color: colors.text}]}>
-            Weekly Energy Consumption
-        </Text>
-        <LineChart
-            data={{
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-                {
-                data: weeklyGroupData,
-                color: (opacity = 1) =>
-                    `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-                strokeWidth: 3,
-                },
-            ],
-            legend: ["Weekly Energy Output (kWh)"],
-            }}
-            width={screenWidth - 60}
-            height={240}
-            chartConfig={chartConfig}
-            bezier
-            style={styles.chart}
-            withVerticalLines={false}
-            withHorizontalLines={true}
-            withShadow={true}
-            withInnerLines={false}
-        />
-        <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                Total Weekly Usage
+            <Text style={[styles.cardTitle, {color: colors.text}]}>
+                Weekly Energy Consumption
             </Text>
-            <Text style={[styles.statValue, {color: colors.text}]}>
-                {weeklyGroupData.reduce((a, b) => a + b, 0).toFixed(1)}
-                kWh
-            </Text>
-            </View>
-            <View style={styles.statItem}>
-            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                Daily Average
-            </Text>
-            <Text style={[styles.statValue, {color: colors.text}]}>
-                {(weeklyGroupData.reduce((a, b) => a + b, 0) / 7).toFixed(2)}
-                kWh
-            </Text>
+            <LineChart
+                data={{
+                labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                datasets: [
+                    {
+                    data: weeklyGroupData,
+                    color: (opacity = 1) =>
+                        `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
+                    strokeWidth: 3,
+                    },
+                ],
+                legend: ["Weekly Energy Output (kWh)"],
+                }}
+                width={screenWidth - 60}
+                height={240}
+                chartConfig={chartConfig}
+                bezier
+                style={styles.chart}
+                withVerticalLines={false}
+                withHorizontalLines={true}
+                withShadow={true}
+                withInnerLines={false}
+
+                // Ini: Point Click Handler
+                onDataPointClick={(data) => handleChartPress([data], 'weekly')}
+                decorator={() => (
+                    <Text style={{color: colors.text}}>Tap on points for details</Text>
+                )}
+            />
+            <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+                    Total Weekly Usage
+                </Text>
+                <Text style={[styles.statValue, {color: colors.text}]}>
+                    {weeklyGroupData.reduce((a, b) => a + b, 0).toFixed(1)}
+                    kWh
+                </Text>
+                </View>
+                <View style={styles.statItem}>
+                <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+                    Daily Average
+                </Text>
+                <Text style={[styles.statValue, {color: colors.text}]}>
+                    {(weeklyGroupData.reduce((a, b) => a + b, 0) / 7).toFixed(2)}
+                    kWh
+                </Text>
+                </View>
             </View>
         </View>
-        </View>
+
+
+
         {/* Monthly Energy Chart */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
-        <Text style={[styles.cardTitle, {color: colors.text}]}>
-            Monthly Energy Trend
-        </Text>
-        <BarChart
-            data={monthlyData}
-            width={screenWidth - 60}
-            height={220}
-            chartConfig={chartConfig}
-            style={styles.chart}
-            yAxisSuffix=" kWh"
-            showBarTops={false}
-            fromZero={true}
-            yAxisLabel={""}
-            withInnerLines={false}
-        />
-        <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                Current Month
+            <Text style={[styles.cardTitle, {color: colors.text}]}>
+                Monthly Energy Trend
             </Text>
-            <Text style={[styles.statValue, {color: colors.text}]}>
-                {monthlyData.datasets[0].data
-                .reduce((a, b) => a + b, 0)
-                .toFixed(1)}
-                kWh
-            </Text>
-            </View>
-            <View style={styles.statItem}>
-            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                Savings
-            </Text>
-            <Text
-                style={[
-                styles.statValue,
-                styles.savingsText,
-                {
-                    color:
-                    comparisonData.savingsPercentage >= 0
-                        ? colors.success
-                        : "#FF5252",
-                },
-                ]}>
-                {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}
-                {Math.abs(comparisonData.savingsPercentage).toFixed(1)}%
-            </Text>
+            <BarChart
+                data={monthlyData}
+                width={screenWidth - 60}
+                height={220}
+                chartConfig={chartConfig}
+                style={styles.chart}
+                yAxisSuffix=" kWh"
+                showBarTops={false}
+                fromZero={true}
+                yAxisLabel={""}
+                withInnerLines={false}
+
+                // onDataPointClick={(data) => handleChartPress([data], 'monthly')}
+                // decorator={() => (
+                //     <Text style={{color: colors.text}}>Tap on bars for details</Text>
+                // )}
+                renderBar={renderBar}
+                decorator={() => (
+                    <Text style={{color: colors.text, textAlign: 'center'}}>
+                    Tap bars for details
+                    </Text>
+                )}
+            />
+            <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+                    Current Month
+                </Text>
+                <Text style={[styles.statValue, {color: colors.text}]}>
+                    {monthlyData.datasets[0].data
+                    .reduce((a, b) => a + b, 0)
+                    .toFixed(1)}
+                    kWh
+                </Text>
+                </View>
+                <View style={styles.statItem}>
+                <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+                    Savings
+                </Text>
+                <Text
+                    style={[
+                    styles.statValue,
+                    styles.savingsText,
+                    {
+                        color:
+                        comparisonData.savingsPercentage >= 0
+                            ? colors.success
+                            : "#FF5252",
+                    },
+                    ]}>
+                    {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}
+                    {Math.abs(comparisonData.savingsPercentage).toFixed(1)}%
+                </Text>
+                </View>
             </View>
         </View>
-        </View>
+
+
         {/* Appliance Breakdown */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
         <Text style={[styles.cardTitle, {color: colors.text}]}>
@@ -447,6 +645,9 @@ const EnergyAnalysisResultPage = () => {
                 absolute
                 style={styles.chart}
                 hasLegend={false}
+
+                // onDataPointClick={(data) => handleChartPress([data], 'pie')}
+                renderPieSlice={renderPieSlice}
             />
             <View style={styles.applianceList}>
                 {applianceUsageData.map((item, index) => (
@@ -482,6 +683,7 @@ const EnergyAnalysisResultPage = () => {
             </Text>
         )}
         </View>
+
         {/* Saran */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
         <Text style={[styles.cardTitle, {color: colors.text}]}>AI Advisor</Text>
@@ -627,6 +829,62 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         lineHeight: 20,
+    },
+
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalBackground: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalContent: {
+        width: '80%',
+        padding: 20,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 15,
+        textAlign: 'center',
+    },
+    modalSubtitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginTop: 10,
+        marginBottom: 5,
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 5,
+    },
+    modalButton: {
+        marginTop: 20,
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    modalButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    deviceDetails: {
+        marginTop: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#D0E0DD',
+        paddingTop: 10,
     },
 });
 
