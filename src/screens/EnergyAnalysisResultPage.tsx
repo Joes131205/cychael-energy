@@ -41,6 +41,8 @@ const EnergyAnalysisResultPage = () => {
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
 
+
+
     useEffect(() => {
     if (!loading) {
         setIsLoading(false);
@@ -351,8 +353,8 @@ const EnergyAnalysisResultPage = () => {
             }
 
             setTooltipData({
-                x: point.x,
-                y: point.y,
+                x: point.x ?? 0,
+                y: point.y ?? 0,
                 label,
                 value: value ?? "",
                 type: chartType
@@ -404,6 +406,89 @@ const EnergyAnalysisResultPage = () => {
                         : `rgba(${hexToRgb(colors.accent)}, 0.7)`,
                 }}
             />
+        );
+    };
+
+    // LineChart - MXA
+    // NEW: State for line chart tooltip
+    const [lineTooltipVisible, setLineTooltipVisible] = useState(false);
+    const [lineTooltipData, setLineTooltipData] = useState<{
+        x: number;
+        y: number;
+        label: string;
+        value: number;
+        date: string;
+    } | null>(null);
+    const lineFadeAnim = useRef(new Animated.Value(0)).current;
+
+    // NEW: Handle line chart press
+    const handleLinePress = (data: any) => {
+        if (data && data.length > 0) {
+            const point = data[0];
+            const dayIndex = point.index;
+            const dayLabel = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][dayIndex];
+            
+            // Get the actual date from groupedData if available
+            const dates = Object.keys(groupedData);
+            const dateKey = dates[dayIndex] || "";
+            const formattedDate = dateKey ? new Date(dateKey).toLocaleDateString() : "";
+
+            setLineTooltipData({
+                x: point.x ?? 0,
+                y: point.y ?? 0,
+                label: dayLabel,
+                value: weeklyGroupData[dayIndex],
+                date: formattedDate
+            });
+
+            // Animate tooltip appearance
+            Animated.timing(lineFadeAnim, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true,
+            }).start();
+
+            setLineTooltipVisible(true);
+        }
+    };
+
+    // NEW: Hide line tooltip
+    const hideLineTooltip = () => {
+        Animated.timing(lineFadeAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+        }).start(() => {
+            setLineTooltipVisible(false);
+        });
+    };
+
+    // NEW: Custom decorator for line chart points
+    const renderDots = (props: any) => {
+        const { x, y, index } = props;
+        return (
+            <TouchableOpacity
+                key={`dot-${index}`}
+                onPress={() => handleLinePress([{ ...props }])}
+                style={{
+                    position: 'absolute',
+                    left: x - 15,
+                    top: y - 15,
+                    width: 30,
+                    height: 30,
+                    borderRadius: 15,
+                    backgroundColor: 'transparent',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <View style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: colors.accent,
+                }} />
+            </TouchableOpacity>
         );
     };
 
@@ -462,55 +547,116 @@ const EnergyAnalysisResultPage = () => {
         )}
 
 
-        {/* Weekly Energy Chart */}
+        {/* Weekly Energy Chart with interactive dots */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
-        <Text style={[styles.cardTitle, {color: colors.text}]}>
-            Weekly Energy Consumption
-        </Text>
-        <LineChart
-            data={{
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-            datasets: [
-                {
-                data: weeklyGroupData,
-                color: (opacity = 1) =>
-                    `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-                strokeWidth: 3,
-                },
-            ],
-            legend: ["Weekly Energy Output (kWh)"],
+            <Text style={[styles.cardTitle, {color: colors.text}]}>
+                Weekly Energy Consumption
+            </Text>
+
+            <LineChart
+                data={{
+                    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                    datasets: [
+                        {
+                            data: weeklyGroupData,
+                            color: (opacity = 1) =>
+                                `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
+                            strokeWidth: 3,
+                        },
+                    ],
+                    legend: ["Weekly Energy Output (kWh)"],
+                }}
+                width={screenWidth - 60}
+                height={240}
+                chartConfig={chartConfig}
+                bezier
+                style={styles.chart}
+                withVerticalLines={false}
+                withHorizontalLines={true}
+                withShadow={true}
+                withInnerLines={false}
+                decorator={renderDots} // Tambahkan untuk tooltip support
+
+                onDataPointClick={({ value, dataset, getColor, index, x, y }) => {
+                const dayLabel = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][index];
+                const dateKey = Object.keys(groupedData)[index] || "";
+                const formattedDate = dateKey ? new Date(dateKey).toLocaleDateString() : "";
+
+                setLineTooltipData({
+                x,
+                y,
+                label: dayLabel,
+                value,
+                date: formattedDate,
+                });
+
+                Animated.timing(lineFadeAnim, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true,
+                }).start();
+
+                setLineTooltipVisible(true);
             }}
-            width={screenWidth - 60}
-            height={240}
-            chartConfig={chartConfig}
-            bezier
-            style={styles.chart}
-            withVerticalLines={false}
-            withHorizontalLines={true}
-            withShadow={true}
-            withInnerLines={false}
-        />
-        <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                Total Weekly Usage
-            </Text>
-            <Text style={[styles.statValue, {color: colors.text}]}>
-                {weeklyGroupData.reduce((a, b) => a + b, 0).toFixed(1)}
-                kWh
-            </Text>
-            </View>
-            <View style={styles.statItem}>
-            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
-                Daily Average
-            </Text>
-            <Text style={[styles.statValue, {color: colors.text}]}>
-                {(weeklyGroupData.reduce((a, b) => a + b, 0) / 7).toFixed(2)}
-                kWh
-            </Text>
+            />
+
+            {/* Tooltip component */}
+            {lineTooltipVisible && lineTooltipData && (
+                <Animated.View
+                    style={[
+                        styles.tooltip,
+                        {
+                            left: lineTooltipData.x - 60,
+                            top: lineTooltipData.y - 80,
+                            backgroundColor: colors.card,
+                            borderColor: colors.border,
+                            opacity: lineFadeAnim,
+                            transform: [
+                                {
+                                    translateY: lineFadeAnim.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [10, 0],
+                                    }),
+                                },
+                            ],
+                        },
+                    ]}
+                    pointerEvents="none"
+                >
+                    <Text style={[styles.tooltipLabel, {color: colors.text}]}>
+                        {lineTooltipData.label}
+                    </Text>
+                    {lineTooltipData.date && (
+                        <Text style={[styles.tooltipDate, {color: colors.textSecondary}]}>
+                            {lineTooltipData.date}
+                        </Text>
+                    )}
+                    <Text style={[styles.tooltipValue, {color: colors.accent}]}>
+                        {lineTooltipData.value.toFixed(2)} kWh
+                    </Text>
+                </Animated.View>
+            )}
+
+            <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                    <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+                        Total Weekly Usage
+                    </Text>
+                    <Text style={[styles.statValue, {color: colors.text}]}>
+                        {weeklyGroupData.reduce((a, b) => a + b, 0).toFixed(1)} kWh
+                    </Text>
+                </View>
+                <View style={styles.statItem}>
+                    <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+                        Daily Average
+                    </Text>
+                    <Text style={[styles.statValue, {color: colors.text}]}>
+                        {(weeklyGroupData.reduce((a, b) => a + b, 0) / 7).toFixed(2)} kWh
+                    </Text>
+                </View>
             </View>
         </View>
-        </View>
+
 
 
         {/* Monthly Energy Chart */}
@@ -811,6 +957,10 @@ const styles = StyleSheet.create({
     tooltipValue: {
         fontSize: 16,
         fontWeight: '700',
+    },
+    tooltipDate: {
+        fontSize: 12,
+        marginBottom: 4,
     },
 });
 
