@@ -476,9 +476,13 @@ const DashboardPage = () => {
                                                         1
                                                     )}{" "}
                                                     kWh (
-                                                    {device.percentage.toFixed(
-                                                        0
-                                                    )}
+                                                    {typeof device.percentage ===
+                                                        "number" &&
+                                                    !isNaN(device.percentage)
+                                                        ? device.percentage.toFixed(
+                                                              0
+                                                          )
+                                                        : "0"}
                                                     %)
                                                 </Text>
                                             </View>
