@@ -4,4 +4,5 @@ export type RootStackParamList = {
     Dashboard: undefined;
     LandingPage: undefined;
     EnergyInputPage: undefined;
+    Settings: { refresh?: boolean };
 };

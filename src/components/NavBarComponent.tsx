@@ -135,8 +135,8 @@ const NavBarComponent = () => {
                                     <Ionicons
                                         name={
                                             isRouteActive("Settings")
-                                                ? "people"
-                                                : "people-outline"
+                                                ? "person"
+                                                : "person-outline"
                                         }
                                         size={30}
                                         color={
