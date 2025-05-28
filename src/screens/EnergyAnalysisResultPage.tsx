@@ -25,13 +25,13 @@ const EnergyAnalysisResultPage = () => {
     const {userData, loading} = useUser();
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
-      if (!loading) {
+    if (!loading) {
         setIsLoading(false);
-      }
+    }
     }, [userData, loading]);
 
     const getLastWeekDevices = async () => {
-      try {
+    try {
         const deviceList = userData.deviceList?.devices || [];
 
         const now = new Date();
@@ -43,36 +43,36 @@ const EnergyAnalysisResultPage = () => {
         const grouped: Record<string, any[]> = {};
 
         deviceList.forEach((device: any) => {
-          const addedAt = new Date(device.addedAt); // If Timestamp: device.addedAt.toDate()
+        const addedAt = new Date(device.addedAt); // If Timestamp: device.addedAt.toDate()
 
-          if (addedAt >= lastWeekStart && addedAt <= now) {
+        if (addedAt >= lastWeekStart && addedAt <= now) {
             const dateKey = addedAt.toISOString().split("T")[0]; // e.g., "2025-05-26"
             if (!grouped[dateKey]) {
-              grouped[dateKey] = [];
+            grouped[dateKey] = [];
             }
             grouped[dateKey].push(device);
-          }
+        }
         });
 
         console.log("Grouped devices by date:", grouped);
         return grouped;
-      } catch (error) {
+    } catch (error) {
         console.error("Error grouping devices:", error);
         return {};
-      }
+    }
     };
     useEffect(() => {
-      const fetchGroupedData = async () => {
+    const fetchGroupedData = async () => {
         const data = await getLastWeekDevices();
         setGroupedData(data);
-      };
-      fetchGroupedData();
+    };
+    fetchGroupedData();
     }, []);
     const weeklyGroupData = useMemo(() => {
-      const today = new Date();
-      const result: number[] = [];
+    const today = new Date();
+    const result: number[] = [];
 
-      for (let i = 6; i >= 0; i--) {
+    for (let i = 6; i >= 0; i--) {
         const day = new Date(today);
         day.setDate(today.getDate() - i);
         const dateKey = day.toISOString().split("T")[0];
@@ -80,31 +80,31 @@ const EnergyAnalysisResultPage = () => {
         const devices = groupedData[dateKey] || [];
 
         const totalKwh = devices.reduce((sum, device) => {
-          const hours = device.hours || 0;
-          const watt = device.watt || 0;
-          const kwh = (watt * hours) / 1000;
-          return sum + kwh;
+        const hours = device.hours || 0;
+        const watt = device.watt || 0;
+        const kwh = (watt * hours) / 1000;
+        return sum + kwh;
         }, 0);
 
         result.push(Number(totalKwh.toFixed(2)));
-      }
-      console.log("Weekly grouped data:", result);
-      return result;
+    }
+    console.log("Weekly grouped data:", result);
+    return result;
     }, [groupedData]);
 
     const calculateDailyEnergy = useMemo(() => {
-      if (
+    if (
         !userData?.deviceList?.devices ||
         userData.deviceList.devices.length === 0
-      ) {
+    ) {
         return 0;
-      }
+    }
 
-      return userData.deviceList.devices.reduce(
+    return userData.deviceList.devices.reduce(
         (total: any, device: any) =>
-          total + (device.watt * device.hours || 0) / 1000,
+        total + (device.watt * device.hours || 0) / 1000,
         0
-      );
+    );
     }, [userData]);
 
     //   const weeklyData = useMemo(() => {
@@ -122,105 +122,105 @@ const EnergyAnalysisResultPage = () => {
 
     // Generate monthly data (4 weeks)
     const monthlyData = useMemo(() => {
-      if (!calculateDailyEnergy) {
+    if (!calculateDailyEnergy) {
         return {
-          labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-          datasets: [{data: [0, 0, 0, 0]}],
+        labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+        datasets: [{data: [0, 0, 0, 0]}],
         };
-      }
+    }
 
-      // Calculate weekly totals with some variation
-      const baseWeekly = calculateDailyEnergy * 7;
-      const weeklyTotals = Array(4)
+    // Calculate weekly totals with some variation
+    const baseWeekly = calculateDailyEnergy * 7;
+    const weeklyTotals = Array(4)
         .fill(0)
         .map((_, i) => {
-          const variation = Math.random() * 0.2 - 0.05; // -5% to +15% variation
-          return Number((baseWeekly * (1 + variation * (i + 1))).toFixed(2));
+        const variation = Math.random() * 0.2 - 0.05; // -5% to +15% variation
+        return Number((baseWeekly * (1 + variation * (i + 1))).toFixed(2));
         });
 
-      return {
+    return {
         labels: ["W1", "W2", "W3", "W4"],
         datasets: [{data: weeklyTotals}],
-      };
+    };
     }, [calculateDailyEnergy]);
     const handleAdvise = () => {
-      const today = new Date();
-      const result: {
+    const today = new Date();
+    const result: {
         date: string;
         data: {name: string; watt: number; usage: number}[];
         totalkWh: number;
-      }[] = [];
+    }[] = [];
 
-      for (let i = 6; i >= 0; i--) {
+    for (let i = 6; i >= 0; i--) {
         const day = new Date(today);
         day.setDate(today.getDate() - i);
         const dateKey = day.toISOString().split("T")[0];
         const devices = groupedData[dateKey] || [];
         let dayTotal = 0;
         const deviceData = devices.map((device: any) => {
-          const hours = device.hours || 0;
-          const watt = device.watt || 0;
-          const usage = (watt * hours) / 1000;
-          dayTotal += usage;
+        const hours = device.hours || 0;
+        const watt = device.watt || 0;
+        const usage = (watt * hours) / 1000;
+        dayTotal += usage;
 
-          return {
+        return {
             name: device.name || "Unknown",
             watt,
             usage: Number(usage.toFixed(2)),
-          };
+        };
         });
         result.push({
-          date: dateKey,
-          data: deviceData,
-          totalkWh: Number(dayTotal.toFixed(2)),
+        date: dateKey,
+        data: deviceData,
+        totalkWh: Number(dayTotal.toFixed(2)),
         });
-      }
-      const textSummary = result
+    }
+    const textSummary = result
         .map((entry) => {
-          const deviceDetails = entry.data
+        const deviceDetails = entry.data
             .map((d) => `- ${d.name}: ${d.watt}W, Usage: ${d.usage} kWh`)
             .join("\n");
 
-          return `📅 ${entry.date}\n${deviceDetails}\n🔋 Total: ${entry.totalkWh} kWh\n`;
+        return `📅 ${entry.date}\n${deviceDetails}\n🔋 Total: ${entry.totalkWh} kWh\n`;
         })
         .join("\n");
-      setIsLoading(true);
-      setAdviseText("");
-      const prompt = `${textSummary}\nbased on that data, what your advise and analysis? short, only under 350 words without asterisk (*) in result`;
-      const ai = model.generateContent(prompt);
+    setIsLoading(true);
+    setAdviseText("");
+    const prompt = `${textSummary}\nbased on that data, what your advise and analysis? short, only under 350 words without asterisk (*) in result`;
+    const ai = model.generateContent(prompt);
 
-      ai.then((res): void => {
-          let x = res.response.text;
-          setAdviseText(x);
-          setIsLoading(false);
-      });
+    ai.then((res): void => {
+        let x = res.response.text;
+        setAdviseText(x);
+        setIsLoading(false);
+    });
     };
     // Device usage breakdown
     const applianceUsageData = useMemo(() => {
-      if (
+    if (
         !userData?.deviceList?.devices ||
         userData.deviceList.devices.length === 0
-      ) {
+    ) {
         return [];
-      }
+    }
 
-      const totalWattage = userData.deviceList.devices.reduce(
+    const totalWattage = userData.deviceList.devices.reduce(
         (total: any, device: any) => total + (device.watt * device.hours || 0),
         0
-      );
+    );
 
-      if (totalWattage === 0) return [];
+    if (totalWattage === 0) return [];
 
-      const deviceMap = new Map();
-      userData.deviceList.devices.forEach((device: any) => {
+    const deviceMap = new Map();
+    userData.deviceList.devices.forEach((device: any) => {
         const deviceUsage = ((device.watt * device.hours) / totalWattage) * 100;
         deviceMap.set(
-          device.name,
-          (deviceMap.get(device.name) || 0) + deviceUsage
+        device.name,
+        (deviceMap.get(device.name) || 0) + deviceUsage
         );
-      });
+    });
 
-      const colorPalette = [
+    const colorPalette = [
         colors.accent,
         colors.secondary,
         "#8AC6B0",
@@ -228,14 +228,14 @@ const EnergyAnalysisResultPage = () => {
         "#C4DFDA",
         "#FFA69E",
         "#AED9E0",
-      ];
+    ];
 
-      return Array.from(deviceMap.entries())
+    return Array.from(deviceMap.entries())
         .map(([name, usage], index) => ({
-          name,
-          usage: parseFloat(usage.toFixed(1)),
-          color: colorPalette[index % colorPalette.length],
-          legendFontColor: colors.textSecondary,
+        name,
+        usage: parseFloat(usage.toFixed(1)),
+        color: colorPalette[index % colorPalette.length],
+        legendFontColor: colors.textSecondary,
         }))
         .sort((a, b) => b.usage - a.usage)
         .slice(0, 5);
@@ -243,110 +243,110 @@ const EnergyAnalysisResultPage = () => {
 
     // Comparison data (simulated based on current usage)
     const comparisonData = useMemo(() => {
-      if (!calculateDailyEnergy) {
+    if (!calculateDailyEnergy) {
         return {
-          currentWeek: 0,
-          previousWeek: 0,
-          savingsPercentage: 0,
-          peakHour: "N/A",
-          lowestHour: "N/A",
+        currentWeek: 0,
+        previousWeek: 0,
+        savingsPercentage: 0,
+        peakHour: "N/A",
+        lowestHour: "N/A",
         };
-      }
+    }
 
-      const currentWeekTotal = calculateDailyEnergy * 7;
-      const previousWeekTotal = currentWeekTotal * (1 + Math.random() * 0.2);
+    const currentWeekTotal = calculateDailyEnergy * 7;
+    const previousWeekTotal = currentWeekTotal * (1 + Math.random() * 0.2);
 
-      const savingsPercentage =
+    const savingsPercentage =
         previousWeekTotal === 0
-          ? 0
-          : ((previousWeekTotal - currentWeekTotal) / previousWeekTotal) * 100;
+        ? 0
+        : ((previousWeekTotal - currentWeekTotal) / previousWeekTotal) * 100;
 
-      return {
+    return {
         currentWeek: currentWeekTotal,
         previousWeek: previousWeekTotal,
         savingsPercentage: parseFloat(savingsPercentage.toFixed(1)),
         peakHour: "7-8 PM",
         lowestHour: "3-4 AM",
-      };
+    };
     }, [calculateDailyEnergy]);
 
     const chartConfig = {
-      backgroundGradientFrom: isDarkMode ? colors.card : colors.background,
-      backgroundGradientTo: isDarkMode ? colors.card : colors.background,
-      color: (opacity = 1) => `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-      labelColor: (opacity = 1) =>
+    backgroundGradientFrom: isDarkMode ? colors.card : colors.background,
+    backgroundGradientTo: isDarkMode ? colors.card : colors.background,
+    color: (opacity = 1) => `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
+    labelColor: (opacity = 1) =>
         `rgba(${hexToRgb(colors.textSecondary)}, ${opacity})`,
-      strokeWidth: 3,
-      barPercentage: 0.65,
-      decimalPlaces: 0,
-      propsForDots: {
+    strokeWidth: 3,
+    barPercentage: 0.65,
+    decimalPlaces: 0,
+    propsForDots: {
         r: "4",
         strokeWidth: "2",
         stroke: colors.accent,
-      },
-      propsForBackgroundLines: {
+    },
+    propsForBackgroundLines: {
         strokeDasharray: "",
         stroke: colors.border,
         strokeWidth: 0.5,
-      },
-      formatXLabel: (label: string) => label.substring(0, 3), // Shorten labels if needed
-      horizontalLabelRotation: 0,
-      useShadowColorFromDataset: false,
+    },
+    formatXLabel: (label: string) => label.substring(0, 3), // Shorten labels if needed
+    horizontalLabelRotation: 0,
+    useShadowColorFromDataset: false,
     };
 
     if (isLoading || loading) {
-      return (
+    return (
         <View
-          style={[
+        style={[
             styles.container,
             {
-              backgroundColor: colors.background,
-              justifyContent: "center",
-              alignItems: "center",
+            backgroundColor: colors.background,
+            justifyContent: "center",
+            alignItems: "center",
             },
-          ]}>
-          <ActivityIndicator size="large" color={colors.accent} />
-          <Text style={{marginTop: 20, color: colors.text}}>
+        ]}>
+        <ActivityIndicator size="large" color={colors.accent} />
+        <Text style={{marginTop: 20, color: colors.text}}>
             Loading energy data...
-          </Text>
+        </Text>
         </View>
-      );
+    );
     }
 
     return (
-      <ScrollView
+    <ScrollView
         style={[styles.container, {backgroundColor: colors.background}]}>
         <LinearGradient
-          colors={
+        colors={
             isDarkMode
-              ? [colors.card, colors.secondary]
-              : [colors.background, colors.background]
-          }
-          style={[styles.header, {backgroundColor: colors.card}]}>
-          <Text style={[styles.title, {color: colors.text}]}>
+            ? [colors.card, colors.secondary]
+            : [colors.background, colors.background]
+        }
+        style={[styles.header, {backgroundColor: colors.card}]}>
+        <Text style={[styles.title, {color: colors.text}]}>
             Energy Analytics Dashboard
-          </Text>
-          <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
+        </Text>
+        <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
             Your comprehensive energy usage analysis
-          </Text>
+        </Text>
         </LinearGradient>
         {/* Weekly Energy Chart */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
-          <Text style={[styles.cardTitle, {color: colors.text}]}>
+        <Text style={[styles.cardTitle, {color: colors.text}]}>
             Weekly Energy Consumption
-          </Text>
-          <LineChart
+        </Text>
+        <LineChart
             data={{
-              labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-              datasets: [
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            datasets: [
                 {
-                  data: weeklyGroupData,
-                  color: (opacity = 1) =>
+                data: weeklyGroupData,
+                color: (opacity = 1) =>
                     `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
-                  strokeWidth: 3,
+                strokeWidth: 3,
                 },
-              ],
-              legend: ["Weekly Energy Output (kWh)"],
+            ],
+            legend: ["Weekly Energy Output (kWh)"],
             }}
             width={screenWidth - 60}
             height={240}
@@ -357,34 +357,34 @@ const EnergyAnalysisResultPage = () => {
             withHorizontalLines={true}
             withShadow={true}
             withInnerLines={false}
-          />
-          <View style={styles.statsRow}>
+        />
+        <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
                 Total Weekly Usage
-              </Text>
-              <Text style={[styles.statValue, {color: colors.text}]}>
+            </Text>
+            <Text style={[styles.statValue, {color: colors.text}]}>
                 {weeklyGroupData.reduce((a, b) => a + b, 0).toFixed(1)}
                 kWh
-              </Text>
+            </Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
                 Daily Average
-              </Text>
-              <Text style={[styles.statValue, {color: colors.text}]}>
+            </Text>
+            <Text style={[styles.statValue, {color: colors.text}]}>
                 {(weeklyGroupData.reduce((a, b) => a + b, 0) / 7).toFixed(2)}
                 kWh
-              </Text>
+            </Text>
             </View>
-          </View>
+        </View>
         </View>
         {/* Monthly Energy Chart */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
-          <Text style={[styles.cardTitle, {color: colors.text}]}>
+        <Text style={[styles.cardTitle, {color: colors.text}]}>
             Monthly Energy Trend
-          </Text>
-          <BarChart
+        </Text>
+        <BarChart
             data={monthlyData}
             width={screenWidth - 60}
             height={220}
@@ -395,48 +395,48 @@ const EnergyAnalysisResultPage = () => {
             fromZero={true}
             yAxisLabel={""}
             withInnerLines={false}
-          />
-          <View style={styles.statsRow}>
+        />
+        <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
                 Current Month
-              </Text>
-              <Text style={[styles.statValue, {color: colors.text}]}>
+            </Text>
+            <Text style={[styles.statValue, {color: colors.text}]}>
                 {monthlyData.datasets[0].data
-                  .reduce((a, b) => a + b, 0)
-                  .toFixed(1)}
+                .reduce((a, b) => a + b, 0)
+                .toFixed(1)}
                 kWh
-              </Text>
+            </Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
+            <Text style={[styles.statLabel, {color: colors.textSecondary}]}>
                 Savings
-              </Text>
-              <Text
+            </Text>
+            <Text
                 style={[
-                  styles.statValue,
-                  styles.savingsText,
-                  {
+                styles.statValue,
+                styles.savingsText,
+                {
                     color:
-                      comparisonData.savingsPercentage >= 0
+                    comparisonData.savingsPercentage >= 0
                         ? colors.success
                         : "#FF5252",
-                  },
+                },
                 ]}>
                 {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}
                 {Math.abs(comparisonData.savingsPercentage).toFixed(1)}%
-              </Text>
+            </Text>
             </View>
-          </View>
+        </View>
         </View>
         {/* Appliance Breakdown */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
-          <Text style={[styles.cardTitle, {color: colors.text}]}>
+        <Text style={[styles.cardTitle, {color: colors.text}]}>
             Appliance Energy Usage
-          </Text>
-          {applianceUsageData.length > 0 ? (
+        </Text>
+        {applianceUsageData.length > 0 ? (
             <>
-              <PieChart
+            <PieChart
                 data={applianceUsageData}
                 width={screenWidth - 60}
                 height={200}
@@ -447,59 +447,59 @@ const EnergyAnalysisResultPage = () => {
                 absolute
                 style={styles.chart}
                 hasLegend={false}
-              />
-              <View style={styles.applianceList}>
+            />
+            <View style={styles.applianceList}>
                 {applianceUsageData.map((item, index) => (
-                  <View key={index} style={styles.applianceItem}>
+                <View key={index} style={styles.applianceItem}>
                     <View
-                      style={[
+                    style={[
                         styles.colorIndicator,
                         {backgroundColor: item.color},
-                      ]}
+                    ]}
                     />
                     <Text
-                      style={[
+                    style={[
                         styles.applianceName,
                         {color: colors.textSecondary},
-                      ]}>
-                      {item.name}
+                    ]}>
+                    {item.name}
                     </Text>
                     <Text style={[styles.applianceValue, {color: colors.text}]}>
-                      {item.usage}%
+                    {item.usage}%
                     </Text>
-                  </View>
+                </View>
                 ))}
-              </View>
+            </View>
             </>
-          ) : (
+        ) : (
             <Text
-              style={{
+            style={{
                 color: colors.textSecondary,
                 textAlign: "center",
                 padding: 20,
-              }}>
-              No appliance data available
+            }}>
+            No appliance data available
             </Text>
-          )}
+        )}
         </View>
         {/* Saran */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
-          <Text style={[styles.cardTitle, {color: colors.text}]}>AI Advisor</Text>
-          <Text style={[styles.applianceName, {color: colors.textSecondary}]}>
+        <Text style={[styles.cardTitle, {color: colors.text}]}>AI Advisor</Text>
+        <Text style={[styles.applianceName, {color: colors.textSecondary}]}>
             {adviseText}
-          </Text>
+        </Text>
 
-          <TouchableOpacity
+        <TouchableOpacity
             className="mt-2 items-center py-2"
             onPress={() => handleAdvise()}>
             <Text
-              className="text-xs font-semibold"
-              style={{color: colors.accent}}>
-              click here to get helpful advise
+            className="text-xs font-semibold"
+            style={{color: colors.accent}}>
+            click here to get helpful advise
             </Text>
-          </TouchableOpacity>
+        </TouchableOpacity>
         </View>
-      </ScrollView>
+    </ScrollView>
     );
 };
 
@@ -512,122 +512,122 @@ const hexToRgb = (hex: string) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 24,
-    paddingBottom: 16,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "800",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-  },
-  card: {
-    borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    overflow: "hidden", // Prevent content from overflowing card bounds
-  },
-  recommendationCard: {
-    borderLeftWidth: 4,
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    marginBottom: 16,
-  },
-  chart: {
-    borderRadius: 12,
-    marginBottom: 16,
-    marginLeft: -15, // Adjust horizontal positioning to prevent overflow
-  },
-  statsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 12,
-  },
-  statItem: {
-    flex: 1,
-  },
-  statLabel: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  savingsText: {},
-  applianceList: {
-    marginTop: 12,
-  },
-  applianceItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  colorIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 10,
-  },
-  applianceName: {
-    flex: 1,
-    fontSize: 14,
-  },
-  applianceValue: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  insightItem: {
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 10,
-  },
-  insightText: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  highlight: {
-    fontWeight: "600",
-  },
-  recommendationItem: {
-    flexDirection: "row",
-    marginBottom: 10,
-    alignItems: "flex-start",
-  },
-  recommendationBullet: {
-    fontSize: 20,
-    marginRight: 8,
-    lineHeight: 20,
-  },
-  recommendationText: {
-    flex: 1,
-    fontSize: 14,
-    lineHeight: 20,
-  },
+    container: {
+        flex: 1,
+    },
+    header: {
+        padding: 24,
+        paddingBottom: 16,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+        marginBottom: 16,
+        shadowColor: "#000",
+        shadowOffset: {width: 0, height: 4},
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+    },
+    title: {
+        fontSize: 26,
+        fontWeight: "800",
+        marginBottom: 8,
+        textAlign: "center",
+    },
+    subtitle: {
+        fontSize: 16,
+        textAlign: "center",
+    },
+    card: {
+        borderRadius: 16,
+        padding: 20,
+        marginHorizontal: 20,
+        marginBottom: 20,
+        shadowColor: "#000",
+        shadowOffset: {width: 0, height: 4},
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+        overflow: "hidden", // Prevent content from overflowing card bounds
+    },
+    recommendationCard: {
+        borderLeftWidth: 4,
+    },
+    cardTitle: {
+        fontSize: 20,
+        fontWeight: "700",
+        marginBottom: 16,
+    },
+    chart: {
+        borderRadius: 12,
+        marginBottom: 16,
+        marginLeft: -15, // Adjust horizontal positioning to prevent overflow
+    },
+    statsRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginTop: 12,
+    },
+    statItem: {
+        flex: 1,
+    },
+    statLabel: {
+        fontSize: 14,
+        marginBottom: 4,
+    },
+    statValue: {
+        fontSize: 18,
+        fontWeight: "700",
+    },
+    savingsText: {},
+    applianceList: {
+        marginTop: 12,
+    },
+    applianceItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 8,
+    },
+    colorIndicator: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        marginRight: 10,
+    },
+    applianceName: {
+        flex: 1,
+        fontSize: 14,
+    },
+    applianceValue: {
+        fontSize: 14,
+        fontWeight: "600",
+    },
+    insightItem: {
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 10,
+    },
+    insightText: {
+        fontSize: 14,
+        lineHeight: 20,
+    },
+    highlight: {
+        fontWeight: "600",
+    },
+    recommendationItem: {
+        flexDirection: "row",
+        marginBottom: 10,
+        alignItems: "flex-start",
+    },
+    recommendationBullet: {
+        fontSize: 20,
+        marginRight: 8,
+        lineHeight: 20,
+    },
+    recommendationText: {
+        flex: 1,
+        fontSize: 14,
+        lineHeight: 20,
+    },
 });
 
 export default EnergyAnalysisResultPage;
