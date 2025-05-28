@@ -7,10 +7,15 @@ import {
     StyleSheet,
     Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { auth } from "../utils/firebase";
 import { updateProfile, updateEmail } from "firebase/auth";
 import { useTheme } from "../hooks/useTheme";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/Navigation"; // Adjust the path
+
+type SettingsScreenNavigationProp = StackNavigationProp<RootStackParamList, "Settings">;
+type SettingsScreenRouteProp = RouteProp<RootStackParamList, "Settings">;
 
 const EditProfilePage = () => {
     const user = auth.currentUser;
@@ -19,8 +24,10 @@ const EditProfilePage = () => {
     const [initialEmail, setInitialEmail] = useState(user?.email || "");
     const [name, setName] = useState(user?.displayName || "");
     const [email, setEmail] = useState(user?.email || "");
-    const navigation = useNavigation();
 
+    const navigation = useNavigation<SettingsScreenNavigationProp>();
+    const route = useRoute<SettingsScreenRouteProp>();
+    
     const handleDiscard = () => {
         setName(initialName);
         setEmail(initialEmail);
@@ -39,7 +46,9 @@ const EditProfilePage = () => {
             }
 
             Alert.alert("Success", "Profile updated successfully.");
-            navigation.goBack();
+           
+            navigation.navigate("Settings", { refresh: true });
+
         } catch (error: any) {
             console.error(error);
             let message = "Failed to update profile.";
