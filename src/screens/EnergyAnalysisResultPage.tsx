@@ -6,6 +6,7 @@ import {
     ScrollView,
     ActivityIndicator,
     TouchableOpacity,
+    Animated,
 } from "react-native";
 
 
@@ -15,7 +16,7 @@ import {db, model} from "../utils/firebase";
 import {LineChart, BarChart, PieChart} from "react-native-chart-kit";
 import {LinearGradient} from "expo-linear-gradient";
 import {useTheme} from "../hooks/useTheme";
-import {useState, useEffect, useMemo} from "react";
+import React, {useRef, useState, useEffect, useMemo} from "react";
 import {useUser} from "../hooks/useUser";
 
 const screenWidth = Dimensions.get("window").width;
@@ -26,6 +27,20 @@ const EnergyAnalysisResultPage = () => {
     const [adviseText, setAdviseText] = useState("");
     const {userData, loading} = useUser();
     const [isLoading, setIsLoading] = useState(true);
+
+    // State for Tooltip - MXA
+    const [tooltipVisible, setTooltipVisible] = useState(false);
+    const [tooltipData, setTooltipData] = useState<{
+        x: number;
+        y: number;
+        label: string;
+        value: number | string;
+        type: string;
+    } | null>(null);
+    const scrollViewRef = useRef<ScrollView>(null);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+
     useEffect(() => {
     if (!loading) {
         setIsLoading(false);
@@ -315,9 +330,92 @@ const EnergyAnalysisResultPage = () => {
     );
     }
 
+    // Handle Chart - MXA
+    const handleChartPress = (data: any, chartType: string) => {
+        if (data && data.length > 0) {
+            const point = data[0];
+            let label, value;
+            
+            if (chartType === 'weekly') {
+                label = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][point.index];
+                value = weeklyGroupData[point.index];
+            } 
+            else if (chartType === 'monthly') {
+                label = ["W1", "W2", "W3", "W4"][point.index];
+                value = monthlyData.datasets[0].data[point.index];
+            } 
+            else if (chartType === 'pie') {
+                const item = applianceUsageData[point.index];
+                label = item.name;
+                value = item.usage + '%';
+            }
+
+            setTooltipData({
+                x: point.x,
+                y: point.y,
+                label,
+                value: value ?? "",
+                type: chartType
+            });
+
+            // Animate tooltip appearance
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 200,
+                useNativeDriver: true,
+            }).start();
+
+            setTooltipVisible(true);
+        }
+    };
+
+    const hideTooltip = () => {
+        Animated.timing(fadeAnim, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: true,
+        }).start(() => {
+            setTooltipVisible(false);
+        });
+    };
+
+    // NEW: Handle scroll to hide tooltip
+    const handleScroll = () => {
+        if (tooltipVisible) {
+            hideTooltip();
+        }
+    };
+
+    // Add to your existing BarChart component:
+    const renderBar = (props: any) => {
+        const { index, x, y, width, height } = props;
+        return (
+            <TouchableOpacity
+                key={`bar-${index}`}
+                onPress={() => handleChartPress([{ index, x, y }], 'monthly')}
+                style={{
+                    position: "absolute",
+                    left: x,
+                    top: y,
+                    width,
+                    height,
+                    backgroundColor: tooltipVisible && tooltipData?.type === 'monthly' && tooltipData?.label === monthlyData.labels[index]
+                        ? colors.accent 
+                        : `rgba(${hexToRgb(colors.accent)}, 0.7)`,
+                }}
+            />
+        );
+    };
+
+
+    // Ini Return
     return (
     <ScrollView
-        style={[styles.container, {backgroundColor: colors.background}]}>
+        ref={scrollViewRef}
+        style={[styles.container, {backgroundColor: colors.background}]}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+    >
         <LinearGradient
         colors={
             isDarkMode
@@ -332,6 +430,38 @@ const EnergyAnalysisResultPage = () => {
             Your comprehensive energy usage analysis
         </Text>
         </LinearGradient>
+        
+        {/* Tooltip component */}
+        {tooltipVisible && tooltipData && (
+            <Animated.View
+                style={[
+                    styles.tooltip,
+                    {
+                        left: tooltipData.x - 50,
+                        top: tooltipData.y - 60,
+                        backgroundColor: colors.card,
+                        borderColor: colors.border,
+                        opacity: fadeAnim,
+                        transform: [
+                            { translateY: fadeAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [10, 0]
+                            })}
+                        ]
+                    }
+                ]}
+                pointerEvents="none"
+            >
+                <Text style={[styles.tooltipLabel, {color: colors.text}]}>
+                    {tooltipData.label}
+                </Text>
+                <Text style={[styles.tooltipValue, {color: colors.accent}]}>
+                    {tooltipData.value} {tooltipData.type === 'pie' ? '' : 'kWh'}
+                </Text>
+            </Animated.View>
+        )}
+
+
         {/* Weekly Energy Chart */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
         <Text style={[styles.cardTitle, {color: colors.text}]}>
@@ -381,6 +511,8 @@ const EnergyAnalysisResultPage = () => {
             </View>
         </View>
         </View>
+
+
         {/* Monthly Energy Chart */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
         <Text style={[styles.cardTitle, {color: colors.text}]}>
@@ -396,7 +528,10 @@ const EnergyAnalysisResultPage = () => {
             showBarTops={false}
             fromZero={true}
             yAxisLabel={""}
-            withInnerLines={false}
+            // withInnerLines={false}
+            // TBA - MXA
+
+            // renderBar={renderBar}
         />
         <View style={styles.statsRow}>
             <View style={styles.statItem}>
@@ -431,59 +566,82 @@ const EnergyAnalysisResultPage = () => {
             </View>
         </View>
         </View>
-        {/* Appliance Breakdown */}
+
+
+
+        {/* Appliance Breakdown with touchable slices */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
-        <Text style={[styles.cardTitle, {color: colors.text}]}>
-            Appliance Energy Usage
-        </Text>
-        {applianceUsageData.length > 0 ? (
-            <>
-            <PieChart
-                data={applianceUsageData}
-                width={screenWidth - 60}
-                height={200}
-                chartConfig={chartConfig}
-                accessor="usage"
-                backgroundColor="transparent"
-                paddingLeft="25"
-                absolute
-                style={styles.chart}
-                hasLegend={false}
-            />
-            <View style={styles.applianceList}>
-                {applianceUsageData.map((item, index) => (
-                <View key={index} style={styles.applianceItem}>
-                    <View
-                    style={[
-                        styles.colorIndicator,
-                        {backgroundColor: item.color},
-                    ]}
-                    />
-                    <Text
-                    style={[
-                        styles.applianceName,
-                        {color: colors.textSecondary},
-                    ]}>
-                    {item.name}
-                    </Text>
-                    <Text style={[styles.applianceValue, {color: colors.text}]}>
-                    {item.usage}%
-                    </Text>
-                </View>
-                ))}
-            </View>
-            </>
-        ) : (
-            <Text
-            style={{
-                color: colors.textSecondary,
-                textAlign: "center",
-                padding: 20,
-            }}>
-            No appliance data available
+            <Text style={[styles.cardTitle, {color: colors.text}]}>
+                Appliance Energy Usage
             </Text>
-        )}
+            {applianceUsageData.length > 0 ? (
+                <>
+                <View style={{ position: 'relative' }}>
+                    <PieChart
+                    data={applianceUsageData}
+                    width={screenWidth - 60}
+                    height={200}
+                    chartConfig={chartConfig}
+                    accessor="usage"
+                    backgroundColor="transparent"
+                    paddingLeft="25"
+                    absolute
+                    hasLegend={false}
+                    style={styles.chart}
+                    />
+                    {applianceUsageData.map((_, index) => (
+                    <TouchableOpacity
+                        key={`touchable-${index}`}
+                        style={{
+                        position: 'absolute',
+                        width: (screenWidth - 60) / 2,
+                        height: 200,
+                        left: (screenWidth - 60) / 4,
+                        top: 0,
+                        transform: [
+                            { rotate: `${(index / applianceUsageData.length) * 360}deg` }
+                        ],
+                        opacity: 0.3 // Tetap tak terlihat, tapi bisa disentuh
+                        }}
+                        onPress={() => handleChartPress([{ index }], 'pie')}
+                    />
+                    ))}
+                </View>
+
+                <View style={styles.applianceList}>
+                    {applianceUsageData.map((item, index) => (
+                    <View key={index} style={styles.applianceItem}>
+                        <View
+                        style={[
+                            styles.colorIndicator,
+                            { backgroundColor: item.color },
+                        ]}
+                        />
+                        <Text style={[styles.applianceName, { color: colors.textSecondary }]}>
+                        {item.name}
+                        </Text>
+                        <Text style={[styles.applianceValue, { color: colors.text }]}>
+                        {item.usage}%
+                        </Text>
+                    </View>
+                    ))}
+                </View>
+                </>
+            ) : (
+                <Text
+                style={{
+                    color: colors.textSecondary,
+                    textAlign: "center",
+                    padding: 20,
+                }}
+                >
+                No appliance data available
+                </Text>
+            )}
         </View>
+
+
+
         {/* Saran */}
         <View style={[styles.card, {backgroundColor: colors.card}]}>
         <Text style={[styles.cardTitle, {color: colors.text}]}>AI Advisor</Text>
@@ -629,6 +787,30 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         lineHeight: 20,
+    },
+
+    tooltip: {
+        position: 'absolute',
+        padding: 10,
+        borderRadius: 8,
+        borderWidth: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 5,
+        zIndex: 100,
+        minWidth: 100,
+        alignItems: 'center',
+    },
+    tooltipLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 4,
+    },
+    tooltipValue: {
+        fontSize: 16,
+        fontWeight: '700',
     },
 });
 
