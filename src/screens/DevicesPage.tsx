@@ -1,4 +1,4 @@
-import React, { useEffect , useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
     View,
     Text,
@@ -45,7 +45,7 @@ const deviceCategories = [
     { id: "other", name: "Other Devices", examples: "Chargers, Power Tools" },
 ];
 
-const EnergyInputPage = () => {
+const DevicesPage = () => {
     const [devices, setDevices] = useState<Device[]>([
         { name: "", watt: 0, hours: 0, category: "other" },
     ]);
@@ -55,7 +55,6 @@ const EnergyInputPage = () => {
     const { user, userData } = useUser();
     const scrollViewRef = useRef<ScrollView>(null);
 
-
     const handleAddDevice = () => {
         setDevices([
             ...devices,
@@ -63,17 +62,17 @@ const EnergyInputPage = () => {
         ]);
 
         setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
+            scrollViewRef.current?.scrollToEnd({ animated: true });
         }, 100);
     };
 
     const handleChange = (
         index: number,
-        key: "name" | "watt" | "hours" | "category",
+        key: "name" | "watt" | "category",
         value: string
     ) => {
         const updated = [...devices];
-        if (key === "watt" || key === "hours") {
+        if (key === "watt") {
             updated[index][key] = value === "" ? 0 : parseFloat(value);
         } else {
             updated[index][key] = value;
@@ -89,33 +88,7 @@ const EnergyInputPage = () => {
         setDevices(updated);
     };
 
-    const calculate = () => {
-        for (const device of devices) {
-            if (!device.name || !device.watt || !device.hours) {
-                Alert.alert(
-                    "Incomplete Input",
-                    "Please fill in all fields for each device."
-                );
-                return;
-            }
-        }
-
-        let totalKWhPerDay = 0;
-
-        devices.forEach((device) => {
-            if (!isNaN(device.watt) && !isNaN(device.hours)) {
-                totalKWhPerDay += (device.watt * device.hours) / 1000;
-            }
-        });
-
-        setResult(totalKWhPerDay);
-
-        setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-        }, 100);
-    };
-
-    const saveEnergyData = async () => {
+    const saveDevices = async () => {
         try {
             const docRef = doc(db, "users", userData.id);
             const now = new Date().toISOString();
@@ -125,20 +98,20 @@ const EnergyInputPage = () => {
                 "deviceList.devices": devices.map((device) => ({
                     name: device.name,
                     watt: device.watt,
-                    hours: device.hours,
                     category: device.category || "other",
+                    hours: device.hours || 0,
                     addedAt: now,
                 })),
             });
 
             Alert.alert(
                 "Success",
-                "Your energy consumption data has been saved successfully!"
+                "Your device list has been saved successfully!"
             );
         } catch (error) {
             Alert.alert(
                 "Error",
-                "Failed to save energy consumption data. Please try again."
+                "Failed to save device list. Please try again."
             );
         }
     };
@@ -160,7 +133,7 @@ const EnergyInputPage = () => {
 
     return (
         <ScrollView
-            ref = {scrollViewRef}
+            ref={scrollViewRef}
             style={[styles.container, { backgroundColor: colors.background }]}
         >
             <View style={styles.header}>
@@ -265,7 +238,6 @@ const EnergyInputPage = () => {
                             </View>
                         </ScrollView>
 
-                        {/* Show examples for the selected category */}
                         <Text
                             style={[
                                 styles.examplesText,
@@ -284,25 +256,6 @@ const EnergyInputPage = () => {
                         value={device.watt === 0 ? "" : String(device.watt)}
                         onChangeText={(text) =>
                             handleChange(index, "watt", text)
-                        }
-                        keyboardType="numeric"
-                        style={[
-                            styles.input,
-                            {
-                                borderColor: colors.border,
-                                backgroundColor: isDarkMode
-                                    ? colors.background
-                                    : "#FAFDFC",
-                                color: colors.text,
-                            },
-                        ]}
-                    />
-                    <TextInput
-                        placeholder="Usage per day (Hours)"
-                        placeholderTextColor={colors.textSecondary}
-                        value={device.hours === 0 ? "" : String(device.hours)}
-                        onChangeText={(text) =>
-                            handleChange(index, "hours", text)
                         }
                         keyboardType="numeric"
                         style={[
@@ -355,7 +308,6 @@ const EnergyInputPage = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={calculate}
                 style={[
                     styles.calculateButton,
                     {
@@ -363,6 +315,7 @@ const EnergyInputPage = () => {
                         shadowColor: isDarkMode ? "#FFFFF" : "#A5A822",
                     },
                 ]}
+                onPress={saveDevices}
             >
                 <Text
                     style={[
@@ -370,58 +323,9 @@ const EnergyInputPage = () => {
                         { color: colors.primary },
                     ]}
                 >
-                    Calculate Energy Usage
+                    Save Devices
                 </Text>
             </TouchableOpacity>
-
-            {result !== null && (
-                <View
-                    style={[
-                        styles.resultContainer,
-                        { backgroundColor: colors.card },
-                    ]}
-                >
-                    <Text style={[styles.resultTitle, { color: colors.text }]}>
-                        Estimated Energy Consumption
-                    </Text>
-
-                    <View style={styles.resultRow}>
-                        <Text
-                            style={[
-                                styles.resultLabel,
-                                { color: colors.textSecondary },
-                            ]}
-                        >
-                            Daily Energy Usage:
-                        </Text>
-                        <Text
-                            style={[styles.resultValue, { color: colors.text }]}
-                        >
-                            {result.toFixed(2)} kWh
-                        </Text>
-                    </View>
-
-                    <View style={styles.resultRow}>
-                        <Text
-                            style={[
-                                styles.resultLabel,
-                                { color: colors.textSecondary },
-                            ]}
-                        >
-                            Monthly Energy Usage:
-                        </Text>
-                        <Text
-                            style={[styles.resultValue, { color: colors.text }]}
-                        >
-                            {(result * 30).toFixed(2)} kWh
-                        </Text>
-                    </View>
-
-                    <View style={[styles.categoryButton, { marginTop: 20 }]}>
-                        <Button title="Save Devices" onPress={saveEnergyData} />
-                    </View>
-                </View>
-            )}
         </ScrollView>
     );
 };
@@ -560,4 +464,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default EnergyInputPage;
+export default DevicesPage;

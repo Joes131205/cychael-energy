@@ -77,7 +77,6 @@ const Register = () => {
                 await updateProfile(userCredential.user, {
                     displayName: name,
                 });
-
                 await addDoc(collection(db, "users"), {
                     uid: userCredential.user.uid,
                     displayName: name,
@@ -86,6 +85,10 @@ const Register = () => {
                     deviceList: {
                         updatedAt: new Date().toISOString(),
                         devices: [],
+                    },
+                    deviceHistory: {
+                        updatedAt: new Date().toISOString(),
+                        entries: [],
                     },
                 });
 
@@ -243,12 +246,8 @@ const Register = () => {
                             styles.button,
                             {
                                 backgroundColor: loading
-                                    ? isDarkMode
-                                        ? "#4B5563"
-                                        : "#C4C4C4"
-                                    : isDarkMode
-                                      ? "#60A5FA"
-                                      : colors.accent,
+                                    ? "#C4C4C4"
+                                    : colors.accent,
                             },
                         ]}
                         onPress={handleRegister}
@@ -257,11 +256,7 @@ const Register = () => {
                         <Text
                             style={[
                                 styles.buttonText,
-                                {
-                                    color: isDarkMode
-                                        ? "#FFFFFF"
-                                        : colors.primary,
-                                },
+                                { color: colors.primary },
                             ]}
                         >
                             {loading ? "Creating Account..." : "Register"}
@@ -282,11 +277,7 @@ const Register = () => {
                             <Text
                                 style={[
                                     styles.switchAuthHighlight,
-                                    {
-                                        color: isDarkMode
-                                            ? "#60A5FA"
-                                            : colors.secondary,
-                                    },
+                                    { color: colors.accent },
                                 ]}
                             >
                                 Login
