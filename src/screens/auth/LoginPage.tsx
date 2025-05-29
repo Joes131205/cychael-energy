@@ -205,7 +205,7 @@ const LoginPage = () => {
                             <Text
                                 style={[
                                     styles.switchAuthHighlight,
-                                    { color: colors.secondary },
+                                    { color: colors.accent },
                                 ]}
                             >
                                 Register

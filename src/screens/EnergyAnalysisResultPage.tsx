@@ -75,6 +75,7 @@ const EnergyAnalysisResultPage = () => {
 
     const getLastWeekDevices = async () => {
         try {
+            const deviceHistory = userData.deviceHistory?.entries || [];
             const deviceList = userData.deviceList?.devices || [];
 
             const now = new Date();
@@ -84,18 +85,46 @@ const EnergyAnalysisResultPage = () => {
 
             // Grouping result object
             const grouped: Record<string, any[]> = {};
+            const todayKey = now.toISOString().split("T")[0];
 
-            deviceList.forEach((device: any) => {
-                const addedAt = new Date(device.addedAt); // If Timestamp: device.addedAt.toDate()
+            // Masukkan data hari ini dari deviceList
+            grouped[todayKey] = deviceList.map((device: any) => ({
+                ...device,
+                dateKey: todayKey,
+            }));
 
-                if (addedAt >= lastWeekStart && addedAt <= now) {
-                    const dateKey = addedAt.toISOString().split("T")[0]; // e.g., "2025-05-26"
+            // Masukkan data historis dari deviceHistory
+            deviceHistory.forEach((entry: any) => {
+                const entryDate = new Date(entry.timestamp);
+
+                if (entryDate >= lastWeekStart && entryDate <= now) {
+                    const dateKey = entry.dateKey || entryDate.toISOString().split("T")[0];
+
                     if (!grouped[dateKey]) {
                         grouped[dateKey] = [];
                     }
-                    grouped[dateKey].push(device);
+
+                    const entryExists = grouped[dateKey].some(
+                        (item: any) =>
+                            item.deviceId === entry.deviceId &&
+                            item.timestamp === entry.timestamp
+                    );
+
+                    if (!entryExists) {
+                        grouped[dateKey].push({
+                            name: entry.deviceName,
+                            watt: entry.watt,
+                            hours: entry.newHours,
+                            category: entry.category || "other",
+                            timestamp: entry.timestamp,
+                            deviceId: entry.deviceId,
+                            previousHours: entry.previousHours,
+                            dateKey: dateKey,
+                        });
+                    }
                 }
             });
+
 
             console.log("Grouped devices by date:", grouped);
             return grouped;
@@ -105,28 +134,46 @@ const EnergyAnalysisResultPage = () => {
         }
     };
 
-    const weeklyGroupData = useMemo(() => {
-        const today = new Date();
-        const result: number[] = [];
+    useEffect(() => {
+        const fetchGroupedData = async () => {
+            const data = await getLastWeekDevices();
+            setGroupedData(data);
+        };
+        fetchGroupedData();
+    }, []);
 
+    const weeklyGroupData = useMemo(() => {
+        const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const result: number[] = Array(7).fill(0); // Untuk 7 hari
+
+        const today = new Date();
+
+        // Process the last 7 days data
         for (let i = 6; i >= 0; i--) {
             const day = new Date(today);
             day.setDate(today.getDate() - i);
+        
             const dateKey = day.toISOString().split("T")[0];
-
+            const dayIndex = day.getDay(); // Get day index (0=Sunday, 6=Saturday)
+            
+            // Get devices for this date
             const devices = groupedData[dateKey] || [];
-
+        
+            // Calculate total kWh for the day
             const totalKwh = devices.reduce((sum, device) => {
                 const hours = device.hours || 0;
                 const watt = device.watt || 0;
-                const kwh = (watt * hours) / 1000;
-                return sum + kwh;
+                return sum + (watt * hours) / 1000;
             }, 0);
-
-            result.push(Number(totalKwh.toFixed(2)));
+        
+            // Add to the corresponding day slot
+            result[dayIndex] += Number(totalKwh.toFixed(2));
         }
-        console.log("Weekly grouped data:", result);
-        return result;
+
+        console.log("Weekly energy by day:", labels);
+        console.log("Energy values (kWh):", result);
+
+        return { labels, data: result };
     }, [groupedData]);
 
     const calculateDailyEnergy = useMemo(() => {
@@ -139,10 +186,11 @@ const EnergyAnalysisResultPage = () => {
 
         return userData.deviceList.devices.reduce(
             (total: any, device: any) =>
-                total + (device.watt * device.hours || 0) / 1000,
+                total + ((device.watt * device.hours || 0) / 1000),
             0
         );
     }, [userData]);
+
 
     //   const weeklyData = useMemo(() => {
     //     getLastWeekDevices().then((groupedDevices) => {});
@@ -368,7 +416,7 @@ const EnergyAnalysisResultPage = () => {
                 label = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
                     point.index
                 ];
-                value = weeklyGroupData[point.index];
+                value = weeklyGroupData.data[point.index];
             } else if (chartType === "monthly") {
                 label = ["W1", "W2", "W3", "W4"][point.index];
                 value = monthlyData.datasets[0].data[point.index];
@@ -458,7 +506,7 @@ const EnergyAnalysisResultPage = () => {
                 x: point.x ?? 0,
                 y: point.y ?? 0,
                 label: dayLabel,
-                value: weeklyGroupData[dayIndex],
+                value: weeklyGroupData.data[dayIndex],
                 date: formattedDate,
             });
 
@@ -595,7 +643,7 @@ const EnergyAnalysisResultPage = () => {
                         ],
                         datasets: [
                             {
-                                data: weeklyGroupData,
+                                data: weeklyGroupData.data,
                                 color: (opacity = 1) =>
                                     `rgba(${hexToRgb(
                                         colors.accent
@@ -720,7 +768,7 @@ const EnergyAnalysisResultPage = () => {
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
                         >
-                            {weeklyGroupData
+                            {weeklyGroupData.data
                                 .reduce((a, b) => a + b, 0)
                                 .toFixed(1)}{" "}
                             kWh
@@ -739,14 +787,13 @@ const EnergyAnalysisResultPage = () => {
                             style={[styles.statValue, { color: colors.text }]}
                         >
                             {(
-                                weeklyGroupData.reduce((a, b) => a + b, 0) / 7
+                                weeklyGroupData.data.reduce((a, b) => a + b, 0) / 7
                             ).toFixed(2)}{" "}
                             kWh
                         </Text>
                     </View>
                 </View>
             </View>
-
             {/* Monthly Energy Chart */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
@@ -762,10 +809,7 @@ const EnergyAnalysisResultPage = () => {
                     showBarTops={false}
                     fromZero={true}
                     yAxisLabel={""}
-                    // withInnerLines={false}
-                    // TBA - MXA
-
-                    // renderBar={renderBar}
+                    withInnerLines={false}
                 />
                 <View style={styles.statsRow}>
                     <View style={styles.statItem}>
@@ -817,7 +861,8 @@ const EnergyAnalysisResultPage = () => {
                 </View>
             </View>
 
-            {/* Appliance Breakdown with touchable slices */}
+            
+            {/* Appliance Breakdown */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Appliance Energy Usage
@@ -906,6 +951,7 @@ const EnergyAnalysisResultPage = () => {
                 )}
             </View>
 
+            
             {/* Saran */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
