@@ -107,19 +107,19 @@ const NavBarComponent = () => {
                                     className="flex flex-col items-center px-4 py-2 rounded-full justify-center"
                                     onPress={() =>
                                         navigation.navigate(
-                                            "EnergyInputPage" as never
+                                            "DevicesPage" as never
                                         )
                                     }
                                 >
                                     <Ionicons
                                         name={
-                                            isRouteActive("EnergyInputPage")
+                                            isRouteActive("DevicesPage")
                                                 ? "calculator"
                                                 : "calculator-outline"
                                         }
                                         size={30}
                                         color={
-                                            isRouteActive("EnergyInputPage")
+                                            isRouteActive("DevicesPage")
                                                 ? colors.primary
                                                 : colors.text
                                         }
