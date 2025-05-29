@@ -1,6 +1,7 @@
 import React, {useCallback, useState} from "react";
 import {
   View,
+  Image,
   Text,
   TouchableOpacity,
   StyleSheet,
@@ -18,7 +19,21 @@ const SettingsPage = () => {
   const {colors, isDarkMode, toggleTheme} = useTheme();
 
   const [user, setUser] = useState(auth.currentUser);
-
+  console.log(user);
+  const photo =
+    user?.photoURL != null ? (
+      <View style={styles.container}>
+        <Image
+          source={{
+            uri: user?.photoURL || "",
+          }}
+        />
+      </View>
+    ) : (
+      <Text style={styles.avatarText}>
+        {user?.displayName?.charAt(0).toUpperCase() || "U"}
+      </Text>
+    );
   useFocusEffect(
     useCallback(() => {
       const refresh = async () => {
@@ -56,9 +71,7 @@ const SettingsPage = () => {
               styles.avatarPlaceholder,
               {backgroundColor: colors.accent},
             ]}>
-            <Text style={styles.avatarText}>
-              {user?.displayName?.charAt(0).toUpperCase() || "U"}
-            </Text>
+            {photo}
           </View>
         </View>
         <Text style={[styles.userName, {color: colors.text}]}>
