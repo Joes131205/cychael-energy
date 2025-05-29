@@ -114,8 +114,8 @@ const NavBarComponent = () => {
                                     <Ionicons
                                         name={
                                             isRouteActive("DevicesPage")
-                                                ? "calculator"
-                                                : "calculator-outline"
+                                                ? "desktop"
+                                                : "desktop-outline"
                                         }
                                         size={30}
                                         color={

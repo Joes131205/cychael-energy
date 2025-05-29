@@ -24,13 +24,7 @@ const auth = initializeAuth(app, {
     persistence: getReactNativePersistence(AsyncStorage),
 });
 const ai = getAI(app, { backend: new GoogleAIBackend() });
-auth
-// Create a `GenerativeModel` instance with a model that supports your use case
 const model = getGenerativeModel(ai, { model: "gemini-2.0-flash" });
 const storage = getStorage(app);
-export { app, db, auth,model, storage };
 
-
-// Initialize FirebaseApp
-
-// Initialize the Gemini Developer API backend service
+export { app, db, auth, model, storage };

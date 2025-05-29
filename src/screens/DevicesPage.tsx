@@ -46,14 +46,17 @@ const deviceCategories = [
 ];
 
 const DevicesPage = () => {
+    const { colors, isDarkMode } = useTheme();
+    const { user, userData } = useUser();
+
+    const scrollViewRef = useRef<ScrollView>(null);
+
     const [devices, setDevices] = useState<Device[]>([
         { name: "", watt: 0, hours: 0, category: "other" },
     ]);
-
     const [result, setResult] = useState<number | null>(null);
-    const { colors, isDarkMode } = useTheme();
-    const { user, userData } = useUser();
-    const scrollViewRef = useRef<ScrollView>(null);
+
+    const [loading, setLoading] = useState(false);
 
     const handleAddDevice = () => {
         setDevices([
@@ -68,11 +71,11 @@ const DevicesPage = () => {
 
     const handleChange = (
         index: number,
-        key: "name" | "watt" | "category",
+        key: "name" | "watt" | "hours" | "category",
         value: string
     ) => {
         const updated = [...devices];
-        if (key === "watt") {
+        if (key === "watt" || key === "hours") {
             updated[index][key] = value === "" ? 0 : parseFloat(value);
         } else {
             updated[index][key] = value;
@@ -90,6 +93,7 @@ const DevicesPage = () => {
 
     const saveDevices = async () => {
         try {
+            setLoading(true);
             const docRef = doc(db, "users", userData.id);
             const now = new Date().toISOString();
 
@@ -113,6 +117,8 @@ const DevicesPage = () => {
                 "Error",
                 "Failed to save device list. Please try again."
             );
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -138,12 +144,12 @@ const DevicesPage = () => {
         >
             <View style={styles.header}>
                 <Text style={[styles.title, { color: colors.text }]}>
-                    Energy Usage Calculator
+                    My Devices
                 </Text>
                 <Text
                     style={[styles.subtitle, { color: colors.textSecondary }]}
                 >
-                    Estimate your daily power consumption
+                    Manage your energy-consuming devices
                 </Text>
             </View>
 
@@ -154,13 +160,34 @@ const DevicesPage = () => {
                         styles.deviceCard,
                         {
                             backgroundColor: colors.card,
-                            shadowColor: colors.text,
+                            shadowColor: isDarkMode
+                                ? colors.accent + "40"
+                                : colors.text,
                         },
                     ]}
                 >
-                    <Text style={[styles.cardTitle, { color: colors.text }]}>
-                        Device #{index + 1}
-                    </Text>
+                    <View style={styles.deviceHeaderRow}>
+                        <Text
+                            style={[styles.cardTitle, { color: colors.text }]}
+                        >
+                            Device #{index + 1}
+                        </Text>
+                        {devices.length > 1 && (
+                            <TouchableOpacity
+                                onPress={() => handleRemoveDevice(index)}
+                                style={styles.removeButtonSmall}
+                            >
+                                <Text
+                                    style={[
+                                        styles.removeButtonTextSmall,
+                                        { color: colors.danger },
+                                    ]}
+                                >
+                                    Remove
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                     <TextInput
                         placeholder="Device Name"
                         placeholderTextColor={colors.textSecondary}
@@ -182,15 +209,16 @@ const DevicesPage = () => {
                     <View style={styles.categorySection}>
                         <Text
                             style={[
-                                styles.categoryLabel,
+                                styles.inputLabel,
                                 { color: colors.textSecondary },
                             ]}
                         >
-                            Device Type:
+                            Device Type
                         </Text>
                         <ScrollView
                             horizontal
                             showsHorizontalScrollIndicator={false}
+                            style={styles.categoryScrollView}
                         >
                             <View style={styles.categoryButtonsContainer}>
                                 {deviceCategories.map((cat) => (
@@ -249,83 +277,52 @@ const DevicesPage = () => {
                                 (cat) => cat.id === device.category
                             )?.examples || "Any electronic device"}
                         </Text>
-                    </View>
-                    <TextInput
-                        placeholder="Power (Watt)"
-                        placeholderTextColor={colors.textSecondary}
-                        value={device.watt === 0 ? "" : String(device.watt)}
-                        onChangeText={(text) =>
-                            handleChange(index, "watt", text)
-                        }
-                        keyboardType="numeric"
-                        style={[
-                            styles.input,
-                            {
-                                borderColor: colors.border,
-                                backgroundColor: isDarkMode
-                                    ? colors.background
-                                    : "#FAFDFC",
-                                color: colors.text,
-                            },
-                        ]}
-                    />
-
-                    {devices.length > 1 && (
-                        <TouchableOpacity
-                            onPress={() => handleRemoveDevice(index)}
+                    </View>{" "}
+                    <View>
+                        <Text
                             style={[
-                                styles.removeButton,
-                                {
-                                    backgroundColor: isDarkMode
-                                        ? "#3A1C1C"
-                                        : "#FFE8E8",
-                                },
+                                styles.inputLabel,
+                                { color: colors.textSecondary },
                             ]}
                         >
-                            <Text style={styles.removeButtonText}>
-                                Remove Device
-                            </Text>
-                        </TouchableOpacity>
-                    )}
+                            Energy Usage (eg. 100 Watts)
+                        </Text>
+                        <TextInput
+                            placeholder="Watts"
+                            placeholderTextColor={colors.textSecondary}
+                            value={device.watt === 0 ? "" : String(device.watt)}
+                            onChangeText={(text) =>
+                                handleChange(index, "watt", text)
+                            }
+                            keyboardType="numeric"
+                            style={[
+                                styles.input,
+                                {
+                                    borderColor: colors.border,
+                                    backgroundColor: isDarkMode
+                                        ? colors.background
+                                        : "#FAFDFC",
+                                    color: colors.text,
+                                },
+                            ]}
+                        />
+                    </View>
                 </View>
             ))}
 
-            <TouchableOpacity
+            <Button
+                title="+ Add Another Device"
+                variant="secondary"
                 onPress={handleAddDevice}
-                style={[
-                    styles.addButton,
-                    {
-                        backgroundColor: isDarkMode
-                            ? `${colors.secondary}30`
-                            : "#E8F5F2",
-                        borderColor: colors.secondary,
-                    },
-                ]}
-            >
-                <Text style={[styles.addButtonText, { color: colors.text }]}>
-                    + Add Another Device
-                </Text>
-            </TouchableOpacity>
+            />
 
-            <TouchableOpacity
-                style={[
-                    styles.calculateButton,
-                    {
-                        backgroundColor: isDarkMode ? "#198754" : colors.accent,
-                        shadowColor: isDarkMode ? "#FFFFF" : "#A5A822",
-                    },
-                ]}
-                onPress={saveDevices}
-            >
-                <Text
-                    style={[
-                        styles.calculateButtonText,
-                        { color: colors.primary },
-                    ]}
-                >
-                    Save Devices
-                </Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+                <Button
+                    title={loading ? "Saving..." : "Save Devices"}
+                    onPress={saveDevices}
+                    disabled={loading}
+                />
+            </View>
         </ScrollView>
     );
 };
@@ -348,7 +345,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     deviceCard: {
-        borderRadius: 12,
+        borderRadius: 16,
         padding: 20,
         marginBottom: 20,
         shadowOffset: {
@@ -359,10 +356,20 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
     },
+    deviceHeaderRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 15,
+    },
     cardTitle: {
         fontSize: 18,
         fontWeight: "600",
-        marginBottom: 15,
+    },
+    inputLabel: {
+        fontSize: 14,
+        marginBottom: 6,
+        fontWeight: "500",
     },
     input: {
         borderWidth: 1,
@@ -371,79 +378,32 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         fontSize: 16,
     },
+    removeButtonSmall: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+    },
+    removeButtonTextSmall: {
+        fontWeight: "500",
+        fontSize: 13,
+    },
     removeButton: {
         padding: 12,
         borderRadius: 8,
         alignItems: "center",
         marginTop: 5,
     },
-    removeButtonText: {
-        color: "#D32F2F",
-        fontWeight: "600",
-    },
-    addButton: {
-        padding: 16,
-        borderRadius: 8,
-        alignItems: "center",
-        marginBottom: 20,
-        borderWidth: 1,
-        borderStyle: "dashed",
-    },
-    addButtonText: {
-        fontWeight: "600",
-        fontSize: 16,
-    },
-    calculateButton: {
-        padding: 18,
-        borderRadius: 8,
-        alignItems: "center",
-        marginBottom: 25,
-        shadowOffset: {
-            width: 0,
-            height: 3,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        elevation: 5,
-    },
-    calculateButtonText: {
-        fontWeight: "700",
-        fontSize: 18,
-    },
-    resultContainer: {
-        borderRadius: 12,
-        padding: 20,
-        borderLeftWidth: 5,
-    },
-    resultTitle: {
-        fontSize: 18,
-        fontWeight: "700",
-        marginBottom: 15,
-        textAlign: "center",
-    },
-    resultRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 10,
-    },
-    resultLabel: {
-        fontSize: 16,
-        fontWeight: "500",
-    },
-    resultValue: {
-        fontSize: 16,
-        fontWeight: "600",
+    buttonContainer: {
+        marginVertical: 10,
     },
     categorySection: {
         marginBottom: 15,
     },
-    categoryLabel: {
-        fontSize: 14,
-        marginBottom: 8,
+    categoryScrollView: {
+        marginVertical: 8,
     },
     categoryButtonsContainer: {
         flexDirection: "row",
-        flexWrap: "wrap",
     },
     categoryButton: {
         paddingVertical: 8,
@@ -461,6 +421,13 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontStyle: "italic",
         marginTop: 4,
+    },
+    usageNote: {
+        fontSize: 12,
+        fontStyle: "italic",
+        textAlign: "center",
+        marginTop: 5,
+        marginBottom: 5,
     },
 });
 

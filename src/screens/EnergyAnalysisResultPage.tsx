@@ -99,33 +99,37 @@ const EnergyAnalysisResultPage = () => {
             setGroupedData(data);
         };
         fetchGroupedData();
-    }, []);
-    const weeklyGroupData = useMemo(() => {
-        const result: number[] = Array(7).fill(0); // One slot for each day (Sun - Sat)
+    }, []);    const weeklyGroupData = useMemo(() => {
+        // Initialize with ordered days for display (starting with Sunday)
         const labels: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const result: number[] = Array(7).fill(0); // One slot for each day
       
         const today = new Date();
-      
+        
+        // Process the last 7 days data
         for (let i = 6; i >= 0; i--) {
           const day = new Date(today);
           day.setDate(today.getDate() - i);
       
           const dateKey = day.toISOString().split("T")[0];
-          const dayIndex = day.getDay(); // 0 (Sun) to 6 (Sat)
-      
+          const dayIndex = day.getDay(); // Get day index (0=Sunday, 6=Saturday)
+          
+          // Get devices for this date
           const devices = groupedData[dateKey] || [];
       
+          // Calculate total kWh for the day
           const totalKwh = devices.reduce((sum, device) => {
             const hours = device.hours || 0;
             const watt = device.watt || 0;
             return sum + (watt * hours) / 1000;
           }, 0);
       
-          result[dayIndex] += Number(totalKwh.toFixed(2)); // Use += to handle multiple same-day entries
+          // Add to the corresponding day slot
+          result[dayIndex] += Number(totalKwh.toFixed(2));
         }
       
-        console.log("Standard weekly labels:", labels);
-        console.log("Standard weekly data:", result);
+        console.log("Weekly energy by day:", labels);
+        console.log("Energy values (kWh):", result);
       
         return { labels, data: result };
       }, [groupedData]);
@@ -384,21 +388,12 @@ const EnergyAnalysisResultPage = () => {
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Weekly Energy Consumption
-                </Text>
-                <LineChart
+                </Text>                    <LineChart
                     data={{
-                        labels: [
-                            "Mon",
-                            "Tue",
-                            "Wed",
-                            "Thu",
-                            "Fri",
-                            "Sat",
-                            "Sun",
-                        ],
+                        labels: weeklyGroupData.labels,
                         datasets: [
                             {
-                                data: weeklyGroupData["data"],
+                                data: weeklyGroupData.data,
                                 color: (opacity = 1) =>
                                     `rgba(${hexToRgb(
                                         colors.accent
@@ -430,8 +425,7 @@ const EnergyAnalysisResultPage = () => {
                         </Text>
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
-                        >
-                            {weeklyGroupData["data"]
+                        >                            {weeklyGroupData.data
                                 .reduce((a, b) => a + b, 0)
                                 .toFixed(1)}
                             kWh
@@ -448,9 +442,8 @@ const EnergyAnalysisResultPage = () => {
                         </Text>
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
-                        >
-                            {(
-                                weeklyGroupData["data"].reduce((a, b) => a + b, 0) / 7
+                        >                            {(
+                                weeklyGroupData.data.reduce((a, b) => a + b, 0) / 7
                             ).toFixed(2)}
                             kWh
                         </Text>

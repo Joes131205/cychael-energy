@@ -19,7 +19,7 @@ interface Device {
 
 const DashboardPage = () => {
     const navigation = useNavigation<any>();
-    const { colors, isDarkMode, toggleTheme } = useTheme();
+    const { colors, isDarkMode } = useTheme();
     const { user, userData } = useUser();
 
     const [devices, setDevices] = useState<Device[]>([]);
@@ -30,9 +30,9 @@ const DashboardPage = () => {
         yearly: 0,
     });
 
-    const [deviceCategories, setDeviceCategories] = useState<
+    const [topDevices, setTopDevices] = useState<
         {
-            category: string;
+            name: string;
             totalEnergy: number;
             percentage: number;
             color: string;
@@ -106,28 +106,24 @@ const DashboardPage = () => {
             monthly: totalEnergy * 30,
             yearly: totalEnergy * 365,
         });
-
         if (currentDevices.length > 0) {
-            const devicesByCategory: {
-                [key: string]: { totalEnergy: number; devices: any[] };
-            } = {};
-            let totalDevicesEnergy = 0;
-
-            currentDevices.forEach((device: any) => {
-                const category = device.category || "Other";
+            const devicesList = currentDevices.map((device: Device) => {
                 const energyUsage = (device.watt * device.hours || 0) / 1000;
-                totalDevicesEnergy += energyUsage;
-
-                if (!devicesByCategory[category]) {
-                    devicesByCategory[category] = {
-                        totalEnergy: 0,
-                        devices: [],
-                    };
-                }
-
-                devicesByCategory[category].totalEnergy += energyUsage;
-                devicesByCategory[category].devices.push(device);
+                return {
+                    name: device.name,
+                    category: device.category || "other",
+                    totalEnergy: energyUsage,
+                    watt: device.watt,
+                    hours: device.hours || 0,
+                };
             });
+
+            // Calculate total energy for percentage calculation
+            const totalEnergyConsumption = devicesList.reduce(
+                (sum: number, device: { totalEnergy: number }) =>
+                    sum + device.totalEnergy,
+                0
+            );
 
             const categoryColors = [
                 "#4CAF50",
@@ -137,18 +133,34 @@ const DashboardPage = () => {
                 "#9C27B0",
                 "#607D8B",
             ];
-            const formattedCategories = Object.entries(devicesByCategory)
-                .map(([category, data], index) => ({
-                    category,
-                    totalEnergy: data.totalEnergy,
-                    percentage: (data.totalEnergy / totalDevicesEnergy) * 100,
-                    color: categoryColors[index % categoryColors.length],
-                }))
-                .sort((a, b) => b.totalEnergy - a.totalEnergy);
 
-            setDeviceCategories(formattedCategories);
+            const formattedDevices = devicesList
+                .map(
+                    (
+                        device: {
+                            name: string;
+                            category: string;
+                            totalEnergy: number;
+                            watt: number;
+                            hours: number;
+                        },
+                        index: number
+                    ) => ({
+                        name: device.name,
+                        category: device.category,
+                        totalEnergy: device.totalEnergy,
+                        percentage:
+                            (device.totalEnergy / totalEnergyConsumption) * 100,
+                        color: categoryColors[index % categoryColors.length],
+                        watt: device.watt,
+                        hours: device.hours,
+                    })
+                )
+                .sort((a: any, b: any) => b.totalEnergy - a.totalEnergy);
+
+            setTopDevices(formattedDevices);
         } else {
-            setDeviceCategories([]);
+            setTopDevices([]);
         }
     }, [userData, devices]);
 
@@ -282,21 +294,23 @@ const DashboardPage = () => {
             className="flex-1"
             style={{ backgroundColor: colors.background }}
         >
+            {" "}
             <LinearGradient
                 colors={
-                    isDarkMode ? ["#1A2E2A", "#121C1A"] : ["#283F3B", "#99DDC8"]
+                    isDarkMode ? ["#1A2E2A", "#121C1A"] : ["#283F3B", "#2D5651"]
                 }
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                end={{ x: 0, y: 0.9 }}
                 className="px-5 pt-[60px] pb-[35px] rounded-b-[30px]"
             >
                 <View className="flex-row justify-between items-center mb-5">
                     {" "}
                     <View>
+                        {" "}
                         <Text
                             className="text-base"
                             style={{
-                                color: isDarkMode ? colors.text : "#99DDC8",
+                                color: "rgba(255, 255, 255, 0.85)",
                             }}
                         >
                             Welcome back,
@@ -305,17 +319,6 @@ const DashboardPage = () => {
                             {user?.displayName || "User"}
                         </Text>
                     </View>
-                    <TouchableOpacity
-                        onPress={toggleTheme}
-                        className="p-2 rounded-full"
-                        style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
-                    >
-                        <Ionicons
-                            name={isDarkMode ? "sunny" : "moon"}
-                            size={24}
-                            color="white"
-                        />
-                    </TouchableOpacity>
                 </View>{" "}
                 <View className="bg-white/10 rounded-[15px] p-5 mb-3">
                     <Text className="text-white text-base font-bold mb-4">
@@ -432,9 +435,9 @@ const DashboardPage = () => {
                         >
                             Highest Energy Consumers
                         </Text>
-                    </View>
+                    </View>{" "}
                     <ScrollView style={{ maxHeight: 90 }}>
-                        {deviceCategories.length === 0 ? (
+                        {topDevices.length === 0 ? (
                             <Text
                                 className="text-sm text-center my-3"
                                 style={{ color: colors.textSecondary }}
@@ -442,9 +445,9 @@ const DashboardPage = () => {
                                 No device data available.
                             </Text>
                         ) : (
-                            deviceCategories
+                            topDevices
                                 .slice(0, 10)
-                                .map((device, index) => (
+                                .map((device: any, index: number) => (
                                     <View
                                         key={index}
                                         className="flex-row items-center justify-between mb-3"
@@ -464,7 +467,7 @@ const DashboardPage = () => {
                                                         color: colors.text,
                                                     }}
                                                 >
-                                                    {device.category}
+                                                    {device.name}
                                                 </Text>
                                                 <Text
                                                     className="text-xs"
@@ -509,7 +512,7 @@ const DashboardPage = () => {
                                 ))
                         )}
                     </ScrollView>
-                    {deviceCategories.length > 3 && (
+                    {topDevices.length > 3 && (
                         <TouchableOpacity
                             className="mt-2 items-center py-2"
                             onPress={() =>
@@ -526,7 +529,6 @@ const DashboardPage = () => {
                     )}
                 </View>
             </LinearGradient>
-
             <View className="p-5">
                 {/* Device Hour Controller */}
                 <View className="mb-4 flex-row items-center">
