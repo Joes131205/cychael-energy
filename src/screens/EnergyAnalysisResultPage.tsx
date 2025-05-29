@@ -69,28 +69,35 @@ const EnergyAnalysisResultPage = () => {
     fetchGroupedData();
   }, []);
   const weeklyGroupData = useMemo(() => {
+    const result: number[] = Array(7).fill(0); // One slot for each day (Sun - Sat)
+    const labels: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  
     const today = new Date();
-    const result: number[] = [];
-
+  
     for (let i = 6; i >= 0; i--) {
       const day = new Date(today);
       day.setDate(today.getDate() - i);
+  
       const dateKey = day.toISOString().split("T")[0];
-
+      const dayIndex = day.getDay(); // 0 (Sun) to 6 (Sat)
+  
       const devices = groupedData[dateKey] || [];
-
+  
       const totalKwh = devices.reduce((sum, device) => {
         const hours = device.hours || 0;
         const watt = device.watt || 0;
-        const kwh = (watt * hours) / 1000;
-        return sum + kwh;
+        return sum + (watt * hours) / 1000;
       }, 0);
-
-      result.push(Number(totalKwh.toFixed(2)));
+  
+      result[dayIndex] += Number(totalKwh.toFixed(2)); // Use += to handle multiple same-day entries
     }
-    console.log("Weekly grouped data:", result);
-    return result;
+  
+    console.log("Standard weekly labels:", labels);
+    console.log("Standard weekly data:", result);
+  
+    return { labels, data: result };
   }, [groupedData]);
+  
 
   const calculateDailyEnergy = useMemo(() => {
     if (
@@ -337,10 +344,10 @@ const EnergyAnalysisResultPage = () => {
         </Text>
         <LineChart
           data={{
-            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            labels: weeklyGroupData["labels"],
             datasets: [
               {
-                data: weeklyGroupData,
+                data: weeklyGroupData["data"],
                 color: (opacity = 1) =>
                   `rgba(${hexToRgb(colors.accent)}, ${opacity})`,
                 strokeWidth: 3,
@@ -364,7 +371,7 @@ const EnergyAnalysisResultPage = () => {
               Total Weekly Usage
             </Text>
             <Text style={[styles.statValue, {color: colors.text}]}>
-              {weeklyGroupData.reduce((a, b) => a + b, 0).toFixed(1)}
+              {weeklyGroupData["data"].reduce((a, b) => a + b, 0).toFixed(1)}
               kWh
             </Text>
           </View>
@@ -373,7 +380,7 @@ const EnergyAnalysisResultPage = () => {
               Daily Average
             </Text>
             <Text style={[styles.statValue, {color: colors.text}]}>
-              {(weeklyGroupData.reduce((a, b) => a + b, 0) / 7).toFixed(2)}
+              {(weeklyGroupData["data"].reduce((a, b) => a + b, 0) / 7).toFixed(2)}
               kWh
             </Text>
           </View>
