@@ -14,7 +14,11 @@
         },
         "ios": {
             "supportsTablet": true,
-            "googleServicesFile": "./GoogleService-Info.plist"
+            "googleServicesFile": "./GoogleService-Info.plist",
+            "bundleIdentifier": "com.cychaelenergy.CychaelEnergy",
+            "infoPlist": {
+                "ITSAppUsesNonExemptEncryption": false
+            }
         },
         "android": {
             "adaptiveIcon": {
@@ -22,11 +26,17 @@
                 "backgroundColor": "#ffffff"
             },
             "edgeToEdgeEnabled": true,
-            "googleServicesFile": "./google-services.json"
+            "googleServicesFile": "./google-services.json",
+            "package": "com.cychaelenergy.CychaelEnergy"
         },
         "web": {
             "favicon": "./assets/favicon.png",
             "bundler": "metro"
+        },
+        "extra": {
+            "eas": {
+                "projectId": "50157ed5-cd7e-486b-8863-55df4e7e6185"
+            }
         }
     }
 }

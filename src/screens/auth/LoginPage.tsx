@@ -131,7 +131,6 @@ const LoginPage = () => {
                     >
                         Login to your Cychael account
                     </Text>
-
                     <TextInput
                         style={[
                             styles.input,
@@ -150,7 +149,6 @@ const LoginPage = () => {
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />
-
                     <TextInput
                         style={[
                             styles.input,
@@ -167,8 +165,7 @@ const LoginPage = () => {
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
-                    />
-
+                    />{" "}
                     <TouchableOpacity
                         style={[
                             styles.button,
@@ -181,13 +178,10 @@ const LoginPage = () => {
                         onPress={handleLogin}
                         disabled={loading}
                     >
-                        <Text
-                            style={[styles.buttonText, { color: colors.text }]}
-                        >
+                        <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
                             {loading ? "Signing In..." : "Login"}
                         </Text>
                     </TouchableOpacity>
-
                     <TouchableOpacity
                         onPress={() => navigation.navigate("Register")}
                         style={styles.switchAuth}

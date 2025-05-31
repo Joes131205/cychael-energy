@@ -18,7 +18,7 @@ import { useTheme } from "../hooks/useTheme";
 
 const ChangePasswordPage = () => {
     const navigation = useNavigation();
-    const { colors } = useTheme();
+    const { colors, isDarkMode } = useTheme();
     const user = auth.currentUser;
 
     const [currentPassword, setCurrentPassword] = useState("");
@@ -108,7 +108,7 @@ const ChangePasswordPage = () => {
                 onPress={handleChangePassword}
                 disabled={loading}
             >
-                <Text style={[styles.buttonText, { color: colors.text }]}>
+                <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
                     {loading ? "Updating..." : "Update Password"}
                 </Text>
             </TouchableOpacity>

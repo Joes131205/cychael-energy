@@ -316,7 +316,8 @@ const DashboardPage = () => {
                             {user?.displayName || "User"}
                         </Text>
                     </View>
-                </View>{" "}                <View className="bg-white/15 rounded-[15px] p-5 mb-3">
+                </View>
+                <View className="bg-white/15 rounded-[15px] p-5 mb-3">
                     <Text className="text-white text-base font-bold mb-4">
                         Your Energy Summary
                         <Text className="text-white/80 text-xs font-normal">
@@ -340,15 +341,23 @@ const DashboardPage = () => {
                     </Text>
                     <View className="flex-row justify-between">
                         {/* Daily Usage */}
-                        <View className="items-center flex-1">                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
+                        <View className="items-center flex-1">
+                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="flash-outline"
                                     size={24}
-                                    color="#FFFFFF"
+                                    color={
+                                        isDarkMode ? colors.primary : "#FFFFFF"
+                                    }
                                 />
-                            </View><Text
+                            </View>
+                            <Text
                                 className="text-xl font-bold"
-                                style={{ color: "#FFFFFF" }}
+                                style={{
+                                    color: isDarkMode
+                                        ? colors.primary
+                                        : "#FFFFFF",
+                                }}
                             >
                                 {energyData.today.toFixed(1)}
                             </Text>
@@ -361,15 +370,23 @@ const DashboardPage = () => {
                         </View>
 
                         {/* Monthly Usage */}
-                        <View className="items-center flex-1">                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
+                        <View className="items-center flex-1">
+                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="calendar-outline"
                                     size={22}
-                                    color="#FFFFFF"
+                                    color={
+                                        isDarkMode ? colors.primary : "#FFFFFF"
+                                    }
                                 />
-                            </View><Text
+                            </View>
+                            <Text
                                 className="text-xl font-bold"
-                                style={{ color: "#FFFFFF" }}
+                                style={{
+                                    color: isDarkMode
+                                        ? colors.primary
+                                        : "#FFFFFF",
+                                }}
                             >
                                 {energyData.monthly.toFixed(1)}
                             </Text>
@@ -382,15 +399,21 @@ const DashboardPage = () => {
                         </View>
 
                         {/* Yearly Usage */}
-                        <View className="items-center flex-1">                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
+                        <View className="items-center flex-1">
+                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="trending-up-outline"
                                     size={22}
-                                    color="#FFFFFF"
+                                    color={isDarkMode ? colors.text : "#FFFFFF"}
                                 />
-                            </View><Text
+                            </View>
+                            <Text
                                 className="text-xl font-bold"
-                                style={{ color: "#FFFFFF" }}
+                                style={{
+                                    color: isDarkMode
+                                        ? colors.primary
+                                        : "#FFFFFF",
+                                }}
                             >
                                 {energyData.yearly.toFixed(1)}
                             </Text>
@@ -699,12 +722,14 @@ const DashboardPage = () => {
                             <Ionicons
                                 name="add-circle-outline"
                                 size={20}
-                                color={colors.primary}
+                                color={isDarkMode ? colors.primary : "#FFFFFF"}
                                 style={{ marginRight: 8 }}
                             />
                             <Text
                                 style={{
-                                    color: colors.primary,
+                                    color: isDarkMode
+                                        ? colors.primary
+                                        : "#FFFFFF",
                                     fontWeight: "600",
                                 }}
                             >

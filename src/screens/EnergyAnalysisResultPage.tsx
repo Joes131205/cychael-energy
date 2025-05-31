@@ -616,7 +616,7 @@ const EnergyAnalysisResultPage = () => {
                     <Text
                         style={[styles.tooltipValue, { color: colors.accent }]}
                     >
-                        {tooltipData.value}{" "}
+                        {tooltipData.value}
                         {tooltipData.type === "pie" ? "" : "kWh"}
                     </Text>
                 </Animated.View>
@@ -826,7 +826,7 @@ const EnergyAnalysisResultPage = () => {
                         >
                             {monthlyData.datasets[0].data
                                 .reduce((a, b) => a + b, 0)
-                                .toFixed(1)}
+                                .toFixed(1)}{" "}
                             kWh
                         </Text>
                     </View>

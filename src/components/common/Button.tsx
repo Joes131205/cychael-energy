@@ -14,30 +14,37 @@ export default function Button({
     variant = "primary",
     disabled = false,
 }: ButtonProps) {
-    const { colors, isDarkMode } = useTheme();
-
-    const getButtonStyle = () => {
+    const { colors, isDarkMode } = useTheme();    const getButtonStyle = () => {
         switch (variant) {
             case "primary":
-                return { backgroundColor: colors.accent };
+                // Slightly darker accent color for light mode for better text contrast
+                return { 
+                    backgroundColor: isDarkMode ? colors.accent : "#2A8A46"
+                };
             case "secondary":
                 return {
-                    backgroundColor: "transparent",
+                    backgroundColor: isDarkMode
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "transparent",
                     borderWidth: 1,
-                    borderColor: colors.secondary,
+                    borderColor: isDarkMode ? colors.text : colors.secondary,
                 };
             case "danger":
                 return { backgroundColor: colors.danger };
             default:
-                return { backgroundColor: colors.accent };
+                return { backgroundColor: isDarkMode ? colors.accent : "#2A8A46" };
         }
-    };
-
-    const getTextStyle = () => {
+    };const getTextStyle = () => {
         if (variant === "secondary") {
-            return { color: colors.secondary };
+            return { color: isDarkMode ? colors.text : colors.primary };
         }
-        return { color: variant === "danger" ? "#FFFFFF" : colors.primary };
+
+        if (variant === "danger") {
+            return { color: "#FFFFFF" };
+        }
+        
+        // For primary buttons - white text on both light and dark modes
+        return { color: "#FFFFFF" };
     };
 
     return (
@@ -55,12 +62,16 @@ export default function Button({
     );
 }
 
-const styles = StyleSheet.create({
-    button: {
+const styles = StyleSheet.create({    button: {
         padding: 15,
         borderRadius: 10,
         alignItems: "center",
         marginVertical: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
     },
     text: {
         fontWeight: "600",

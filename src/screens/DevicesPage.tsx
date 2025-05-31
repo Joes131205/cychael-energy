@@ -254,7 +254,7 @@ const DevicesPage = () => {
                                                     color:
                                                         device.category ===
                                                         cat.id
-                                                            ? colors.text
+                                                            ? "#FFFFFF"
                                                             : colors.text,
                                                 },
                                             ]}
@@ -277,7 +277,7 @@ const DevicesPage = () => {
                                 (cat) => cat.id === device.category
                             )?.examples || "Any electronic device"}
                         </Text>
-                    </View>{" "}
+                    </View>
                     <View>
                         <Text
                             style={[

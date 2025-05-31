@@ -157,19 +157,16 @@ const Register = () => {
                         style={[
                             styles.input,
                             {
-                                borderColor: isDarkMode
-                                    ? colors.border
-                                    : "#E0E0E0",
+                                borderColor: colors.border,
                                 backgroundColor: isDarkMode
-                                    ? "#1E2429"
+                                    ? colors.background
                                     : "#FAFDFC",
                                 color: colors.text,
                             },
                         ]}
+                        placeholderTextColor={colors.textSecondary}
+                        secureTextEntry
                         placeholder="Full Name"
-                        placeholderTextColor={
-                            isDarkMode ? "#6B7280" : colors.textSecondary
-                        }
                         value={name}
                         onChangeText={setName}
                     />
@@ -178,19 +175,16 @@ const Register = () => {
                         style={[
                             styles.input,
                             {
-                                borderColor: isDarkMode
-                                    ? colors.border
-                                    : "#E0E0E0",
+                                borderColor: colors.border,
                                 backgroundColor: isDarkMode
-                                    ? "#1E2429"
+                                    ? colors.background
                                     : "#FAFDFC",
                                 color: colors.text,
                             },
                         ]}
+                        placeholderTextColor={colors.textSecondary}
+                        secureTextEntry
                         placeholder="Email Address"
-                        placeholderTextColor={
-                            isDarkMode ? "#6B7280" : colors.textSecondary
-                        }
                         value={email}
                         onChangeText={setEmail}
                         keyboardType="email-address"
@@ -201,44 +195,36 @@ const Register = () => {
                         style={[
                             styles.input,
                             {
-                                borderColor: isDarkMode
-                                    ? colors.border
-                                    : "#E0E0E0",
+                                borderColor: colors.border,
                                 backgroundColor: isDarkMode
-                                    ? "#1E2429"
+                                    ? colors.background
                                     : "#FAFDFC",
                                 color: colors.text,
                             },
                         ]}
+                        placeholderTextColor={colors.textSecondary}
+                        secureTextEntry
                         placeholder="Password"
-                        placeholderTextColor={
-                            isDarkMode ? "#6B7280" : colors.textSecondary
-                        }
                         value={password}
                         onChangeText={setPassword}
-                        secureTextEntry
                     />
 
                     <TextInput
                         style={[
                             styles.input,
                             {
-                                borderColor: isDarkMode
-                                    ? colors.border
-                                    : "#E0E0E0",
+                                borderColor: colors.border,
                                 backgroundColor: isDarkMode
-                                    ? "#1E2429"
+                                    ? colors.background
                                     : "#FAFDFC",
                                 color: colors.text,
                             },
                         ]}
+                        placeholderTextColor={colors.textSecondary}
+                        secureTextEntry
                         placeholder="Confirm Password"
-                        placeholderTextColor={
-                            isDarkMode ? "#6B7280" : colors.textSecondary
-                        }
                         value={confirmPassword}
                         onChangeText={setConfirmPassword}
-                        secureTextEntry
                     />
 
                     <TouchableOpacity
@@ -253,9 +239,7 @@ const Register = () => {
                         onPress={handleRegister}
                         disabled={loading}
                     >
-                        <Text
-                            style={[styles.buttonText, { color: colors.text }]}
-                        >
+                        <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
                             {loading ? "Creating Account..." : "Register"}
                         </Text>
                     </TouchableOpacity>

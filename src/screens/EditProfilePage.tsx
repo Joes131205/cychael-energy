@@ -29,7 +29,7 @@ type SettingsScreenRouteProp = RouteProp<RootStackParamList, "Settings">;
 
 const EditProfilePage = () => {
     const user = auth.currentUser;
-    const { colors } = useTheme();
+    const { colors, isDarkMode } = useTheme();
     const [initialName, setInitialName] = useState(user?.displayName || "");
     const [initialEmail, setInitialEmail] = useState(user?.email || "");
     const [name, setName] = useState(user?.displayName || "");
@@ -192,7 +192,7 @@ const EditProfilePage = () => {
                 style={[styles.button, { backgroundColor: colors.accent }]}
                 onPress={handleSave}
             >
-                <Text style={[styles.buttonText, { color: colors.text }]}>
+                <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
                     Save Changes
                 </Text>
             </TouchableOpacity>
