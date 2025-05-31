@@ -294,19 +294,16 @@ const DashboardPage = () => {
             className="flex-1"
             style={{ backgroundColor: colors.background }}
         >
-            {" "}
             <LinearGradient
                 colors={
-                    isDarkMode ? ["#1A2E2A", "#121C1A"] : ["#283F3B", "#2D5651"]
+                    isDarkMode ? ["#1A3C34", "#0A1A17"] : ["#1E6F5C", "#29BB89"]
                 }
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 0.9 }}
                 className="px-5 pt-[60px] pb-[35px] rounded-b-[30px]"
             >
                 <View className="flex-row justify-between items-center mb-5">
-                    {" "}
                     <View>
-                        {" "}
                         <Text
                             className="text-base"
                             style={{
@@ -319,11 +316,10 @@ const DashboardPage = () => {
                             {user?.displayName || "User"}
                         </Text>
                     </View>
-                </View>{" "}
-                <View className="bg-white/10 rounded-[15px] p-5 mb-3">
+                </View>{" "}                <View className="bg-white/15 rounded-[15px] p-5 mb-3">
                     <Text className="text-white text-base font-bold mb-4">
                         Your Energy Summary
-                        <Text className="text-white/70 text-xs font-normal">
+                        <Text className="text-white/80 text-xs font-normal">
                             {"\n"}Last updated:{" "}
                             {new Date(
                                 userData?.deviceList?.updatedAt
@@ -344,17 +340,15 @@ const DashboardPage = () => {
                     </Text>
                     <View className="flex-row justify-between">
                         {/* Daily Usage */}
-                        <View className="items-center flex-1">
-                            <View className="bg-white/5 rounded-full h-16 w-16 items-center justify-center mb-2">
+                        <View className="items-center flex-1">                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="flash-outline"
                                     size={24}
-                                    color={colors.accent}
+                                    color="#FFFFFF"
                                 />
-                            </View>
-                            <Text
+                            </View><Text
                                 className="text-xl font-bold"
-                                style={{ color: colors.accent }}
+                                style={{ color: "#FFFFFF" }}
                             >
                                 {energyData.today.toFixed(1)}
                             </Text>
@@ -367,17 +361,15 @@ const DashboardPage = () => {
                         </View>
 
                         {/* Monthly Usage */}
-                        <View className="items-center flex-1">
-                            <View className="bg-white/5 rounded-full h-16 w-16 items-center justify-center mb-2">
+                        <View className="items-center flex-1">                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="calendar-outline"
                                     size={22}
-                                    color={colors.accent}
+                                    color="#FFFFFF"
                                 />
-                            </View>
-                            <Text
+                            </View><Text
                                 className="text-xl font-bold"
-                                style={{ color: colors.accent }}
+                                style={{ color: "#FFFFFF" }}
                             >
                                 {energyData.monthly.toFixed(1)}
                             </Text>
@@ -390,17 +382,15 @@ const DashboardPage = () => {
                         </View>
 
                         {/* Yearly Usage */}
-                        <View className="items-center flex-1">
-                            <View className="bg-white/5 rounded-full h-16 w-16 items-center justify-center mb-2">
+                        <View className="items-center flex-1">                            <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="trending-up-outline"
                                     size={22}
-                                    color={colors.accent}
+                                    color="#FFFFFF"
                                 />
-                            </View>
-                            <Text
+                            </View><Text
                                 className="text-xl font-bold"
-                                style={{ color: colors.accent }}
+                                style={{ color: "#FFFFFF" }}
                             >
                                 {energyData.yearly.toFixed(1)}
                             </Text>
@@ -435,7 +425,7 @@ const DashboardPage = () => {
                         >
                             Highest Energy Consumers
                         </Text>
-                    </View>{" "}
+                    </View>
                     <ScrollView style={{ maxHeight: 90 }}>
                         {topDevices.length === 0 ? (
                             <Text

@@ -254,7 +254,7 @@ const DevicesPage = () => {
                                                     color:
                                                         device.category ===
                                                         cat.id
-                                                            ? colors.primary
+                                                            ? colors.text
                                                             : colors.text,
                                                 },
                                             ]}

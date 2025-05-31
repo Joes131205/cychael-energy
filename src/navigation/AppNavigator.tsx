@@ -8,6 +8,8 @@ import SettingsPage from "../screens/SettingsPage";
 import EnergyAnalysisResultPage from "../screens/EnergyAnalysisResultPage";
 import EditProfilePage from "../screens/EditProfilePage";
 import ChangePasswordPage from "../screens/ChangePasswordPage";
+import PrivacyPolicyPage from "../screens/PrivacyPolicyPage";
+import TermsOfServicesPage from "../screens/TermsOfServicesPage";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,12 +19,12 @@ export default function AppNavigator() {
             <Stack.Screen
                 name="Login"
                 component={LoginPage}
-                options={{ headerShown: false }}
+                options={{ title: "Login", headerShown: false }}
             />
             <Stack.Screen
                 name="Register"
                 component={RegisterPage}
-                options={{ headerShown: false }}
+                options={{ title: "Register", headerShown: false }}
             />
             <Stack.Screen
                 name="Dashboard"
@@ -38,7 +40,7 @@ export default function AppNavigator() {
                 name="EnergyAnalysisResultPage"
                 component={EnergyAnalysisResultPage}
                 options={{
-                    title: "EnergyAnalysisResultPage",
+                    title: "Energy Data",
                     headerShown: false,
                 }}
             />
@@ -50,7 +52,7 @@ export default function AppNavigator() {
             <Stack.Screen
                 name="DevicesPage"
                 component={DevicesPage}
-                options={{ title: "Energy Input", headerShown: false }}
+                options={{ title: "Your Devices", headerShown: false }}
             />
             <Stack.Screen
                 name="EditProfile"
@@ -60,7 +62,17 @@ export default function AppNavigator() {
             <Stack.Screen
                 name="ChangePassword"
                 component={ChangePasswordPage}
-                options={{ title: "Change Password", headerShown: false }}
+                options={{ title: "Change your Password", headerShown: false }}
+            />
+            <Stack.Screen
+                name="PrivacyPolicyPage"
+                component={PrivacyPolicyPage}
+                options={{ title: "Privacy Policy", headerShown: false }}
+            />
+            <Stack.Screen
+                name="TermsOfServicesPage"
+                component={TermsOfServicesPage}
+                options={{ title: "Terms of Services", headerShown: false }}
             />
         </Stack.Navigator>
     );

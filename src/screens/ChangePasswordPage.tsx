@@ -9,7 +9,11 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { auth } from "../utils/firebase";
-import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import {
+    updatePassword,
+    reauthenticateWithCredential,
+    EmailAuthProvider,
+} from "firebase/auth";
 import { useTheme } from "../hooks/useTheme";
 
 const ChangePasswordPage = () => {
@@ -56,11 +60,18 @@ const ChangePasswordPage = () => {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <Text style={[styles.title, { color: colors.text }]}>Change Password</Text>
+        <View
+            style={[styles.container, { backgroundColor: colors.background }]}
+        >
+            <Text style={[styles.title, { color: colors.text }]}>
+                Change Password
+            </Text>
 
             <TextInput
-                style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+                style={[
+                    styles.input,
+                    { borderColor: colors.border, color: colors.text },
+                ]}
                 placeholder="Current Password"
                 placeholderTextColor={colors.textSecondary}
                 secureTextEntry
@@ -69,7 +80,10 @@ const ChangePasswordPage = () => {
             />
 
             <TextInput
-                style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+                style={[
+                    styles.input,
+                    { borderColor: colors.border, color: colors.text },
+                ]}
                 placeholder="New Password"
                 placeholderTextColor={colors.textSecondary}
                 secureTextEntry
@@ -78,7 +92,10 @@ const ChangePasswordPage = () => {
             />
 
             <TextInput
-                style={[styles.input, { borderColor: colors.border, color: colors.text }]}
+                style={[
+                    styles.input,
+                    { borderColor: colors.border, color: colors.text },
+                ]}
                 placeholder="Confirm New Password"
                 placeholderTextColor={colors.textSecondary}
                 secureTextEntry
@@ -91,7 +108,7 @@ const ChangePasswordPage = () => {
                 onPress={handleChangePassword}
                 disabled={loading}
             >
-                <Text style={[styles.buttonText, { color: colors.primary }]}>
+                <Text style={[styles.buttonText, { color: colors.text }]}>
                     {loading ? "Updating..." : "Update Password"}
                 </Text>
             </TouchableOpacity>
@@ -100,7 +117,11 @@ const ChangePasswordPage = () => {
                 style={[
                     styles.button,
                     // styles.cancelButton,
-                    { backgroundColor: "transparent", borderColor: colors.border, borderWidth: 1 },
+                    {
+                        backgroundColor: "transparent",
+                        borderColor: colors.border,
+                        borderWidth: 1,
+                    },
                 ]}
                 onPress={() => navigation.goBack()}
             >
@@ -108,7 +129,6 @@ const ChangePasswordPage = () => {
                     Cancel
                 </Text>
             </TouchableOpacity>
-
         </View>
     );
 };

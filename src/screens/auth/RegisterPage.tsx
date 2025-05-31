@@ -121,8 +121,8 @@ const Register = () => {
         <LinearGradient
             colors={
                 isDarkMode
-                    ? [colors.background, "#101820"] // Darker gradient for dark mode
-                    : [colors.background, "#E0F2EF"]
+                    ? [colors.background, "#071510"] // Darker gradient for dark mode
+                    : [colors.background, "#DFFFF8"]
             }
             style={styles.container}
         >
@@ -254,10 +254,7 @@ const Register = () => {
                         disabled={loading}
                     >
                         <Text
-                            style={[
-                                styles.buttonText,
-                                { color: colors.primary },
-                            ]}
+                            style={[styles.buttonText, { color: colors.text }]}
                         >
                             {loading ? "Creating Account..." : "Register"}
                         </Text>

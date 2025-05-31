@@ -111,7 +111,7 @@ const LoginPage = () => {
             colors={
                 isDarkMode
                     ? [colors.background, colors.background]
-                    : [colors.background, "#E0F2EF"]
+                    : [colors.background, "#DFFFF8"]
             }
             style={styles.container}
         >
@@ -182,10 +182,7 @@ const LoginPage = () => {
                         disabled={loading}
                     >
                         <Text
-                            style={[
-                                styles.buttonText,
-                                { color: colors.primary },
-                            ]}
+                            style={[styles.buttonText, { color: colors.text }]}
                         >
                             {loading ? "Signing In..." : "Login"}
                         </Text>

@@ -39,12 +39,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
         if (user) {
             navigation.navigate("Dashboard" as never);
         }
-    }, [user]);
-
-    return (
+    }, [user]);    return (
         <LinearGradient
             colors={
-                isDarkMode ? ["#121C1A", "#0A1211"] : ["#283F3B", "#1A2E2A"]
+                isDarkMode ? ["#0A1A17", "#081310"] : ["#0D3326", "#0F3F30"]
             }
             style={styles.container}
         >
@@ -53,13 +51,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                 showsVerticalScrollIndicator={false}
                 scrollEnabled={true}
             >
-                {/* Logo/App Name */}
-                <View style={styles.logoContainer}>
-                    <Text style={[styles.logoFirst, { color: colors.accent }]}>
+                {/* Logo/App Name */}                <View style={styles.logoContainer}>
+                    <Text style={[styles.logoFirst, { color: "#34A853" }]}>
                         Cychael
                     </Text>
                     <Text
-                        style={[styles.logoSecond, { color: colors.secondary }]}
+                        style={[styles.logoSecond, { color: "#2DCB97" }]}
                     >
                         of Energy
                     </Text>
@@ -70,13 +67,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                     source={energyIllustration}
                     style={styles.heroImage}
                     resizeMode="contain"
-                />
-
-                {/* App Description */}
-                <Text
+                />                {/* App Description */}                <Text
                     style={[
                         styles.description,
-                        { color: isDarkMode ? "#E0F2EF" : "#E0F2EF" },
+                        { color: "#E0F2EF" },
                     ]}
                 >
                     Smart energy analysis for your home. Track consumption,
@@ -84,96 +78,80 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                     recommendations.
                 </Text>
 
-                {/* Features List */}
-                <View style={styles.featuresContainer}>
-                    <View style={styles.featureItem}>
+                {/* Features List */}                <View style={styles.featuresContainer}>                    <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
-                                { backgroundColor: `${colors.accent}20` },
+                                { backgroundColor: "rgba(30, 111, 92, 0.2)" },
                             ]}
                         >
                             <Text style={styles.iconText}>⚡</Text>
-                        </View>
-                        <Text
+                        </View><Text
                             style={[
                                 styles.featureText,
-                                { color: isDarkMode ? "#FFFFFF" : "#FFFFFF" },
+                                { color: "#FFFFFF" },
                             ]}
                         >
                             Real-time energy tracking
                         </Text>
-                    </View>
-                    <View style={styles.featureItem}>
+                    </View>                    <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
-                                { backgroundColor: `${colors.accent}20` },
+                                { backgroundColor: "rgba(30, 111, 92, 0.2)" },
                             ]}
                         >
                             <Text style={styles.iconText}>💡</Text>
-                        </View>
-                        <Text
+                        </View><Text
                             style={[
                                 styles.featureText,
-                                { color: isDarkMode ? "#FFFFFF" : "#FFFFFF" },
+                                { color: "#FFFFFF" },
                             ]}
                         >
                             Smart savings suggestions
                         </Text>
-                    </View>
-                    <View style={styles.featureItem}>
+                    </View>                    <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
-                                { backgroundColor: `${colors.accent}20` },
+                                { backgroundColor: "rgba(30, 111, 92, 0.2)" },
                             ]}
                         >
                             <Text style={styles.iconText}>📊</Text>
-                        </View>
-                        <Text
+                        </View><Text
                             style={[
                                 styles.featureText,
-                                { color: isDarkMode ? "#FFFFFF" : "#FFFFFF" },
+                                { color: "#FFFFFF" },
                             ]}
                         >
                             Detailed consumption reports
                         </Text>
                     </View>
-                </View>
-
-                {/* Action Buttons */}
+                </View>{/* Action Buttons */}
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                        style={[
+                    <TouchableOpacity                        style={[
                             styles.button,
                             styles.primaryButton,
-                            { backgroundColor: colors.accent },
+                            { backgroundColor: "#1E6F5C" },
                         ]}
                         onPress={() => navigation.navigate("Login")}
-                    >
-                        <Text
-                            style={[
-                                styles.buttonText,
-                                { color: colors.primary },
-                            ]}
+                    >                        <Text
+                            style={[styles.buttonText, { color: "#FFFFFF" }]}
                         >
                             Login
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[
+                    <TouchableOpacity                        style={[
                             styles.button,
                             styles.secondaryButton,
-                            { borderColor: colors.secondary },
+                            { borderColor: "#29BB89" },
                         ]}
                         onPress={() => navigation.navigate("Register")}
-                    >
-                        <Text
+                    >                        <Text
                             style={[
                                 styles.buttonText,
                                 styles.secondaryButtonText,
-                                { color: colors.secondary },
+                                { color: "#FFFFFF" },
                             ]}
                         >
                             Register

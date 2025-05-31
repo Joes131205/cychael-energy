@@ -98,7 +98,8 @@ const EnergyAnalysisResultPage = () => {
                 const entryDate = new Date(entry.timestamp);
 
                 if (entryDate >= lastWeekStart && entryDate <= now) {
-                    const dateKey = entry.dateKey || entryDate.toISOString().split("T")[0];
+                    const dateKey =
+                        entry.dateKey || entryDate.toISOString().split("T")[0];
 
                     if (!grouped[dateKey]) {
                         grouped[dateKey] = [];
@@ -124,7 +125,6 @@ const EnergyAnalysisResultPage = () => {
                     }
                 }
             });
-
 
             console.log("Grouped devices by date:", grouped);
             return grouped;
@@ -152,20 +152,20 @@ const EnergyAnalysisResultPage = () => {
         for (let i = 6; i >= 0; i--) {
             const day = new Date(today);
             day.setDate(today.getDate() - i);
-        
+
             const dateKey = day.toISOString().split("T")[0];
             const dayIndex = day.getDay(); // Get day index (0=Sunday, 6=Saturday)
-            
+
             // Get devices for this date
             const devices = groupedData[dateKey] || [];
-        
+
             // Calculate total kWh for the day
             const totalKwh = devices.reduce((sum, device) => {
                 const hours = device.hours || 0;
                 const watt = device.watt || 0;
                 return sum + (watt * hours) / 1000;
             }, 0);
-        
+
             // Add to the corresponding day slot
             result[dayIndex] += Number(totalKwh.toFixed(2));
         }
@@ -186,11 +186,10 @@ const EnergyAnalysisResultPage = () => {
 
         return userData.deviceList.devices.reduce(
             (total: any, device: any) =>
-                total + ((device.watt * device.hours || 0) / 1000),
+                total + (device.watt * device.hours || 0) / 1000,
             0
         );
     }, [userData]);
-
 
     //   const weeklyData = useMemo(() => {
     //     getLastWeekDevices().then((groupedDevices) => {});
@@ -575,7 +574,7 @@ const EnergyAnalysisResultPage = () => {
                 colors={
                     isDarkMode
                         ? [colors.card, colors.secondary]
-                        : [colors.background, colors.background]
+                        : ["#F8FBFA", "#DFFFF8"]
                 }
                 style={[styles.header, { backgroundColor: colors.card }]}
             >
@@ -588,7 +587,6 @@ const EnergyAnalysisResultPage = () => {
                     Your comprehensive energy usage analysis
                 </Text>
             </LinearGradient>
-
             {/* Tooltip component */}
             {tooltipVisible && tooltipData && (
                 <Animated.View
@@ -623,7 +621,6 @@ const EnergyAnalysisResultPage = () => {
                     </Text>
                 </Animated.View>
             )}
-
             {/* Weekly Energy Chart with interactive dots */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
@@ -787,7 +784,10 @@ const EnergyAnalysisResultPage = () => {
                             style={[styles.statValue, { color: colors.text }]}
                         >
                             {(
-                                weeklyGroupData.data.reduce((a, b) => a + b, 0) / 7
+                                weeklyGroupData.data.reduce(
+                                    (a, b) => a + b,
+                                    0
+                                ) / 7
                             ).toFixed(2)}{" "}
                             kWh
                         </Text>
@@ -860,8 +860,6 @@ const EnergyAnalysisResultPage = () => {
                     </View>
                 </View>
             </View>
-
-            
             {/* Appliance Breakdown */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
@@ -950,8 +948,6 @@ const EnergyAnalysisResultPage = () => {
                     </Text>
                 )}
             </View>
-
-            
             {/* Saran */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
