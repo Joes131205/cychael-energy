@@ -165,7 +165,6 @@ const Register = () => {
                             },
                         ]}
                         placeholderTextColor={colors.textSecondary}
-                        secureTextEntry
                         placeholder="Full Name"
                         value={name}
                         onChangeText={setName}
@@ -183,7 +182,6 @@ const Register = () => {
                             },
                         ]}
                         placeholderTextColor={colors.textSecondary}
-                        secureTextEntry
                         placeholder="Email Address"
                         value={email}
                         onChangeText={setEmail}
