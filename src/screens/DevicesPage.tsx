@@ -94,6 +94,54 @@ const DevicesPage = () => {
     const saveDevices = async () => {
         try {
             setLoading(true);
+
+            const validationErrors = [];
+
+            for (let i = 0; i < devices.length; i++) {
+                const device = devices[i];
+                if (!device.name.trim()) {
+                    validationErrors.push(`Device #${i + 1} needs a name`);
+                }
+
+                if (device.watt <= 0) {
+                    validationErrors.push(
+                        `Device #${i + 1} (${
+                            device.name || "Unnamed"
+                        }) needs a valid wattage value`
+                    );
+                }
+
+                if (device.hours <= 0) {
+                    validationErrors.push(
+                        `Device #${i + 1} (${
+                            device.name || "Unnamed"
+                        }) needs usage hours`
+                    );
+                }
+
+                if (device.watt > 10000) {
+                    validationErrors.push(
+                        `Device #${i + 1}: ${device.watt}W seems unusually high`
+                    );
+                }
+
+                if (device.hours > 24) {
+                    validationErrors.push(
+                        `Device #${i + 1}: ${
+                            device.hours
+                        } hours exceeds 24 hours per day`
+                    );
+                }
+            }
+
+            if (validationErrors.length > 0) {
+                Alert.alert("Validation Error", validationErrors.join("\n\n"), [
+                    { text: "OK" },
+                ]);
+                setLoading(false);
+                return;
+            }
+
             const docRef = doc(db, "users", userData.id);
             const now = new Date().toISOString();
 

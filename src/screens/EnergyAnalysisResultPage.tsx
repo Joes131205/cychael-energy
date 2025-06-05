@@ -281,6 +281,10 @@ const EnergyAnalysisResultPage = () => {
             let x = res.response.text;
             setAdviseText(x);
             setIsLoading(false);
+
+            setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+            }, 300);
         });
     };
     // Device usage breakdown
@@ -521,6 +525,7 @@ const EnergyAnalysisResultPage = () => {
     };
 
     // NEW: Hide line tooltip
+    // What this do bruh
     const hideLineTooltip = () => {
         Animated.timing(lineFadeAnim, {
             toValue: 0,
