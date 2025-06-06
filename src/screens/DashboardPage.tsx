@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import {
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    Alert,
+    ActivityIndicator,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,6 +25,8 @@ interface Device {
 }
 
 const DashboardPage = () => {
+    const [isLoading, setIsLoading] = useState(true);
+
     const navigation = useNavigation<any>();
     const { colors, isDarkMode } = useTheme();
     const { user, userData } = useUser();
@@ -45,6 +54,7 @@ const DashboardPage = () => {
         }
     }, [user]);
     useEffect(() => {
+        setIsLoading(true);
         if (!userData?.deviceList?.devices) return;
 
         const currentDate = new Date();
@@ -162,6 +172,8 @@ const DashboardPage = () => {
         } else {
             setTopDevices([]);
         }
+
+        setIsLoading(false);
     }, [userData, devices]);
 
     const getCategoryIcon = (category: string): string => {
@@ -289,6 +301,31 @@ const DashboardPage = () => {
             );
         }
     };
+
+    if (isLoading) {
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: colors.background,
+                }}
+            >
+                <ActivityIndicator size="large" color={colors.accent} />
+                <Text
+                    style={{
+                        marginTop: 20,
+                        color: colors.text,
+                        fontSize: 16,
+                    }}
+                >
+                    Loading energy data...
+                </Text>
+            </View>
+        );
+    }
+
     return (
         <ScrollView
             className="flex-1"
@@ -404,7 +441,9 @@ const DashboardPage = () => {
                                 <Ionicons
                                     name="trending-up-outline"
                                     size={22}
-                                    color={isDarkMode ? colors.text : "#FFFFFF"}
+                                    color={
+                                        isDarkMode ? colors.primary : "#FFFFFF"
+                                    }
                                 />
                             </View>
                             <Text

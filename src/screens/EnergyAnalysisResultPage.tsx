@@ -23,6 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../hooks/useTheme";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useUser } from "../hooks/useUser";
+import Markdown from "react-native-markdown-display";
 
 const screenWidth = Dimensions.get("window").width;
 const EnergyAnalysisResultPage = () => {
@@ -281,6 +282,10 @@ const EnergyAnalysisResultPage = () => {
             let x = res.response.text;
             setAdviseText(x);
             setIsLoading(false);
+
+            setTimeout(() => {
+                scrollViewRef.current?.scrollToEnd({ animated: true });
+            }, 300);
         });
     };
     // Device usage breakdown
@@ -521,6 +526,7 @@ const EnergyAnalysisResultPage = () => {
     };
 
     // NEW: Hide line tooltip
+    // What this do bruh
     const hideLineTooltip = () => {
         Animated.timing(lineFadeAnim, {
             toValue: 0,
@@ -953,14 +959,16 @@ const EnergyAnalysisResultPage = () => {
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     AI Advisor
                 </Text>
-                <Text
-                    style={[
-                        styles.applianceName,
-                        { color: colors.textSecondary },
-                    ]}
+                <Markdown
+                    style={{
+                        body: {
+                            ...styles.applianceName,
+                            color: colors.textSecondary,
+                        },
+                    }}
                 >
                     {adviseText}
-                </Text>
+                </Markdown>
 
                 <TouchableOpacity
                     className="mt-2 items-center py-2"

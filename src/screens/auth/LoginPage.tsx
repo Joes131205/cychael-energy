@@ -165,7 +165,22 @@ const LoginPage = () => {
                         value={password}
                         onChangeText={setPassword}
                         secureTextEntry
-                    />{" "}
+                    />
+                    <TouchableOpacity
+                        style={styles.forgotPasswordContainer}
+                        onPress={() =>
+                            navigation.navigate("ForgotPasswordPage" as never)
+                        }
+                    >
+                        <Text
+                            style={[
+                                styles.forgotPasswordText,
+                                { color: colors.accent },
+                            ]}
+                        >
+                            Forgot Password?
+                        </Text>
+                    </TouchableOpacity>
                     <TouchableOpacity
                         style={[
                             styles.button,
@@ -263,6 +278,14 @@ const styles = StyleSheet.create({
     switchAuthText: {},
     switchAuthHighlight: {
         fontWeight: "600",
+    },
+    forgotPasswordContainer: {
+        alignSelf: "flex-end",
+        marginBottom: 15,
+    },
+    forgotPasswordText: {
+        fontSize: 14,
+        fontWeight: "500",
     },
 });
 
