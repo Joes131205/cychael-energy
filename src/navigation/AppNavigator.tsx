@@ -7,9 +7,9 @@ import DevicesPage from "../screens/DevicesPage";
 import SettingsPage from "../screens/SettingsPage";
 import EnergyAnalysisResultPage from "../screens/EnergyAnalysisResultPage";
 import EditProfilePage from "../screens/EditProfilePage";
-import ChangePasswordPage from "../screens/ChangePasswordPage";
 import PrivacyPolicyPage from "../screens/PrivacyPolicyPage";
 import TermsOfServicesPage from "../screens/TermsOfServicesPage";
+import ForgotPasswordPage from "../screens/ForgotPasswordPage";
 
 const Stack = createNativeStackNavigator();
 
@@ -39,7 +39,7 @@ export default function AppNavigator() {
             <Stack.Screen
                 name="EnergyAnalysisResultPage"
                 component={EnergyAnalysisResultPage}
-                options={{ title: "Energy Data", headerShown: false, }}
+                options={{ title: "Energy Data", headerShown: false }}
             />
             <Stack.Screen
                 name="LandingPage"
@@ -57,11 +57,6 @@ export default function AppNavigator() {
                 options={{ title: "Edit Profile", headerShown: true }}
             />
             <Stack.Screen
-                name="ChangePassword"
-                component={ChangePasswordPage}
-                options={{ title: "Change your Password", headerShown: true }}
-            />
-            <Stack.Screen
                 name="PrivacyPolicyPage"
                 component={PrivacyPolicyPage}
                 options={{ title: "Privacy Policy", headerShown: false }}
@@ -70,6 +65,11 @@ export default function AppNavigator() {
                 name="TermsOfServicesPage"
                 component={TermsOfServicesPage}
                 options={{ title: "Terms of Services", headerShown: false }}
+            />
+            <Stack.Screen
+                name="ForgotPasswordPage"
+                component={ForgotPasswordPage}
+                options={{ title: "Forgot Password", headerShown: true }}
             />
         </Stack.Navigator>
     );

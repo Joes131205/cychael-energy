@@ -117,32 +117,6 @@ const SettingsPage = () => {
                         color={colors.textSecondary}
                     />
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={[
-                        styles.settingItem,
-                        { backgroundColor: colors.card },
-                    ]}
-                    onPress={() =>
-                        navigation.navigate("ChangePassword" as never)
-                    }
-                >
-                    <View style={styles.settingIcon}>
-                        <Ionicons
-                            name="lock-closed-outline"
-                            size={22}
-                            color={colors.iconSecondary}
-                        />
-                    </View>
-                    <Text style={[styles.settingText, { color: colors.text }]}>
-                        Change Password
-                    </Text>
-                    <Ionicons
-                        name="chevron-forward"
-                        size={20}
-                        color={colors.textSecondary}
-                    />
-                </TouchableOpacity>
             </View>
 
             {/* Preferences Section */}
@@ -192,30 +166,6 @@ const SettingsPage = () => {
                             ]}
                         />
                     </View>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    style={[
-                        styles.settingItem,
-                        { backgroundColor: colors.card },
-                    ]}
-                    // onPress={() => navigation.navigate("NotificationSettings" as never)}
-                >
-                    <View style={styles.settingIcon}>
-                        <Ionicons
-                            name="notifications-outline"
-                            size={22}
-                            color={colors.iconSecondary}
-                        />
-                    </View>
-                    <Text style={[styles.settingText, { color: colors.text }]}>
-                        Notification Settings
-                    </Text>
-                    <Ionicons
-                        name="chevron-forward"
-                        size={20}
-                        color={colors.textSecondary}
-                    />
                 </TouchableOpacity>
             </View>
 
