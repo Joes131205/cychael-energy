@@ -168,25 +168,7 @@ const LoginPage = () => {
                         onChangeText={setPassword}
                         secureTextEntry
                     />
-<<<<<<< HEAD
-                    <TouchableOpacity
-                        style={styles.forgotPasswordContainer}
-                        onPress={() =>
-                            navigation.navigate("ForgotPasswordPage" as never)
-                        }
-                    >
-                        <Text
-                            style={[
-                                styles.forgotPasswordText,
-                                { color: colors.accent },
-                            ]}
-                        >
-                            Forgot Password?
-                        </Text>
-                    </TouchableOpacity>
-=======
 
->>>>>>> parent of 70e5b0f (refactor: Update app configuration and enhance UI components for better accessibility and performance)
                     <TouchableOpacity
                         style={[
                             styles.button,

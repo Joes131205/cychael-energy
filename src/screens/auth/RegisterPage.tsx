@@ -166,10 +166,6 @@ const Register = () => {
                                 color: colors.text,
                             },
                         ]}
-<<<<<<< HEAD
-                        placeholderTextColor={colors.textSecondary}
-=======
->>>>>>> parent of 70e5b0f (refactor: Update app configuration and enhance UI components for better accessibility and performance)
                         placeholder="Full Name"
                         placeholderTextColor={
                             isDarkMode ? "#6B7280" : colors.textSecondary
@@ -191,10 +187,6 @@ const Register = () => {
                                 color: colors.text,
                             },
                         ]}
-<<<<<<< HEAD
-                        placeholderTextColor={colors.textSecondary}
-=======
->>>>>>> parent of 70e5b0f (refactor: Update app configuration and enhance UI components for better accessibility and performance)
                         placeholder="Email Address"
                         placeholderTextColor={
                             isDarkMode ? "#6B7280" : colors.textSecondary

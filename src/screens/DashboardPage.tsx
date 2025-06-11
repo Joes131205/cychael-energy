@@ -423,13 +423,7 @@ const DashboardPage = () => {
                                 <Ionicons
                                     name="trending-up-outline"
                                     size={22}
-<<<<<<< HEAD
-                                    color={
-                                        isDarkMode ? colors.primary : "#FFFFFF"
-                                    }
-=======
                                     color="#FFFFFF"
->>>>>>> parent of 70e5b0f (refactor: Update app configuration and enhance UI components for better accessibility and performance)
                                 />
                             </View><Text
                                 className="text-xl font-bold"
