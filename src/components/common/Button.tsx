@@ -14,37 +14,30 @@ export default function Button({
     variant = "primary",
     disabled = false,
 }: ButtonProps) {
-    const { colors, isDarkMode } = useTheme();    const getButtonStyle = () => {
+    const { colors, isDarkMode } = useTheme();
+
+    const getButtonStyle = () => {
         switch (variant) {
             case "primary":
-                // Slightly darker accent color for light mode for better text contrast
-                return { 
-                    backgroundColor: isDarkMode ? colors.accent : "#2A8A46"
-                };
+                return { backgroundColor: colors.accent };
             case "secondary":
                 return {
-                    backgroundColor: isDarkMode
-                        ? "rgba(255, 255, 255, 0.05)"
-                        : "transparent",
+                    backgroundColor: "transparent",
                     borderWidth: 1,
-                    borderColor: isDarkMode ? colors.text : colors.secondary,
+                    borderColor: colors.secondary,
                 };
             case "danger":
                 return { backgroundColor: colors.danger };
             default:
-                return { backgroundColor: isDarkMode ? colors.accent : "#2A8A46" };
+                return { backgroundColor: colors.accent };
         }
-    };const getTextStyle = () => {
-        if (variant === "secondary") {
-            return { color: isDarkMode ? colors.text : colors.primary };
-        }
+    };
 
-        if (variant === "danger") {
-            return { color: "#FFFFFF" };
+    const getTextStyle = () => {
+        if (variant === "secondary") {
+            return { color: colors.secondary };
         }
-        
-        // For primary buttons - white text on both light and dark modes
-        return { color: "#FFFFFF" };
+        return { color: variant === "danger" ? "#FFFFFF" : colors.primary };
     };
 
     return (
@@ -62,16 +55,12 @@ export default function Button({
     );
 }
 
-const styles = StyleSheet.create({    button: {
+const styles = StyleSheet.create({
+    button: {
         padding: 15,
         borderRadius: 10,
         alignItems: "center",
         marginVertical: 8,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 3,
     },
     text: {
         fontWeight: "600",
