@@ -39,7 +39,10 @@ export default function AppNavigator() {
             <Stack.Screen
                 name="EnergyAnalysisResultPage"
                 component={EnergyAnalysisResultPage}
-                options={{ title: "Energy Data", headerShown: false }}
+                options={{
+                    title: "Energy Data",
+                    headerShown: false,
+                }}
             />
             <Stack.Screen
                 name="LandingPage"
@@ -55,6 +58,11 @@ export default function AppNavigator() {
                 name="EditProfile"
                 component={EditProfilePage}
                 options={{ title: "Edit Profile", headerShown: true }}
+            />
+            <Stack.Screen
+                name="ChangePassword"
+                component={ChangePasswordPage}
+                options={{ title: "Change your Password", headerShown: true }}
             />
             <Stack.Screen
                 name="PrivacyPolicyPage"
