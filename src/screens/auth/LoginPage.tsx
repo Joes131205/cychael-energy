@@ -131,6 +131,7 @@ const LoginPage = () => {
                     >
                         Login to your Cychael account
                     </Text>
+
                     <TextInput
                         style={[
                             styles.input,
@@ -149,6 +150,7 @@ const LoginPage = () => {
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />
+
                     <TextInput
                         style={[
                             styles.input,
@@ -166,6 +168,7 @@ const LoginPage = () => {
                         onChangeText={setPassword}
                         secureTextEntry
                     />
+<<<<<<< HEAD
                     <TouchableOpacity
                         style={styles.forgotPasswordContainer}
                         onPress={() =>
@@ -181,6 +184,9 @@ const LoginPage = () => {
                             Forgot Password?
                         </Text>
                     </TouchableOpacity>
+=======
+
+>>>>>>> parent of 70e5b0f (refactor: Update app configuration and enhance UI components for better accessibility and performance)
                     <TouchableOpacity
                         style={[
                             styles.button,
@@ -193,10 +199,13 @@ const LoginPage = () => {
                         onPress={handleLogin}
                         disabled={loading}
                     >
-                        <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
+                        <Text
+                            style={[styles.buttonText, { color: colors.text }]}
+                        >
                             {loading ? "Signing In..." : "Login"}
                         </Text>
                     </TouchableOpacity>
+
                     <TouchableOpacity
                         onPress={() => navigation.navigate("Register")}
                         style={styles.switchAuth}
