@@ -23,9 +23,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../hooks/useTheme";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useUser } from "../hooks/useUser";
-import Markdown from "react-native-markdown-display";
 
 const screenWidth = Dimensions.get("window").width;
+
 const EnergyAnalysisResultPage = () => {
     const { colors, isDarkMode } = useTheme();
     const { userData, loading } = useUser();
@@ -959,16 +959,15 @@ const EnergyAnalysisResultPage = () => {
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     AI Advisor
                 </Text>
-                <Markdown
-                    style={{
-                        body: {
-                            ...styles.applianceName,
-                            color: colors.textSecondary,
-                        },
-                    }}
+
+                <Text
+                    style={[
+                        styles.applianceName,
+                        { color: colors.textSecondary },
+                    ]}
                 >
                     {adviseText}
-                </Markdown>
+                </Text>
 
                 <TouchableOpacity
                     className="mt-2 items-center py-2"
