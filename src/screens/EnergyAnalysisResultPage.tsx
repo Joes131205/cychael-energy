@@ -23,6 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../hooks/useTheme";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useUser } from "../hooks/useUser";
+import Markdown from "react-native-markdown-display";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -960,24 +961,62 @@ const EnergyAnalysisResultPage = () => {
                     AI Advisor
                 </Text>
 
-                <Text
-                    style={[
-                        styles.applianceName,
-                        { color: colors.textSecondary },
-                    ]}
+                <Markdown
+                    style={{
+                        body: {
+                            ...styles.applianceName,
+                            color: colors.textSecondary,
+                        },
+                    }}
                 >
                     {adviseText}
-                </Text>
+                </Markdown>
 
                 <TouchableOpacity
-                    className="mt-2 items-center py-2"
-                    onPress={() => handleAdvise()}
+                    style={{
+                        marginTop: 16,
+                        alignItems: "center",
+                        paddingVertical: 12,
+                        backgroundColor: colors.accent,
+                        borderRadius: 8,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        opacity: isLoadingAdvise ? 0.7 : 1,
+                    }}
+                    activeOpacity={0.85}
+                    disabled={isLoadingAdvise}
+                    onPress={() => {
+                        setIsLoadingAdvise(true);
+                        handleAdvise();
+                        setTimeout(() => setIsLoadingAdvise(false), 2000);
+                    }}
                 >
+                    {isLoadingAdvise ? (
+                        <ActivityIndicator size="small" color={colors.background} style={{ marginRight: 8 }} />
+                    ) : (
+                        <View
+                            style={{
+                                width: 22,
+                                height: 22,
+                                borderRadius: 11,
+                                backgroundColor: colors.background,
+                                alignItems: "center",
+                                justifyContent: "center",
+                                marginRight: 8,
+                            }}
+                        >
+                            <Text style={{ color: colors.accent, fontWeight: "bold", fontSize: 16 }}>💡</Text>
+                        </View>
+                    )}
                     <Text
-                        className="text-xs font-semibold"
-                        style={{ color: colors.accent }}
+                        style={{
+                            color: colors.background,
+                            fontWeight: "700",
+                            fontSize: 15,
+                            letterSpacing: 0.2,
+                        }}
                     >
-                        click here to get helpful advise
+                        {isLoadingAdvise ? "Generating advice..." : "Get AI Advice & Analysis"}
                     </Text>
                 </TouchableOpacity>
             </View>
