@@ -18,7 +18,6 @@ import { useUser } from "../hooks/useUser";
 interface Device {
     name: string;
     watt: number;
-    hours: number;
     category?: string;
 }
 
@@ -52,17 +51,14 @@ const DevicesPage = () => {
     const scrollViewRef = useRef<ScrollView>(null);
 
     const [devices, setDevices] = useState<Device[]>([
-        { name: "", watt: 0, hours: 0, category: "other" },
+        { name: "", watt: 0, category: "other" },
     ]);
     const [result, setResult] = useState<number | null>(null);
 
     const [loading, setLoading] = useState(false);
 
     const handleAddDevice = () => {
-        setDevices([
-            ...devices,
-            { name: "", watt: 0, hours: 0, category: "other" },
-        ]);
+        setDevices([...devices, { name: "", watt: 0, category: "other" }]);
 
         setTimeout(() => {
             scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -71,11 +67,11 @@ const DevicesPage = () => {
 
     const handleChange = (
         index: number,
-        key: "name" | "watt" | "hours" | "category",
+        key: "name" | "watt" | "category",
         value: string
     ) => {
         const updated = [...devices];
-        if (key === "watt" || key === "hours") {
+        if (key === "watt") {
             updated[index][key] = value === "" ? 0 : parseFloat(value);
         } else {
             updated[index][key] = value;
@@ -111,25 +107,9 @@ const DevicesPage = () => {
                     );
                 }
 
-                if (device.hours <= 0) {
-                    validationErrors.push(
-                        `Device #${i + 1} (${
-                            device.name || "Unnamed"
-                        }) needs usage hours`
-                    );
-                }
-
                 if (device.watt > 10000) {
                     validationErrors.push(
                         `Device #${i + 1}: ${device.watt}W seems unusually high`
-                    );
-                }
-
-                if (device.hours > 24) {
-                    validationErrors.push(
-                        `Device #${i + 1}: ${
-                            device.hours
-                        } hours exceeds 24 hours per day`
                     );
                 }
             }
@@ -151,7 +131,7 @@ const DevicesPage = () => {
                     name: device.name,
                     watt: device.watt,
                     category: device.category || "other",
-                    hours: device.hours || 0,
+                    hours: 0,
                     addedAt: now,
                 })),
             });
