@@ -22,7 +22,6 @@
     "expo-crypto": "~14.1.4",
     "expo-image-picker": "^16.1.4",
     "expo-linear-gradient": "^14.1.4",
-    "expo-navigation-bar": "^4.2.5",
     "expo-status-bar": "~2.2.3",
     "expo-web-browser": "~14.1.6",
     "firebase": "^11.7.3",
