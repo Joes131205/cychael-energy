@@ -43,12 +43,6 @@ const ThemedApp = () => {
 };
 
 export default function App() {
-    
-    useEffect(() => {
-        NavigationBar.setVisibilityAsync("hidden");
-        NavigationBar.setBehaviorAsync("inset-swipe");
-    }, []);
-
     return (
         <UserProvider>
             <ThemeProvider>
