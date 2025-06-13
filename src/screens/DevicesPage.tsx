@@ -259,8 +259,8 @@ const DevicesPage = () => {
                                                     device.category === cat.id
                                                         ? colors.accent
                                                         : isDarkMode
-                                                        ? colors.background
-                                                        : "#F0F0F0",
+                                                          ? colors.background
+                                                          : "#F0F0F0",
                                                 borderColor:
                                                     device.category === cat.id
                                                         ? colors.accent
@@ -423,6 +423,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         marginVertical: 10,
+        marginBottom: 40,
     },
     categorySection: {
         marginBottom: 15,

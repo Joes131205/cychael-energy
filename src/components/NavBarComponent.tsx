@@ -52,6 +52,7 @@ const NavBarComponent = () => {
                             shadowRadius: 5,
                             elevation: 5,
                         }}
+                        className={`${["EditProfile", "PrivacyPolicyPage", "TermsOfServicesPage"].includes(routeName) ? "hidden" : ""}`}
                     >
                         <View className="flex flex-row justify-between items-center w-full">
                             <View className="flex flex-row items-center justify-center w-full gap-10">
