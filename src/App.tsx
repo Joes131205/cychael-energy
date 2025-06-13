@@ -12,7 +12,6 @@ import { ThemeProvider } from "./context/themeContext";
 import { useTheme } from "./hooks/useTheme";
 import "../global.css";
 import { UserProvider } from "./context/userContext";
-import * as NavigationBar from "expo-navigation-bar";
 import { useEffect } from "react";
 
 const ThemedApp = () => {
@@ -44,10 +43,10 @@ const ThemedApp = () => {
 
 export default function App() {
     
-    useEffect(() => {
-        NavigationBar.setVisibilityAsync("hidden");
-        NavigationBar.setBehaviorAsync("inset-swipe");
-    }, []);
+    // useEffect(() => {
+    //     NavigationBar.setVisibilityAsync("hidden");
+    //     NavigationBar.setBehaviorAsync("inset-swipe");
+    // }, []);
 
     return (
         <UserProvider>
