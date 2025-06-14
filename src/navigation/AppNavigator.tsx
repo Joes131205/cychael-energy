@@ -10,12 +10,31 @@ import EditProfilePage from "../screens/EditProfilePage";
 import PrivacyPolicyPage from "../screens/PrivacyPolicyPage";
 import TermsOfServicesPage from "../screens/TermsOfServicesPage";
 import ForgotPasswordPage from "../screens/ForgotPasswordPage";
+import { useUser } from "../hooks/useUser";
+import { View, ActivityIndicator, Text } from "react-native";
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
+    const { user, loading } = useUser();
+
+    if (loading) {
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                <ActivityIndicator size="large" color="#29BB89" />
+                <Text style={{ marginTop: 20, color: "#333" }}>Loading...</Text>
+            </View>
+        );
+    }
+
     return (
-        <Stack.Navigator initialRouteName="Dashboard">
+        <Stack.Navigator initialRouteName={user ? "Dashboard" : "LandingPage"}>
             <Stack.Screen
                 name="Login"
                 component={LoginPage}

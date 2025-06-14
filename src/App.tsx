@@ -10,12 +10,14 @@ import AppNavigator from "./navigation/AppNavigator";
 import NavBarComponent from "./components/NavBarComponent";
 import { ThemeProvider } from "./context/themeContext";
 import { useTheme } from "./hooks/useTheme";
+import { useUser } from "./hooks/useUser";
 import "../global.css";
 import { UserProvider } from "./context/userContext";
 import { useEffect } from "react";
 
 const ThemedApp = () => {
     const { theme, colors, isDarkMode } = useTheme();
+    const { user, loading } = useUser();
 
     const navigationTheme = {
         ...(isDarkMode ? DarkTheme : DefaultTheme),
@@ -35,14 +37,13 @@ const ThemedApp = () => {
             <StatusBar style={isDarkMode ? "light" : "dark"} />
             <View style={{ flex: 1, backgroundColor: colors.background }}>
                 <AppNavigator />
-                <NavBarComponent />
+                {!loading && user && <NavBarComponent />}
             </View>
         </NavigationContainer>
     );
 };
 
 export default function App() {
-    
     // useEffect(() => {
     //     NavigationBar.setVisibilityAsync("hidden");
     //     NavigationBar.setBehaviorAsync("inset-swipe");

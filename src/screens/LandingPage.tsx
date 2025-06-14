@@ -39,14 +39,22 @@ const FeatureItem = ({ icon, text, colors }: FeatureItemProps) => {
             <View
                 style={[
                     styles.featureIcon,
-                    { 
-                        backgroundColor: isDarkMode ? colors.secondary + "20" : colors.accent + "15",
+                    {
+                        backgroundColor: isDarkMode
+                            ? colors.secondary + "20"
+                            : colors.accent + "15",
                     },
                 ]}
             >
-                <Ionicons name={icon as any} size={22} color={isDarkMode ? colors.accent : colors.primary} />
+                <Ionicons
+                    name={icon as any}
+                    size={22}
+                    color={isDarkMode ? colors.accent : colors.primary}
+                />
             </View>
-            <Text style={[styles.featureText, { color: colors.text }]}>{text}</Text>
+            <Text style={[styles.featureText, { color: colors.text }]}>
+                {text}
+            </Text>
         </View>
     );
 };
@@ -63,10 +71,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
     const translateY = useRef(new Animated.Value(20)).current;
     const featuresOpacity = useRef(new Animated.Value(0)).current;
     const featuresTranslateY = useRef(new Animated.Value(30)).current;
-
     useEffect(() => {
         if (user) {
-            navigation.navigate("Dashboard" as never);
+            navigation.replace("Dashboard");
         }
 
         // Start animations
@@ -97,8 +104,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                 delay: 400,
                 useNativeDriver: true,
             }),
-        ]).start();    }, [user, fadeAnim, translateY, featuresOpacity, featuresTranslateY]); 
-    
+        ]).start();
+    }, [user, fadeAnim, translateY, featuresOpacity, featuresTranslateY]);
+
     // Define gradient colors that will work with LinearGradient
     const gradientColors = isDarkMode
         ? ["#0A1A17", "#081310"]
@@ -240,7 +248,8 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "300",
         marginTop: -8,
-    },    heroImage: {
+    },
+    heroImage: {
         width: 180,
         height: 180,
         marginBottom: 30,
