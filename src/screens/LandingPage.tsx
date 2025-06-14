@@ -139,7 +139,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                     />
                 </Animated.View>
 
-                {/* App Description */}                <Animated.Text
+                <Animated.Text
                     style={[
                         styles.description,
                         {
