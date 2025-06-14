@@ -53,7 +53,7 @@ const FeatureItem = ({ icon, text, colors }: FeatureItemProps) => {
 
 const { width } = Dimensions.get("window");
 
-const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
+const LandingPage: React.FC<LandingPageProps> =  navigation  => {
     const { colors, isDarkMode } = useTheme();
     const energyIllustration: ImageSourcePropType = require("../../assets/logo.jpg");
     const { user } = useUser();
@@ -139,7 +139,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                     />
                 </Animated.View>
 
-                {/* App Description */}                <Animated.Text
+                <Animated.Text
                     style={[
                         styles.description,
                         {
