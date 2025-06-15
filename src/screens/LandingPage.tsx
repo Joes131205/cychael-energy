@@ -152,7 +152,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                     Smart energy analysis for your home. Track consumption,
                     reduce waste, and save money with personalized
                     recommendations.
-                </Text>
+                </Animated.Text>
 
                 {/* Features List */}                <View style={styles.featuresContainer}>                    <View style={styles.featureItem}>
                         <View
