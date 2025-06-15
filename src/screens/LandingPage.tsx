@@ -1,4 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
+import { Animated } from "react-native";
 import {
     View,
     Text,
@@ -13,10 +14,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useTheme } from "../hooks/useTheme";
 import { useUser } from "../hooks/useUser";
+import { Ionicons } from '@expo/vector-icons';
 
 type RootStackParamList = {
     Login: undefined;
     Register: undefined;
+    Dashboard: undefined;
 };
 
 type LandingPageNavigationProp = StackNavigationProp<
@@ -121,7 +124,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                 showsVerticalScrollIndicator={false}
                 scrollEnabled={true}
             >
-                {/* Logo/App Name */}                <View style={styles.logoContainer}>
+                {/* Logo/App Name */}
+                <View style={styles.logoContainer}>
                     <Text style={[styles.logoFirst, { color: "#34A853" }]}>
                         Cychael
                     </Text>
@@ -154,7 +158,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                     recommendations.
                 </Animated.Text>
 
-                {/* Features List */}                <View style={styles.featuresContainer}>                    <View style={styles.featureItem}>
+                <View style={styles.featuresContainer}> <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
@@ -186,7 +190,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                         >
                             Smart savings suggestions
                         </Text>
-                    </View>                    <View style={styles.featureItem}>
+                    </View>                    
+                    <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
@@ -203,7 +208,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                             Detailed consumption reports
                         </Text>
                     </View>
-                </View>{/* Action Buttons */}
+                </View>
+                
+                {/* Action Buttons */}
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity                        style={[
                             styles.button,
