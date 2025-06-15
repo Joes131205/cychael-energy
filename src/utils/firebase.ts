@@ -1,3 +1,12 @@
+import {
+    FIREBASE_API_KEY,
+    FIREBASE_AUTH_DOMAIN,
+    FIREBASE_PROJECT_ID,
+    FIREBASE_STORAGE_BUCKET,
+    FIREBASE_MESSAGING_SENDER_ID,
+    FIREBASE_APP_ID,
+} from "@env";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
 import { getAI, getGenerativeModel, GoogleAIBackend } from "firebase/ai";
@@ -16,6 +25,7 @@ const firebaseConfig = {
     messagingSenderId: "733161382587",
     appId: "1:733161382587:web:bf50eeaf5ef8c9397d3f9e",
 };
+
 
 const app = initializeApp(firebaseConfig);
 

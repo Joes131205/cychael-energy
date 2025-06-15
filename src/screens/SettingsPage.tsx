@@ -15,7 +15,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 
-const SettingsPage = ({navigation}) => {
+const SettingsPage = () => {
     const { colors, isDarkMode, toggleTheme } = useTheme();
 
     const [user, setUser] = useState(auth.currentUser);
@@ -34,6 +34,10 @@ const SettingsPage = ({navigation}) => {
                 {user?.displayName?.charAt(0).toUpperCase() || "U"}
             </Text>
         );
+        const handleLogout = async () => {
+            await signOut(auth);
+            navigation.navigate("LandingPage" as never);
+        };
     useFocusEffect(
         useCallback(() => {
             const refresh = async () => {
@@ -55,24 +59,7 @@ const SettingsPage = ({navigation}) => {
         }, [])
     );
 
-    const handleLogout = async () => {
-        await signOut(auth);
-        navigation.navigate("LandingPage" as never);
-    };
-    useEffect(() => {
-        const backAction = () => {
-          // Instead of closing the app, we navigate back to "Login" for example
-          navigation.replace("Dashboard");
-    
-          // Returning true means we handle it ourselves
-          return true;
-        };
-      
-        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
-      
-        return () => backHandler.remove();
-      }, [navigation]);
-    
+
     return (
         <ScrollView
             style={[styles.container, { backgroundColor: colors.background }]}

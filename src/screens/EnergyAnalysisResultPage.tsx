@@ -28,7 +28,7 @@ import Markdown from "react-native-markdown-display";
 
 const screenWidth = Dimensions.get("window").width;
 
-const EnergyAnalysisResultPage = ( { navigation }) => {
+const EnergyAnalysisResultPage = () => {
     const { colors, isDarkMode } = useTheme();
     const { userData, loading } = useUser();
     const scrollViewRef = useRef<ScrollView>(null);
@@ -51,19 +51,6 @@ const EnergyAnalysisResultPage = ( { navigation }) => {
     } | null>(null);
     const lineFadeAnim = useRef(new Animated.Value(0)).current;
 
-    useEffect(() => {
-        const backAction = () => {
-          // Instead of closing the app, we navigate back to "Login" for example
-          navigation.replace("Dashboard");
-    
-          // Returning true means we handle it ourselves
-          return true;
-        };
-      
-        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
-      
-        return () => backHandler.remove();
-      }, [navigation]);
     
     // State for Tooltip - MXA
     const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -637,7 +624,7 @@ const EnergyAnalysisResultPage = ( { navigation }) => {
                     <Text
                         style={[styles.tooltipValue, { color: colors.accent }]}
                     >
-                        {tooltipData.value}
+                        {tooltipData.value}{" "}
                         {tooltipData.type === "pie" ? "" : "kWh"}
                     </Text>
                 </Animated.View>
@@ -846,7 +833,7 @@ const EnergyAnalysisResultPage = ( { navigation }) => {
                         >
                             {monthlyData.datasets[0].data
                                 .reduce((a, b) => a + b, 0)
-                                .toFixed(1)}{" "}
+                                .toFixed(1)}
                             kWh
                         </Text>
                     </View>

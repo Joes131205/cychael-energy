@@ -9,7 +9,6 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { auth, db } from "../utils/firebase";
 import { LinearGradient } from "expo-linear-gradient";
@@ -48,20 +47,7 @@ const DashboardPage = () => {
             color: string;
         }[]
     >([]);
-    useEffect(() => {
-        const backAction = () => {
-          Alert.alert("Confirm exit", "Are you sure you want to exit?", [
-            { text: "Cancel", style: "cancel", onPress: () => {} },
-            { text: "Yes", onPress: () => BackHandler.exitApp() }
-          ]);
-    
-          return true;
-        };
-    
-        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
-    
-        return () => backHandler.remove();
-      }, []);
+ 
     useEffect(() => {
         if (!user) {
             navigation.navigate("LandingPage" as never);
@@ -327,7 +313,7 @@ const DashboardPage = () => {
                             {user?.displayName || "User"}
                         </Text>
                     </View>
-                </View>
+                </View>                
                 <View className="bg-white/15 rounded-[15px] p-5 mb-3">
                     <Text className="text-white text-base font-bold mb-4">
                         Your Energy Summary
@@ -352,23 +338,17 @@ const DashboardPage = () => {
                     </Text>
                     <View className="flex-row justify-between">
                         {/* Daily Usage */}
-                        <View className="items-center flex-1">
+                        <View className="items-center flex-1">                           
                             <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="flash-outline"
                                     size={24}
-                                    color={
-                                        isDarkMode ? colors.primary : "#FFFFFF"
-                                    }
+                                    color="#FFFFFF"
                                 />
                             </View>
                             <Text
                                 className="text-xl font-bold"
-                                style={{
-                                    color: isDarkMode
-                                        ? colors.primary
-                                        : "#FFFFFF",
-                                }}
+                                style={{ color: "#FFFFFF" }}
                             >
                                 {energyData.today.toFixed(1)}
                             </Text>
@@ -381,23 +361,17 @@ const DashboardPage = () => {
                         </View>
 
                         {/* Monthly Usage */}
-                        <View className="items-center flex-1">
+                        <View className="items-center flex-1">                            
                             <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="calendar-outline"
                                     size={22}
-                                    color={
-                                        isDarkMode ? colors.primary : "#FFFFFF"
-                                    }
+                                    color="#FFFFFF"
                                 />
                             </View>
                             <Text
                                 className="text-xl font-bold"
-                                style={{
-                                    color: isDarkMode
-                                        ? colors.primary
-                                        : "#FFFFFF",
-                                }}
+                                style={{ color: "#FFFFFF" }}
                             >
                                 {energyData.monthly.toFixed(1)}
                             </Text>
@@ -410,23 +384,16 @@ const DashboardPage = () => {
                         </View>
 
                         {/* Yearly Usage */}
-                        <View className="items-center flex-1">
+                        <View className="items-center flex-1">                           
                             <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="trending-up-outline"
                                     size={22}
-                                    color={
-                                        isDarkMode ? colors.primary : "#FFFFFF"
-                                    }
+                                    color="#FFFFFF"
                                 />
-                            </View>
-                            <Text
+                            </View><Text
                                 className="text-xl font-bold"
-                                style={{
-                                    color: isDarkMode
-                                        ? colors.primary
-                                        : "#FFFFFF",
-                                }}
+                                style={{ color: "#FFFFFF" }}
                             >
                                 {energyData.yearly.toFixed(1)}
                             </Text>
@@ -726,14 +693,12 @@ const DashboardPage = () => {
                             <Ionicons
                                 name="add-circle-outline"
                                 size={20}
-                                color={isDarkMode ? colors.primary : "#FFFFFF"}
+                                color={colors.primary}
                                 style={{ marginRight: 8 }}
                             />
                             <Text
                                 style={{
-                                    color: isDarkMode
-                                        ? colors.primary
-                                        : "#FFFFFF",
+                                    color: colors.primary,
                                     fontWeight: "600",
                                 }}
                             >

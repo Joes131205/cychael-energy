@@ -131,6 +131,7 @@ const LoginPage = () => {
                     >
                         Login to your Cychael account
                     </Text>
+
                     <TextInput
                         style={[
                             styles.input,
@@ -149,6 +150,7 @@ const LoginPage = () => {
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />
+
                     <TextInput
                         style={[
                             styles.input,
@@ -166,21 +168,7 @@ const LoginPage = () => {
                         onChangeText={setPassword}
                         secureTextEntry
                     />
-                    <TouchableOpacity
-                        style={styles.forgotPasswordContainer}
-                        onPress={() =>
-                            navigation.navigate("ForgotPasswordPage" as never)
-                        }
-                    >
-                        <Text
-                            style={[
-                                styles.forgotPasswordText,
-                                { color: colors.accent },
-                            ]}
-                        >
-                            Forgot Password?
-                        </Text>
-                    </TouchableOpacity>
+
                     <TouchableOpacity
                         style={[
                             styles.button,
@@ -193,10 +181,13 @@ const LoginPage = () => {
                         onPress={handleLogin}
                         disabled={loading}
                     >
-                        <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
+                        <Text
+                            style={[styles.buttonText, { color: colors.text }]}
+                        >
                             {loading ? "Signing In..." : "Login"}
                         </Text>
                     </TouchableOpacity>
+
                     <TouchableOpacity
                         onPress={() => navigation.navigate("Register")}
                         style={styles.switchAuth}
