@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ActivityIndicator } from "react-native";
 import {
     NavigationContainer,
     DefaultTheme,
@@ -31,6 +31,20 @@ const ThemedApp = () => {
             notification: colors.accent,
         },
     };
+
+    if (loading) {
+        // Fallback UI
+        return (
+            <View style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: colors.background,
+            }}>
+                <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+        );
+    }
 
     return (
         <NavigationContainer theme={navigationTheme}>
