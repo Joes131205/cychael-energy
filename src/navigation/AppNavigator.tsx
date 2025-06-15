@@ -11,12 +11,106 @@ import PrivacyPolicyPage from "../screens/PrivacyPolicyPage";
 import TermsOfServicesPage from "../screens/TermsOfServicesPage";
 import ForgotPasswordPage from "../screens/ForgotPasswordPage";
 import { useUser } from "../hooks/useUser";
-import { View, ActivityIndicator, Text } from "react-native";
+import {
+    View,
+    ActivityIndicator,
+    Text,
+    BackHandler,
+    Alert,
+} from "react-native";
+import { useEffect } from "react";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
+    const navigation = useNavigation();
+
     const { user, loading } = useUser();
+
+    useEffect(() => {
+        const backAction = () => {
+            const currentRoute =
+                navigation?.getState()?.routes?.[
+                    navigation?.getState()?.index ?? 0
+                ];
+
+            if (!user) {
+                if (currentRoute?.name === "LandingPage") {
+                    Alert.alert(
+                        "Confirm Exit",
+                        "Are you sure you want to close Cychael Energy?",
+                        [
+                            {
+                                text: "Exit",
+                                onPress: () => {
+                                    BackHandler.exitApp();
+                                    return true;
+                                },
+                            },
+
+                            {
+                                text: "Cancel",
+                                onPress: () => {
+                                    return false;
+                                },
+                                style: "cancel",
+                            },
+                        ]
+                    );
+                    return true;
+                } else {
+                    navigation.dispatch(
+                        CommonActions.reset({
+                            index: 0,
+                            routes: [{ name: "LandingPage" }],
+                        })
+                    );
+                    return true;
+                }
+            }
+
+            if (currentRoute?.name === "Dashboard") {
+                Alert.alert(
+                    "Confirm Exit",
+                    "Are you sure you want to close Cychael Energy?",
+                    [
+                        {
+                            text: "Exit",
+                            onPress: () => {
+                                BackHandler.exitApp();
+                                return true;
+                            },
+                        },
+
+                        {
+                            text: "Cancel",
+                            onPress: () => {
+                                return false;
+                            },
+                            style: "cancel",
+                        },
+                    ]
+                );
+                return true;
+            } else {
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: "Dashboard" }],
+                    })
+                );
+                return true;
+            }
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, [navigation, user]);
 
     if (loading) {
         return (
