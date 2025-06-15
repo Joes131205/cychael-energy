@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { RootStackParamList } from "../../navigation/Navigation";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useTheme } from "../../hooks/useTheme";
+import { useUser } from "../../hooks/useUser";
 
 type LoginScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -27,16 +28,15 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const { colors, isDarkMode } = useTheme();
+    const { user } = useUser();
 
     const navigation = useNavigation<LoginScreenNavigationProp>();
 
     useEffect(() => {
-        const user = auth.currentUser;
-
         if (user) {
-            navigation.navigate("Dashboard" as never);
+            navigation.replace("Dashboard");
         }
-    }, []);
+    }, [user, navigation]);
 
     const handleLogin = async () => {
         setLoading(true);

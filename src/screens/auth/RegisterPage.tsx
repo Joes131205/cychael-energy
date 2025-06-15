@@ -17,6 +17,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
 import { useTheme } from "../../hooks/useTheme";
+import { useUser } from "../../hooks/useUser";
 import { addDoc, collection } from "firebase/firestore";
 
 type RegisterScreenNavigationProp = StackNavigationProp<
@@ -31,17 +32,16 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const { colors, isDarkMode } = useTheme();
+    const { user } = useUser();
 
     const navigation = useNavigation<RegisterScreenNavigationProp>();
     const provider = new GoogleAuthProvider();
 
     useEffect(() => {
-        const user = auth.currentUser;
-
         if (user) {
-            navigation.navigate("Dashboard" as never);
+            navigation.replace("Dashboard");
         }
-    }, []);
+    }, [user, navigation]);
 
     const handleRegister = async () => {
         if (!name) {

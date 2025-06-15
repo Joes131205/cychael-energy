@@ -690,8 +690,8 @@ const EnergyAnalysisResultPage = () => {
                             : "";
 
                         setLineTooltipData({
-                            x,
-                            y,
+                            x: x + 15,
+                            y: y + 90,
                             label: dayLabel,
                             value,
                             date: formattedDate,
@@ -738,16 +738,15 @@ const EnergyAnalysisResultPage = () => {
                         >
                             {lineTooltipData.label}
                         </Text>
-                        {lineTooltipData.date && (
-                            <Text
-                                style={[
-                                    styles.tooltipDate,
-                                    { color: colors.textSecondary },
-                                ]}
-                            >
-                                {lineTooltipData.date}
-                            </Text>
-                        )}
+                        <Text
+                            style={[
+                                styles.tooltipDate,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            {lineTooltipData.date && lineTooltipData.date}
+                        </Text>
+
                         <Text
                             style={[
                                 styles.tooltipValue,
@@ -992,7 +991,11 @@ const EnergyAnalysisResultPage = () => {
                     }}
                 >
                     {isLoadingAdvise ? (
-                        <ActivityIndicator size="small" color={colors.background} style={{ marginRight: 8 }} />
+                        <ActivityIndicator
+                            size="small"
+                            color={colors.background}
+                            style={{ marginRight: 8 }}
+                        />
                     ) : (
                         <View
                             style={{
@@ -1005,7 +1008,15 @@ const EnergyAnalysisResultPage = () => {
                                 marginRight: 8,
                             }}
                         >
-                            <Text style={{ color: colors.accent, fontWeight: "bold", fontSize: 16 }}>💡</Text>
+                            <Text
+                                style={{
+                                    color: colors.accent,
+                                    fontWeight: "bold",
+                                    fontSize: 16,
+                                }}
+                            >
+                                💡
+                            </Text>
                         </View>
                     )}
                     <Text
@@ -1016,7 +1027,9 @@ const EnergyAnalysisResultPage = () => {
                             letterSpacing: 0.2,
                         }}
                     >
-                        {isLoadingAdvise ? "Generating advice..." : "Get AI Advice & Analysis"}
+                        {isLoadingAdvise
+                            ? "Generating advice..."
+                            : "Get AI Advice & Analysis"}
                     </Text>
                 </TouchableOpacity>
             </View>
