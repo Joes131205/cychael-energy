@@ -5,6 +5,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Alert,
+    BackHandler,
     ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -47,7 +48,20 @@ const DashboardPage = () => {
             color: string;
         }[]
     >([]);
-
+    useEffect(() => {
+        const backAction = () => {
+          Alert.alert("Confirm exit", "Are you sure you want to exit?", [
+            { text: "Cancel", style: "cancel", onPress: () => {} },
+            { text: "Yes", onPress: () => BackHandler.exitApp() }
+          ]);
+    
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+    
+        return () => backHandler.remove();
+      }, []);
     useEffect(() => {
         if (!user) {
             navigation.navigate("LandingPage" as never);
@@ -57,48 +71,7 @@ const DashboardPage = () => {
         setIsLoading(true);
         if (!userData?.deviceList?.devices) return;
 
-        const currentDate = new Date();
-        const updatedDevices = JSON.parse(
-            JSON.stringify(userData.deviceList.devices)
-        );
-        let devicesNeedUpdate = false;
-
-        updatedDevices.forEach((device: Device, index: number) => {
-            if (device.lastUpdated) {
-                const lastUpdatedDate = new Date(device.lastUpdated);
-                const daysDifference = Math.floor(
-                    (currentDate.getTime() - lastUpdatedDate.getTime()) /
-                        (1000 * 60 * 60 * 24)
-                );
-
-                if (daysDifference > 2) {
-                    console.log(
-                        `Device ${device.name} hasn't been updated for ${daysDifference} days. Resetting hours to 0.`
-                    );
-                    updatedDevices[index].hours = 0;
-                    devicesNeedUpdate = true;
-                }
-            }
-        });
-
-        if (devicesNeedUpdate && userData.id) {
-            const timestamp = currentDate.toISOString();
-            const userDocRef = doc(db, "users", userData.id);
-            updateDoc(userDocRef, {
-                "deviceList.devices": updatedDevices,
-                "deviceList.updatedAt": timestamp,
-            })
-                .then(() => {
-                    console.log("Devices hours reset due to inactivity");
-                })
-                .catch((error) => {
-                    console.error("Error resetting device hours:", error);
-                });
-        }
-
-        const currentDevices = devicesNeedUpdate
-            ? updatedDevices
-            : userData.deviceList.devices;
+        const currentDevices = userData.deviceList.devices;
         setDevices(currentDevices);
 
         const totalEnergy =
@@ -292,8 +265,9 @@ const DashboardPage = () => {
                 "deviceHistory.updatedAt": timestamp,
                 dailyDeviceUsage: dailyDeviceUsage,
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error saving device hours:", error);
+
             Alert.alert(
                 "Error",
                 "Failed to update device hours. Please try again.",
@@ -573,16 +547,7 @@ const DashboardPage = () => {
                         className="text-lg font-semibold"
                         style={{ color: colors.text }}
                     >
-                        Device Hour Controller (
-                        {new Date(
-                            userData?.deviceList?.updatedAt
-                        ).toLocaleDateString("en-US", {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                        })}
-                        )
+                        Device Hour Controller
                     </Text>
                 </View>
 

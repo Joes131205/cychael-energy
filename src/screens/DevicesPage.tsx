@@ -4,6 +4,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    BackHandler,
     ScrollView,
     StyleSheet,
 } from "react-native";
@@ -14,11 +15,11 @@ import Button from "../components/common/Button";
 import { db } from "../utils/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useUser } from "../hooks/useUser";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 interface Device {
     name: string;
     watt: number;
-    hours: number;
     category?: string;
 }
 
@@ -45,24 +46,34 @@ const deviceCategories = [
     { id: "other", name: "Other Devices", examples: "Chargers, Power Tools" },
 ];
 
-const DevicesPage = () => {
+const DevicesPage = ({navigation}) => {
     const { colors, isDarkMode } = useTheme();
     const { user, userData } = useUser();
 
     const scrollViewRef = useRef<ScrollView>(null);
 
     const [devices, setDevices] = useState<Device[]>([
-        { name: "", watt: 0, hours: 0, category: "other" },
+        { name: "", watt: 0, category: "other" },
     ]);
     const [result, setResult] = useState<number | null>(null);
 
     const [loading, setLoading] = useState(false);
-
+    useEffect(() => {
+        const backAction = () => {
+          // Instead of closing the app, we navigate back to "Login" for example
+          navigation.replace("Dashboard");
+    
+          // Returning true means we handle it ourselves
+          return true;
+        };
+      
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+      
+        return () => backHandler.remove();
+      }, [navigation]);
+    
     const handleAddDevice = () => {
-        setDevices([
-            ...devices,
-            { name: "", watt: 0, hours: 0, category: "other" },
-        ]);
+        setDevices([...devices, { name: "", watt: 0, category: "other" }]);
 
         setTimeout(() => {
             scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -71,11 +82,11 @@ const DevicesPage = () => {
 
     const handleChange = (
         index: number,
-        key: "name" | "watt" | "hours" | "category",
+        key: "name" | "watt" | "category",
         value: string
     ) => {
         const updated = [...devices];
-        if (key === "watt" || key === "hours") {
+        if (key === "watt") {
             updated[index][key] = value === "" ? 0 : parseFloat(value);
         } else {
             updated[index][key] = value;
@@ -111,25 +122,9 @@ const DevicesPage = () => {
                     );
                 }
 
-                if (device.hours <= 0) {
-                    validationErrors.push(
-                        `Device #${i + 1} (${
-                            device.name || "Unnamed"
-                        }) needs usage hours`
-                    );
-                }
-
                 if (device.watt > 10000) {
                     validationErrors.push(
                         `Device #${i + 1}: ${device.watt}W seems unusually high`
-                    );
-                }
-
-                if (device.hours > 24) {
-                    validationErrors.push(
-                        `Device #${i + 1}: ${
-                            device.hours
-                        } hours exceeds 24 hours per day`
                     );
                 }
             }
@@ -151,7 +146,7 @@ const DevicesPage = () => {
                     name: device.name,
                     watt: device.watt,
                     category: device.category || "other",
-                    hours: device.hours || 0,
+                    hours: 0,
                     addedAt: now,
                 })),
             });
@@ -279,8 +274,8 @@ const DevicesPage = () => {
                                                     device.category === cat.id
                                                         ? colors.accent
                                                         : isDarkMode
-                                                        ? colors.background
-                                                        : "#F0F0F0",
+                                                          ? colors.background
+                                                          : "#F0F0F0",
                                                 borderColor:
                                                     device.category === cat.id
                                                         ? colors.accent
@@ -443,6 +438,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         marginVertical: 10,
+        marginBottom: 40,
     },
     categorySection: {
         marginBottom: 15,

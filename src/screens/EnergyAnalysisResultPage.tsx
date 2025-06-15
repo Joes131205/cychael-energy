@@ -7,7 +7,9 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Animated,
+    BackHandler
 } from "react-native";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 import {
     collection,
@@ -17,19 +19,18 @@ import {
     Timestamp,
 } from "firebase/firestore";
 import { db, model } from "../utils/firebase";
-
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../hooks/useTheme";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useUser } from "../hooks/useUser";
+import Markdown from "react-native-markdown-display";
 
 const screenWidth = Dimensions.get("window").width;
 
-const EnergyAnalysisResultPage = () => {
+const EnergyAnalysisResultPage = ( { navigation }) => {
     const { colors, isDarkMode } = useTheme();
     const { userData, loading } = useUser();
-
     const scrollViewRef = useRef<ScrollView>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -50,6 +51,20 @@ const EnergyAnalysisResultPage = () => {
     } | null>(null);
     const lineFadeAnim = useRef(new Animated.Value(0)).current;
 
+    useEffect(() => {
+        const backAction = () => {
+          // Instead of closing the app, we navigate back to "Login" for example
+          navigation.replace("Dashboard");
+    
+          // Returning true means we handle it ourselves
+          return true;
+        };
+      
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+      
+        return () => backHandler.remove();
+      }, [navigation]);
+    
     // State for Tooltip - MXA
     const [tooltipVisible, setTooltipVisible] = useState(false);
     const [tooltipData, setTooltipData] = useState<{
@@ -689,8 +704,8 @@ const EnergyAnalysisResultPage = () => {
                             : "";
 
                         setLineTooltipData({
-                            x,
-                            y,
+                            x: x + 15,
+                            y: y + 90,
                             label: dayLabel,
                             value,
                             date: formattedDate,
@@ -737,16 +752,15 @@ const EnergyAnalysisResultPage = () => {
                         >
                             {lineTooltipData.label}
                         </Text>
-                        {lineTooltipData.date && (
-                            <Text
-                                style={[
-                                    styles.tooltipDate,
-                                    { color: colors.textSecondary },
-                                ]}
-                            >
-                                {lineTooltipData.date}
-                            </Text>
-                        )}
+                        <Text
+                            style={[
+                                styles.tooltipDate,
+                                { color: colors.textSecondary },
+                            ]}
+                        >
+                            {lineTooltipData.date && lineTooltipData.date}
+                        </Text>
+
                         <Text
                             style={[
                                 styles.tooltipValue,
@@ -960,24 +974,76 @@ const EnergyAnalysisResultPage = () => {
                     AI Advisor
                 </Text>
 
-                <Text
-                    style={[
-                        styles.applianceName,
-                        { color: colors.textSecondary },
-                    ]}
+                <Markdown
+                    style={{
+                        body: {
+                            ...styles.applianceName,
+                            color: colors.textSecondary,
+                        },
+                    }}
                 >
                     {adviseText}
-                </Text>
+                </Markdown>
 
                 <TouchableOpacity
-                    className="mt-2 items-center py-2"
-                    onPress={() => handleAdvise()}
+                    style={{
+                        marginTop: 16,
+                        alignItems: "center",
+                        paddingVertical: 12,
+                        backgroundColor: colors.accent,
+                        borderRadius: 8,
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        opacity: isLoadingAdvise ? 0.7 : 1,
+                    }}
+                    activeOpacity={0.85}
+                    disabled={isLoadingAdvise}
+                    onPress={() => {
+                        setIsLoadingAdvise(true);
+                        handleAdvise();
+                        setTimeout(() => setIsLoadingAdvise(false), 2000);
+                    }}
                 >
+                    {isLoadingAdvise ? (
+                        <ActivityIndicator
+                            size="small"
+                            color={colors.background}
+                            style={{ marginRight: 8 }}
+                        />
+                    ) : (
+                        <View
+                            style={{
+                                width: 22,
+                                height: 22,
+                                borderRadius: 11,
+                                backgroundColor: colors.background,
+                                alignItems: "center",
+                                justifyContent: "center",
+                                marginRight: 8,
+                            }}
+                        >
+                            <Text
+                                style={{
+                                    color: colors.accent,
+                                    fontWeight: "bold",
+                                    fontSize: 16,
+                                }}
+                            >
+                                💡
+                            </Text>
+                        </View>
+                    )}
                     <Text
-                        className="text-xs font-semibold"
-                        style={{ color: colors.accent }}
+                        style={{
+                            color: colors.background,
+                            fontWeight: "700",
+                            fontSize: 15,
+                            letterSpacing: 0.2,
+                        }}
                     >
-                        click here to get helpful advise
+                        {isLoadingAdvise
+                            ? "Generating advice..."
+                            : "Get AI Advice & Analysis"}
                     </Text>
                 </TouchableOpacity>
             </View>

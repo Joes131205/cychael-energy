@@ -28,24 +28,94 @@ interface LandingPageProps {
     navigation: LandingPageNavigationProp;
 }
 
+interface FeatureItemProps {
+    icon: string;
+    text: string;
+    colors: any;
+}
+
+const FeatureItem = ({ icon, text, colors }: FeatureItemProps) => {
+    const { isDarkMode } = useTheme();
+    return (
+        <View style={styles.featureItem}>
+            <View
+                style={[
+                    styles.featureIcon,
+                    {
+                        backgroundColor: isDarkMode
+                            ? colors.secondary + "20"
+                            : colors.accent + "15",
+                    },
+                ]}
+            >
+                <Ionicons
+                    name={icon as any}
+                    size={22}
+                    color={isDarkMode ? colors.accent : colors.primary}
+                />
+            </View>
+            <Text style={[styles.featureText, { color: colors.text }]}>
+                {text}
+            </Text>
+        </View>
+    );
+};
+
 const { width } = Dimensions.get("window");
 
 const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
     const { colors, isDarkMode } = useTheme();
     const energyIllustration: ImageSourcePropType = require("../../assets/logo.jpg");
-    const { user, userData } = useUser();
+    const { user } = useUser();
 
+    // Animation values
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const translateY = useRef(new Animated.Value(20)).current;
+    const featuresOpacity = useRef(new Animated.Value(0)).current;
+    const featuresTranslateY = useRef(new Animated.Value(30)).current;
     useEffect(() => {
         if (user) {
-            navigation.navigate("Dashboard" as never);
+            navigation.replace("Dashboard");
         }
-    }, [user]);    return (
-        <LinearGradient
-            colors={
-                isDarkMode ? ["#0A1A17", "#081310"] : ["#0D3326", "#0F3F30"]
-            }
-            style={styles.container}
-        >
+
+        // Start animations
+        Animated.parallel([
+            // Fade in main content
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 800,
+                useNativeDriver: true,
+            }),
+            // Move up main content
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 800,
+                useNativeDriver: true,
+            }),
+            // Fade in features with delay
+            Animated.timing(featuresOpacity, {
+                toValue: 1,
+                duration: 800,
+                delay: 400,
+                useNativeDriver: true,
+            }),
+            // Move up features with delay
+            Animated.timing(featuresTranslateY, {
+                toValue: 0,
+                duration: 800,
+                delay: 400,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, [user, fadeAnim, translateY, featuresOpacity, featuresTranslateY]);
+
+    // Define gradient colors that will work with LinearGradient
+    const gradientColors = isDarkMode
+        ? ["#0A1A17", "#081310"]
+        : ["#F8FBFA", "#E8F5F0"];
+
+    return (
+        <LinearGradient colors={gradientColors as any} style={styles.container}>
             <ScrollView
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
@@ -63,11 +133,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                 </View>
 
                 {/* Hero Image */}
-                <Image
-                    source={energyIllustration}
-                    style={styles.heroImage}
-                    resizeMode="contain"
-                />                {/* App Description */}                <Text
+                <Animated.View
+                    style={{ opacity: fadeAnim, transform: [{ translateY }] }}
+                >
+                    <Image
+                        source={energyIllustration}
+                        style={styles.heroImage}
+                        resizeMode="contain"
+                    />
+                </Animated.View>
+
+                <Animated.Text
                     style={[
                         styles.description,
                         { color: "#E0F2EF" },
@@ -190,8 +266,8 @@ const styles = StyleSheet.create({
         marginTop: -8,
     },
     heroImage: {
-        width: 160,
-        height: 160,
+        width: 180,
+        height: 180,
         marginBottom: 30,
         borderRadius: 80,
     },
