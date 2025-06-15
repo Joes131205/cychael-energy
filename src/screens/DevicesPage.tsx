@@ -4,6 +4,7 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    BackHandler,
     ScrollView,
     StyleSheet,
 } from "react-native";
@@ -14,6 +15,7 @@ import Button from "../components/common/Button";
 import { db } from "../utils/firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import { useUser } from "../hooks/useUser";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 interface Device {
     name: string;
@@ -44,7 +46,7 @@ const deviceCategories = [
     { id: "other", name: "Other Devices", examples: "Chargers, Power Tools" },
 ];
 
-const DevicesPage = () => {
+const DevicesPage = ({navigation}) => {
     const { colors, isDarkMode } = useTheme();
     const { user, userData } = useUser();
 
@@ -56,7 +58,20 @@ const DevicesPage = () => {
     const [result, setResult] = useState<number | null>(null);
 
     const [loading, setLoading] = useState(false);
-
+    useEffect(() => {
+        const backAction = () => {
+          // Instead of closing the app, we navigate back to "Login" for example
+          navigation.replace("Dashboard");
+    
+          // Returning true means we handle it ourselves
+          return true;
+        };
+      
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+      
+        return () => backHandler.remove();
+      }, [navigation]);
+    
     const handleAddDevice = () => {
         setDevices([...devices, { name: "", watt: 0, category: "other" }]);
 

@@ -5,6 +5,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Alert,
+    BackHandler,
     ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -47,7 +48,20 @@ const DashboardPage = () => {
             color: string;
         }[]
     >([]);
-
+    useEffect(() => {
+        const backAction = () => {
+          Alert.alert("Confirm exit", "Are you sure you want to exit?", [
+            { text: "Cancel", style: "cancel", onPress: () => {} },
+            { text: "Yes", onPress: () => BackHandler.exitApp() }
+          ]);
+    
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+    
+        return () => backHandler.remove();
+      }, []);
     useEffect(() => {
         if (!user) {
             navigation.navigate("LandingPage" as never);

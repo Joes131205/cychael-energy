@@ -7,7 +7,9 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Animated,
+    BackHandler
 } from "react-native";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 import {
     collection,
@@ -17,7 +19,6 @@ import {
     Timestamp,
 } from "firebase/firestore";
 import { db, model } from "../utils/firebase";
-
 import { LineChart, BarChart, PieChart } from "react-native-chart-kit";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../hooks/useTheme";
@@ -27,10 +28,9 @@ import Markdown from "react-native-markdown-display";
 
 const screenWidth = Dimensions.get("window").width;
 
-const EnergyAnalysisResultPage = () => {
+const EnergyAnalysisResultPage = ( { navigation }) => {
     const { colors, isDarkMode } = useTheme();
     const { userData, loading } = useUser();
-
     const scrollViewRef = useRef<ScrollView>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -51,6 +51,20 @@ const EnergyAnalysisResultPage = () => {
     } | null>(null);
     const lineFadeAnim = useRef(new Animated.Value(0)).current;
 
+    useEffect(() => {
+        const backAction = () => {
+          // Instead of closing the app, we navigate back to "Login" for example
+          navigation.replace("Dashboard");
+    
+          // Returning true means we handle it ourselves
+          return true;
+        };
+      
+        const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+      
+        return () => backHandler.remove();
+      }, [navigation]);
+    
     // State for Tooltip - MXA
     const [tooltipVisible, setTooltipVisible] = useState(false);
     const [tooltipData, setTooltipData] = useState<{
