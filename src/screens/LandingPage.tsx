@@ -202,7 +202,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                         style={[
                             styles.button,
                             styles.primaryButton,
-                            { backgroundColor: "#1E6F5C" },
+                            { backgroundColor: colors.accent },
                         ]}
                         onPress={() => navigation.navigate("Login")}
                     >
@@ -214,7 +214,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                         style={[
                             styles.button,
                             styles.secondaryButton,
-                            { borderColor: "#29BB89" },
+                            { borderColor: colors.accent },
                         ]}
                         onPress={() => navigation.navigate("Register")}
                     >

@@ -23,6 +23,16 @@ import { CommonActions, useNavigation } from "@react-navigation/native";
 
 const Stack = createNativeStackNavigator();
 
+// Define default screen animation options
+const defaultScreenOptions = {
+    headerShown: false,
+    navigationBarHidden: true,
+    animation: "slide_from_right", // Smooth slide from right animation
+    contentStyle: { backgroundColor: "transparent" },
+    // Add custom animations for iOS
+    animationTypeForReplace: "push",
+};
+
 export default function AppNavigator() {
     const navigation = useNavigation();
 
@@ -128,13 +138,16 @@ export default function AppNavigator() {
     }
 
     return (
-        <Stack.Navigator initialRouteName={user ? "Dashboard" : "LandingPage"}>
+        <Stack.Navigator
+            initialRouteName={user ? "Dashboard" : "LandingPage"}
+            screenOptions={defaultScreenOptions}
+        >
             <Stack.Screen
                 name="Login"
                 component={LoginPage}
                 options={{
                     title: "Login",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -143,7 +156,7 @@ export default function AppNavigator() {
                 component={RegisterPage}
                 options={{
                     title: "Register",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -152,7 +165,7 @@ export default function AppNavigator() {
                 component={DashboardPage}
                 options={{
                     title: "Dashboard",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -161,7 +174,7 @@ export default function AppNavigator() {
                 component={SettingsPage}
                 options={{
                     title: "Settings",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -170,7 +183,7 @@ export default function AppNavigator() {
                 component={EnergyAnalysisResultPage}
                 options={{
                     title: "Energy Data",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -179,7 +192,7 @@ export default function AppNavigator() {
                 component={LandingPage}
                 options={{
                     title: "Cychael Energy",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -188,7 +201,7 @@ export default function AppNavigator() {
                 component={DevicesPage}
                 options={{
                     title: "Your Devices",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -197,7 +210,7 @@ export default function AppNavigator() {
                 component={EditProfilePage}
                 options={{
                     title: "Edit Profile",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -206,7 +219,7 @@ export default function AppNavigator() {
                 component={PrivacyPolicyPage}
                 options={{
                     title: "Privacy Policy",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -215,7 +228,7 @@ export default function AppNavigator() {
                 component={TermsOfServicesPage}
                 options={{
                     title: "Terms of Services",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />
@@ -224,7 +237,7 @@ export default function AppNavigator() {
                 component={ForgotPasswordPage}
                 options={{
                     title: "Forgot Password",
-                    headerShown: false,
+                    animation: "fade",
                     navigationBarHidden: true,
                 }}
             />

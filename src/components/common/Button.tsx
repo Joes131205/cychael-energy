@@ -22,7 +22,9 @@ export default function Button({
                 return { backgroundColor: colors.accent };
             case "secondary":
                 return {
-                    backgroundColor: "transparent",
+                    backgroundColor: isDarkMode
+                        ? "rgba(41, 187, 137, 0.15)"
+                        : "rgba(41, 187, 137, 0.1)",
                     borderWidth: 1,
                     borderColor: colors.secondary,
                 };
@@ -34,10 +36,16 @@ export default function Button({
     };
 
     const getTextStyle = () => {
-        if (variant === "secondary") {
-            return { color: colors.secondary };
+        switch (variant) {
+            case "primary":
+                return { color: "#FFFFFF" };
+            case "secondary":
+                return { color: isDarkMode ? "#FFFFFF" : colors.secondary };
+            case "danger":
+                return { color: "#FFFFFF" };
+            default:
+                return { color: "#FFFFFF" };
         }
-        return { color: variant === "danger" ? "#FFFFFF" : colors.primary };
     };
 
     return (

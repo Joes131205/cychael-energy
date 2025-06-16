@@ -47,7 +47,7 @@ const DashboardPage = () => {
             color: string;
         }[]
     >([]);
- 
+
     useEffect(() => {
         if (!user) {
             navigation.navigate("LandingPage" as never);
@@ -313,7 +313,7 @@ const DashboardPage = () => {
                             {user?.displayName || "User"}
                         </Text>
                     </View>
-                </View>                
+                </View>
                 <View className="bg-white/15 rounded-[15px] p-5 mb-3">
                     <Text className="text-white text-base font-bold mb-4">
                         Your Energy Summary
@@ -338,7 +338,7 @@ const DashboardPage = () => {
                     </Text>
                     <View className="flex-row justify-between">
                         {/* Daily Usage */}
-                        <View className="items-center flex-1">                           
+                        <View className="items-center flex-1">
                             <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="flash-outline"
@@ -361,7 +361,7 @@ const DashboardPage = () => {
                         </View>
 
                         {/* Monthly Usage */}
-                        <View className="items-center flex-1">                            
+                        <View className="items-center flex-1">
                             <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="calendar-outline"
@@ -384,14 +384,15 @@ const DashboardPage = () => {
                         </View>
 
                         {/* Yearly Usage */}
-                        <View className="items-center flex-1">                           
+                        <View className="items-center flex-1">
                             <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
                                 <Ionicons
                                     name="trending-up-outline"
                                     size={22}
                                     color="#FFFFFF"
                                 />
-                            </View><Text
+                            </View>
+                            <Text
                                 className="text-xl font-bold"
                                 style={{ color: "#FFFFFF" }}
                             >

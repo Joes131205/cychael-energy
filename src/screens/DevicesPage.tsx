@@ -204,12 +204,25 @@ const DevicesPage = () => {
                         {devices.length > 1 && (
                             <TouchableOpacity
                                 onPress={() => handleRemoveDevice(index)}
-                                style={styles.removeButtonSmall}
+                                style={[
+                                    styles.removeButtonSmall,
+                                    {
+                                        backgroundColor: isDarkMode
+                                            ? "rgba(231, 76, 60, 0.2)"
+                                            : "rgba(231, 76, 60, 0.1)",
+                                        borderWidth: 1,
+                                        borderColor: colors.danger,
+                                    },
+                                ]}
                             >
                                 <Text
                                     style={[
                                         styles.removeButtonTextSmall,
-                                        { color: colors.danger },
+                                        {
+                                            color: isDarkMode
+                                                ? "#FF6B6B"
+                                                : colors.danger,
+                                        },
                                     ]}
                                 >
                                     Remove
@@ -260,7 +273,7 @@ const DevicesPage = () => {
                                                     device.category === cat.id
                                                         ? colors.accent
                                                         : isDarkMode
-                                                          ? colors.background
+                                                          ? "rgba(20, 40, 36, 0.8)"
                                                           : "#F0F0F0",
                                                 borderColor:
                                                     device.category === cat.id
@@ -283,8 +296,10 @@ const DevicesPage = () => {
                                                     color:
                                                         device.category ===
                                                         cat.id
-                                                            ? colors.text
-                                                            : colors.text,
+                                                            ? "#FFFFFF"
+                                                            : isDarkMode
+                                                              ? "#E0F5F2" // More visible in dark mode
+                                                              : "#1E3A34", // More visible in light mode
                                                 },
                                             ]}
                                         >
