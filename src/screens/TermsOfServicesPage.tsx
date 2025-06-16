@@ -1,12 +1,20 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
-import { useTheme } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
-const TermsOfServices = () => {
+import { useTheme } from "../hooks/useTheme";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/Navigation";
+
+type TermsOfServicesNavigationProp = StackNavigationProp<
+    RootStackParamList,
+    "TermsOfServicesPage"
+>;
+
+const TermsOfServicesPage = () => {
     const { colors } = useTheme();
-    const navigation = useNavigation();
+    const navigation = useNavigation<TermsOfServicesNavigationProp>();
 
     return (
         <View
@@ -201,4 +209,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TermsOfServices;
+export default TermsOfServicesPage;

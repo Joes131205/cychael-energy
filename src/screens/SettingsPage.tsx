@@ -1,4 +1,4 @@
-import React, { useCallback, useState,useEffect } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import {
     View,
     BackHandler,
@@ -16,6 +16,7 @@ import { useTheme } from "../hooks/useTheme";
 import { Ionicons } from "@expo/vector-icons";
 
 const SettingsPage = () => {
+    const navigation = useNavigation();
     const { colors, isDarkMode, toggleTheme } = useTheme();
 
     const [user, setUser] = useState(auth.currentUser);
@@ -34,10 +35,10 @@ const SettingsPage = () => {
                 {user?.displayName?.charAt(0).toUpperCase() || "U"}
             </Text>
         );
-        const handleLogout = async () => {
-            await signOut(auth);
-            navigation.navigate("LandingPage" as never);
-        };
+    const handleLogout = async () => {
+        await signOut(auth);
+        navigation.navigate("LandingPage" as never);
+    };
     useFocusEffect(
         useCallback(() => {
             const refresh = async () => {
@@ -58,7 +59,6 @@ const SettingsPage = () => {
             refresh();
         }, [])
     );
-
 
     return (
         <ScrollView

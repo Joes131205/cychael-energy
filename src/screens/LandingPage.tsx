@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
     View,
     Text,
@@ -8,6 +8,7 @@ import {
     Dimensions,
     ImageSourcePropType,
     ScrollView,
+    Animated,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -121,17 +122,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                 showsVerticalScrollIndicator={false}
                 scrollEnabled={true}
             >
-                {/* Logo/App Name */}                <View style={styles.logoContainer}>
+                {/* Logo/App Name */}
+                <View style={styles.logoContainer}>
                     <Text style={[styles.logoFirst, { color: "#34A853" }]}>
                         Cychael
                     </Text>
-                    <Text
-                        style={[styles.logoSecond, { color: "#2DCB97" }]}
-                    >
+                    <Text style={[styles.logoSecond, { color: "#2DCB97" }]}>
                         of Energy
                     </Text>
                 </View>
-
                 {/* Hero Image */}
                 <Animated.View
                     style={{ opacity: fadeAnim, transform: [{ translateY }] }}
@@ -142,19 +141,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                         resizeMode="contain"
                     />
                 </Animated.View>
-
                 <Animated.Text
-                    style={[
-                        styles.description,
-                        { color: "#E0F2EF" },
-                    ]}
+                    style={[styles.description, { color: colors.text }]}
                 >
                     Smart energy analysis for your home. Track consumption,
                     reduce waste, and save money with personalized
                     recommendations.
                 </Animated.Text>
-
-                {/* Features List */}                <View style={styles.featuresContainer}>                    <View style={styles.featureItem}>
+                {/* Features List */}
+                <View style={styles.featuresContainer}>
+                    <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
@@ -162,15 +158,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                             ]}
                         >
                             <Text style={styles.iconText}>⚡</Text>
-                        </View><Text
-                            style={[
-                                styles.featureText,
-                                { color: "#FFFFFF" },
-                            ]}
+                        </View>
+                        <Text
+                            style={[styles.featureText, { color: colors.text }]}
                         >
                             Real-time energy tracking
                         </Text>
-                    </View>                    <View style={styles.featureItem}>
+                    </View>
+                    <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
@@ -178,15 +173,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                             ]}
                         >
                             <Text style={styles.iconText}>💡</Text>
-                        </View><Text
-                            style={[
-                                styles.featureText,
-                                { color: "#FFFFFF" },
-                            ]}
+                        </View>
+                        <Text
+                            style={[styles.featureText, { color: colors.text }]}
                         >
                             Smart savings suggestions
                         </Text>
-                    </View>                    <View style={styles.featureItem}>
+                    </View>
+                    <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
@@ -194,40 +188,41 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                             ]}
                         >
                             <Text style={styles.iconText}>📊</Text>
-                        </View><Text
-                            style={[
-                                styles.featureText,
-                                { color: "#FFFFFF" },
-                            ]}
+                        </View>
+                        <Text
+                            style={[styles.featureText, { color: colors.text }]}
                         >
                             Detailed consumption reports
                         </Text>
                     </View>
-                </View>{/* Action Buttons */}
+                </View>
+                {/* Action Buttons */}
                 <View style={styles.buttonContainer}>
-                    <TouchableOpacity                        style={[
+                    <TouchableOpacity
+                        style={[
                             styles.button,
                             styles.primaryButton,
                             { backgroundColor: "#1E6F5C" },
                         ]}
                         onPress={() => navigation.navigate("Login")}
-                    >                        <Text
-                            style={[styles.buttonText, { color: "#FFFFFF" }]}
-                        >
+                    >
+                        <Text style={[styles.buttonText, { color: "#FFFFFF" }]}>
                             Login
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity                        style={[
+                    <TouchableOpacity
+                        style={[
                             styles.button,
                             styles.secondaryButton,
                             { borderColor: "#29BB89" },
                         ]}
                         onPress={() => navigation.navigate("Register")}
-                    >                        <Text
+                    >
+                        <Text
                             style={[
                                 styles.buttonText,
                                 styles.secondaryButtonText,
-                                { color: "#FFFFFF" },
+                                { color: colors.text },
                             ]}
                         >
                             Register

@@ -10,4 +10,7 @@ export type RootStackParamList = {
     DevicesPage: undefined;
     EditProfile: undefined;
     ChangePassword: undefined;
+    PrivacyPolicyPage: undefined;
+    TermsOfServicesPage: undefined;
+    ForgotPasswordPage: undefined;
 };

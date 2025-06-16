@@ -1,13 +1,20 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
-import { useTheme } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
+import { useTheme } from "../hooks/useTheme";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../navigation/Navigation";
 
-const PrivacyPolicy = () => {
+type PrivacyPolicyNavigationProp = StackNavigationProp<
+    RootStackParamList,
+    "PrivacyPolicyPage"
+>;
+
+const PrivacyPolicyPage = () => {
     const { colors } = useTheme();
-    const navigation = useNavigation();
+    const navigation = useNavigation<PrivacyPolicyNavigationProp>();
 
     return (
         <View
@@ -202,4 +209,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PrivacyPolicy;
+export default PrivacyPolicyPage;
