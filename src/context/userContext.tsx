@@ -38,7 +38,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
             auth,
             async (currentUser) => {
                 try {
-                    console.log(currentUser);
                     setUser(currentUser);
 
                     if (!currentUser) {

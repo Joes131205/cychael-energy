@@ -8,5 +8,6 @@
                 "./node_modules/@firebase/auth/dist/index.rn.d.ts"
             ]
         }
-    }
+    },
+    "include": ["src/**/*", "src/types/*.d.ts"]
 }

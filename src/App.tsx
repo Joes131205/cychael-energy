@@ -50,11 +50,11 @@ export default function App() {
     // }, []);
 
     return (
-        <UserProvider>
-            <ThemeProvider>
+        <ThemeProvider>
+            <UserProvider>
                 <ThemedApp />
-            </ThemeProvider>
-        </UserProvider>
+            </UserProvider>
+        </ThemeProvider>
     );
 }
 

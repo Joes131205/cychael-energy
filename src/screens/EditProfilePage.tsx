@@ -112,7 +112,6 @@ const EditProfilePage = () => {
                 storage,
                 `profilePhotos/${auth.currentUser.uid}.jpg`
             );
-            console.log(fileRef);
             await uploadBytes(fileRef, blob);
             const downloadURL = await getDownloadURL(fileRef);
 

@@ -7,7 +7,7 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Animated,
-    BackHandler
+    BackHandler,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -51,7 +51,6 @@ const EnergyAnalysisResultPage = () => {
     } | null>(null);
     const lineFadeAnim = useRef(new Animated.Value(0)).current;
 
-    
     // State for Tooltip - MXA
     const [tooltipVisible, setTooltipVisible] = useState(false);
     const [tooltipData, setTooltipData] = useState<{
@@ -129,7 +128,6 @@ const EnergyAnalysisResultPage = () => {
                 }
             });
 
-            console.log("Grouped devices by date:", grouped);
             return grouped;
         } catch (error) {
             console.error("Error grouping devices:", error);
@@ -172,9 +170,6 @@ const EnergyAnalysisResultPage = () => {
             // Add to the corresponding day slot
             result[dayIndex] += Number(totalKwh.toFixed(2));
         }
-
-        console.log("Weekly energy by day:", labels);
-        console.log("Energy values (kWh):", result);
 
         return { labels, data: result };
     }, [groupedData]);
