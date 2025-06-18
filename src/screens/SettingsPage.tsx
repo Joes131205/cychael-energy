@@ -20,7 +20,6 @@ const SettingsPage = () => {
     const { colors, isDarkMode, toggleTheme } = useTheme();
 
     const [user, setUser] = useState(auth.currentUser);
-    console.log(user);
     const photo =
         user?.photoURL != null ? (
             <View style={styles.container}>
