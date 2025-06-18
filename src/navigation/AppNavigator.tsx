@@ -20,16 +20,19 @@ import {
 } from "react-native";
 import { useEffect } from "react";
 import { CommonActions, useNavigation } from "@react-navigation/native";
+import ErrorPage from "../screens/ErrorPage";
+import NotFoundPage from "../screens/NotFoundPage";
 
 const Stack = createNativeStackNavigator();
 
 // Define default screen animation options
-const defaultScreenOptions = {
+import type { NativeStackNavigationOptions } from "@react-navigation/native-stack";
+
+const defaultScreenOptions: NativeStackNavigationOptions = {
     headerShown: false,
     navigationBarHidden: true,
-    animation: "slide_from_right", // Smooth slide from right animation
+    animation: "slide_from_right",
     contentStyle: { backgroundColor: "transparent" },
-    // Add custom animations for iOS
     animationTypeForReplace: "push",
 };
 
@@ -237,6 +240,24 @@ export default function AppNavigator() {
                 component={ForgotPasswordPage}
                 options={{
                     title: "Forgot Password",
+                    animation: "fade",
+                    navigationBarHidden: true,
+                }}
+            />
+            <Stack.Screen
+                name="ErrorPage"
+                component={ErrorPage}
+                options={{
+                    title: "Error",
+                    animation: "fade",
+                    navigationBarHidden: true,
+                }}
+            />
+            <Stack.Screen
+                name="NotFoundPage"
+                component={NotFoundPage}
+                options={{
+                    title: "Page Not Found",
                     animation: "fade",
                     navigationBarHidden: true,
                 }}

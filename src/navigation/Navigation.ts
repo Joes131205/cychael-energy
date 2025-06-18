@@ -13,4 +13,6 @@ export type RootStackParamList = {
     PrivacyPolicyPage: undefined;
     TermsOfServicesPage: undefined;
     ForgotPasswordPage: undefined;
+    ErrorPage: { error?: { message?: string } | null };
+    NotFoundPage: { message?: string };
 };
