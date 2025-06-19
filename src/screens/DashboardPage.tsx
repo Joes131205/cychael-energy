@@ -359,7 +359,6 @@ const DashboardPage = () => {
                                 kWh Today
                             </Text>
                         </View>
-
                         {/* Monthly Usage */}
                         <View className="items-center flex-1">
                             <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
@@ -382,7 +381,6 @@ const DashboardPage = () => {
                                 kWh Monthly
                             </Text>
                         </View>
-
                         {/* Yearly Usage */}
                         <View className="items-center flex-1">
                             <View className="bg-white/15 rounded-full h-16 w-16 items-center justify-center mb-2">
@@ -404,9 +402,55 @@ const DashboardPage = () => {
                             >
                                 kWh Yearly
                             </Text>
-                        </View>
+                        </View>{" "}
                     </View>
                 </View>
+
+                {/* Energy Saving Tips Section */}
+                <TouchableOpacity
+                    className="rounded-xl mb-[15px] p-5 shadow"
+                    style={{ backgroundColor: colors.card }}
+                    onPress={() =>
+                        navigation.navigate("EnergyAnalysisResultPage")
+                    }
+                >
+                    <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center">
+                            <View
+                                className="w-10 h-10 rounded-full justify-center items-center mr-[15px]"
+                                style={{
+                                    backgroundColor: `${colors.accent}20`,
+                                }}
+                            >
+                                <Ionicons
+                                    name="bulb-outline"
+                                    size={24}
+                                    color={colors.accent}
+                                />
+                            </View>
+                            <View>
+                                <Text
+                                    className="text-base font-semibold"
+                                    style={{ color: colors.text }}
+                                >
+                                    Energy Saving Tips
+                                </Text>
+                                <Text
+                                    className="text-sm"
+                                    style={{ color: colors.textSecondary }}
+                                >
+                                    Get personalized recommendations
+                                </Text>
+                            </View>
+                        </View>
+                        <Ionicons
+                            name="chevron-forward"
+                            size={20}
+                            color={colors.textSecondary}
+                        />
+                    </View>
+                </TouchableOpacity>
+
                 {/* Device Categorization Section */}
                 <View
                     className="rounded-xl mb-[15px] p-5 shadow"
