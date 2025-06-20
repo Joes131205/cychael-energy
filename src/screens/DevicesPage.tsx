@@ -128,11 +128,11 @@ const DevicesPage = () => {
 
             await updateDoc(docRef, {
                 "deviceList.updatedAt": now,
-                "deviceList.devices": devices.map((device) => ({
+                "deviceList.devices": devices.map((device: any) => ({
                     name: device.name,
                     watt: device.watt,
                     category: device.category || "other",
-                    hours: 0,
+                    hours: device.hours,
                     addedAt: now,
                 })),
             });

@@ -17,6 +17,7 @@ import { RootStackParamList } from "../../navigation/Navigation";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useTheme } from "../../hooks/useTheme";
 import { useUser } from "../../hooks/useUser";
+import { Ionicons } from "@expo/vector-icons";
 
 type LoginScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -27,6 +28,8 @@ const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
     const { colors, isDarkMode } = useTheme();
     const { user } = useUser();
 
@@ -151,23 +154,39 @@ const LoginPage = () => {
                         autoCapitalize="none"
                     />
 
-                    <TextInput
-                        style={[
-                            styles.input,
-                            {
-                                borderColor: colors.border,
-                                backgroundColor: isDarkMode
-                                    ? colors.background
-                                    : "#FAFDFC",
-                                color: colors.text,
-                            },
-                        ]}
-                        placeholder="Password"
-                        placeholderTextColor={colors.textSecondary}
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                    />
+                    <View>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    borderColor: colors.border,
+                                    backgroundColor: isDarkMode
+                                        ? colors.background
+                                        : "#FAFDFC",
+                                    color: colors.text,
+                                },
+                            ]}
+                            placeholder="Password"
+                            placeholderTextColor={colors.textSecondary}
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={!showPassword}
+                        />
+                        <TouchableOpacity
+                            style={styles.eyeIcon}
+                            onPress={() => setShowPassword(!showPassword)}
+                        >
+                            <Ionicons
+                                name={showPassword ? "eye" : "eye-off"}
+                                size={24}
+                                color={
+                                    isDarkMode
+                                        ? "#6B7280"
+                                        : colors.textSecondary
+                                }
+                            />
+                        </TouchableOpacity>
+                    </View>
 
                     <TouchableOpacity
                         style={[
@@ -277,6 +296,19 @@ const styles = StyleSheet.create({
     forgotPasswordText: {
         fontSize: 14,
         fontWeight: "500",
+    },
+    eyeIcon: {
+        position: "absolute",
+        right: 15,
+        top: 13,
+        height: 24,
+        width: 24,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    inputContainer: {
+        position: "relative",
+        marginBottom: 0,
     },
 });
 

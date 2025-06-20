@@ -140,14 +140,6 @@ const EditProfilePage = () => {
                     ]}
                 >
                     {photo}
-
-                    {/* Overlay Icon */}
-                    <TouchableOpacity
-                        style={styles.cameraOverlay}
-                        onPress={pickImage}
-                    >
-                        <Ionicons name="camera" size={20} color="#fff" />
-                    </TouchableOpacity>
                 </View>
             </View>
 
