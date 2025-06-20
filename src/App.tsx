@@ -13,7 +13,7 @@ import { useTheme } from "./hooks/useTheme";
 import { useUser } from "./hooks/useUser";
 import "../global.css";
 import { UserProvider } from "./context/userContext";
-import { useEffect } from "react";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const ThemedApp = () => {
     const { theme, colors, isDarkMode } = useTheme();
@@ -52,7 +52,9 @@ export default function App() {
     return (
         <UserProvider>
             <ThemeProvider>
-                <ThemedApp />
+                <ErrorBoundary>
+                    <ThemedApp />
+                </ErrorBoundary>
             </ThemeProvider>
         </UserProvider>
     );

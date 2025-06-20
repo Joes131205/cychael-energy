@@ -19,6 +19,7 @@ import { GoogleAuthProvider } from "firebase/auth";
 import { useTheme } from "../../hooks/useTheme";
 import { useUser } from "../../hooks/useUser";
 import { addDoc, collection } from "firebase/firestore";
+import { Ionicons } from "@expo/vector-icons";
 
 type RegisterScreenNavigationProp = StackNavigationProp<
     RootStackParamList,
@@ -31,6 +32,10 @@ const Register = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     const { colors, isDarkMode } = useTheme();
     const { user } = useUser();
 
@@ -197,49 +202,83 @@ const Register = () => {
                         autoCapitalize="none"
                     />
 
-                    <TextInput
-                        style={[
-                            styles.input,
-                            {
-                                borderColor: isDarkMode
-                                    ? colors.border
-                                    : "#E0E0E0",
-                                backgroundColor: isDarkMode
-                                    ? "#1E2429"
-                                    : "#FAFDFC",
-                                color: colors.text,
-                            },
-                        ]}
-                        placeholder="Password"
-                        placeholderTextColor={
-                            isDarkMode ? "#6B7280" : colors.textSecondary
-                        }
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                    />
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    borderColor: isDarkMode
+                                        ? colors.border
+                                        : "#E0E0E0",
+                                    backgroundColor: isDarkMode
+                                        ? "#1E2429"
+                                        : "#FAFDFC",
+                                    color: colors.text,
+                                },
+                            ]}
+                            placeholder="Password"
+                            placeholderTextColor={
+                                isDarkMode ? "#6B7280" : colors.textSecondary
+                            }
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={!showPassword}
+                        />
+                        <TouchableOpacity
+                            style={styles.eyeIcon}
+                            onPress={() => setShowPassword(!showPassword)}
+                        >
+                            <Ionicons
+                                name={!showPassword ? "eye-off" : "eye"}
+                                size={24}
+                                color={
+                                    isDarkMode
+                                        ? "#6B7280"
+                                        : colors.textSecondary
+                                }
+                            />
+                        </TouchableOpacity>
+                    </View>
 
-                    <TextInput
-                        style={[
-                            styles.input,
-                            {
-                                borderColor: isDarkMode
-                                    ? colors.border
-                                    : "#E0E0E0",
-                                backgroundColor: isDarkMode
-                                    ? "#1E2429"
-                                    : "#FAFDFC",
-                                color: colors.text,
-                            },
-                        ]}
-                        placeholder="Confirm Password"
-                        placeholderTextColor={
-                            isDarkMode ? "#6B7280" : colors.textSecondary
-                        }
-                        value={confirmPassword}
-                        onChangeText={setConfirmPassword}
-                        secureTextEntry
-                    />
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            style={[
+                                styles.input,
+                                {
+                                    borderColor: isDarkMode
+                                        ? colors.border
+                                        : "#E0E0E0",
+                                    backgroundColor: isDarkMode
+                                        ? "#1E2429"
+                                        : "#FAFDFC",
+                                    color: colors.text,
+                                },
+                            ]}
+                            placeholder="Confirm Password"
+                            placeholderTextColor={
+                                isDarkMode ? "#6B7280" : colors.textSecondary
+                            }
+                            value={confirmPassword}
+                            onChangeText={setConfirmPassword}
+                            secureTextEntry={!showConfirmPassword}
+                        />
+                        <TouchableOpacity
+                            style={styles.eyeIcon}
+                            onPress={() =>
+                                setShowConfirmPassword(!showConfirmPassword)
+                            }
+                        >
+                            <Ionicons
+                                name={!showConfirmPassword ? "eye-off" : "eye"}
+                                size={24}
+                                color={
+                                    isDarkMode
+                                        ? "#6B7280"
+                                        : colors.textSecondary
+                                }
+                            />
+                        </TouchableOpacity>
+                    </View>
 
                     <TouchableOpacity
                         style={[
@@ -315,6 +354,10 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         textAlign: "center",
     },
+    inputContainer: {
+        position: "relative",
+        marginBottom: 0,
+    },
     input: {
         height: 50,
         borderWidth: 1,
@@ -341,6 +384,15 @@ const styles = StyleSheet.create({
     switchAuthText: {},
     switchAuthHighlight: {
         fontWeight: "600",
+    },
+    eyeIcon: {
+        position: "absolute",
+        right: 15,
+        top: 13,
+        height: 24,
+        width: 24,
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
 

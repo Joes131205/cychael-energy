@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     ScrollView,
+    Alert,
 } from "react-native";
 import Button from "../components/common/Button";
 import { auth } from "../utils/firebase";
@@ -20,7 +21,6 @@ const SettingsPage = () => {
     const { colors, isDarkMode, toggleTheme } = useTheme();
 
     const [user, setUser] = useState(auth.currentUser);
-    console.log(user);
     const photo =
         user?.photoURL != null ? (
             <View style={styles.container}>
@@ -36,8 +36,20 @@ const SettingsPage = () => {
             </Text>
         );
     const handleLogout = async () => {
-        await signOut(auth);
-        navigation.navigate("LandingPage" as never);
+        Alert.alert("Log Out", "Do you want to log out of your account?", [
+            {
+                text: "Log Out",
+                onPress: async () => {
+                    await signOut(auth);
+                    navigation.navigate("LandingPage" as never);
+                },
+            },
+            {
+                text: "Cancel",
+                onPress: () => {},
+                style: "cancel",
+            },
+        ]);
     };
     useFocusEffect(
         useCallback(() => {

@@ -7,8 +7,9 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Animated,
-    BackHandler
+    BackHandler,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 import {
@@ -25,6 +26,7 @@ import { useTheme } from "../hooks/useTheme";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { useUser } from "../hooks/useUser";
 import Markdown from "react-native-markdown-display";
+import EnergySavingTipsComponent from "../components/EnergySavingTipsComponent";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -51,7 +53,6 @@ const EnergyAnalysisResultPage = () => {
     } | null>(null);
     const lineFadeAnim = useRef(new Animated.Value(0)).current;
 
-    
     // State for Tooltip - MXA
     const [tooltipVisible, setTooltipVisible] = useState(false);
     const [tooltipData, setTooltipData] = useState<{
@@ -129,7 +130,6 @@ const EnergyAnalysisResultPage = () => {
                 }
             });
 
-            console.log("Grouped devices by date:", grouped);
             return grouped;
         } catch (error) {
             console.error("Error grouping devices:", error);
@@ -172,9 +172,6 @@ const EnergyAnalysisResultPage = () => {
             // Add to the corresponding day slot
             result[dayIndex] += Number(totalKwh.toFixed(2));
         }
-
-        console.log("Weekly energy by day:", labels);
-        console.log("Energy values (kWh):", result);
 
         return { labels, data: result };
     }, [groupedData]);
@@ -275,11 +272,63 @@ const EnergyAnalysisResultPage = () => {
                 return `📅 ${entry.date}\n${deviceDetails}\n🔋 Total: ${entry.totalkWh} kWh\n`;
             })
             .join("\n");
+
+        // Calculate overall statistics
+        const totalWeeklyUsage = result
+            .reduce((sum, day) => sum + day.totalkWh, 0)
+            .toFixed(2);
+        const avgDailyUsage = (Number(totalWeeklyUsage) / 7).toFixed(2);
+        // Find highest consumption device
+        let highestConsumptionDevice = { name: "", totalUsage: 0 };
+        const deviceTotals: Record<string, number> = {};
+
+        result.forEach((day) => {
+            day.data.forEach((device) => {
+                if (!deviceTotals[device.name]) {
+                    deviceTotals[device.name] = 0;
+                }
+                deviceTotals[device.name] += device.usage;
+
+                if (
+                    deviceTotals[device.name] >
+                    highestConsumptionDevice.totalUsage
+                ) {
+                    highestConsumptionDevice = {
+                        name: device.name,
+                        totalUsage: deviceTotals[device.name],
+                    };
+                }
+            });
+        });
+
         setIsLoading(true);
         setAdviseText("");
-        const prompt = `${textSummary}\nbased on that data, what your advise and analysis? short, only under 350 words without asterisk (*) in result`;
-        const ai = model.generateContent(prompt);
 
+        const prompt = `
+# Energy Consumption Data (Last 7 Days)
+
+${textSummary}
+
+## Summary Statistics:
+- Total Weekly Usage: ${totalWeeklyUsage} kWh
+- Average Daily Usage: ${avgDailyUsage} kWh
+- Highest Energy Consumer: ${
+            highestConsumptionDevice.name
+        } (${highestConsumptionDevice.totalUsage.toFixed(2)} kWh)
+
+## Instructions:
+As an energy efficiency expert, please analyze this household's energy consumption data and provide:
+
+1. A concise assessment of the overall energy usage pattern
+2. Identification of the most energy-intensive devices and consumption anomalies
+3. Personalized recommendations to reduce energy consumption
+4. Estimated potential savings (percentage) if recommendations are followed
+5. Long-term benefits of implementing your suggestions
+
+Format your response as a professional consultation with clear sections, but keep it under 350 words total. Use natural, conversational language that's easy for non-experts to understand. Focus on actionable insights rather than just describing the data.
+`;
+
+        const ai = model.generateContent(prompt);
         ai.then((res): void => {
             let x = res.response.text;
             setAdviseText(x);
@@ -288,6 +337,12 @@ const EnergyAnalysisResultPage = () => {
             setTimeout(() => {
                 scrollViewRef.current?.scrollToEnd({ animated: true });
             }, 300);
+        }).catch((error) => {
+            console.error("AI analysis error:", error);
+            setAdviseText(
+                "Sorry, we couldn't generate an analysis at this time. Please try again later."
+            );
+            setIsLoading(false);
         });
     };
     // Device usage breakdown
@@ -960,7 +1015,6 @@ const EnergyAnalysisResultPage = () => {
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     AI Advisor
                 </Text>
-
                 <Markdown
                     style={{
                         body: {
@@ -971,68 +1025,130 @@ const EnergyAnalysisResultPage = () => {
                 >
                     {adviseText}
                 </Markdown>
-
-                <TouchableOpacity
+                <View
                     style={{
-                        marginTop: 16,
-                        alignItems: "center",
-                        paddingVertical: 12,
-                        backgroundColor: colors.accent,
-                        borderRadius: 8,
                         flexDirection: "row",
-                        justifyContent: "center",
-                        opacity: isLoadingAdvise ? 0.7 : 1,
-                    }}
-                    activeOpacity={0.85}
-                    disabled={isLoadingAdvise}
-                    onPress={() => {
-                        setIsLoadingAdvise(true);
-                        handleAdvise();
-                        setTimeout(() => setIsLoadingAdvise(false), 2000);
+                        marginTop: 16,
+                        justifyContent: "space-between",
                     }}
                 >
-                    {isLoadingAdvise ? (
-                        <ActivityIndicator
-                            size="small"
-                            color={colors.background}
-                            style={{ marginRight: 8 }}
-                        />
-                    ) : (
-                        <View
-                            style={{
-                                width: 22,
-                                height: 22,
-                                borderRadius: 11,
-                                backgroundColor: colors.background,
-                                alignItems: "center",
-                                justifyContent: "center",
-                                marginRight: 8,
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    color: colors.accent,
-                                    fontWeight: "bold",
-                                    fontSize: 16,
-                                }}
-                            >
-                                💡
-                            </Text>
-                        </View>
-                    )}
-                    <Text
+                    <TouchableOpacity
                         style={{
-                            color: colors.background,
-                            fontWeight: "700",
-                            fontSize: 15,
-                            letterSpacing: 0.2,
+                            flex: 1,
+                            marginRight: 8,
+                            alignItems: "center",
+                            paddingVertical: 12,
+                            backgroundColor: colors.accent,
+                            borderRadius: 8,
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            opacity: isLoadingAdvise ? 0.7 : 1,
+                        }}
+                        activeOpacity={0.85}
+                        disabled={isLoadingAdvise}
+                        onPress={() => {
+                            setIsLoadingAdvise(true);
+                            handleAdvise();
+                            setTimeout(() => setIsLoadingAdvise(false), 2000);
                         }}
                     >
-                        {isLoadingAdvise
-                            ? "Generating advice..."
-                            : "Get AI Advice & Analysis"}
-                    </Text>
-                </TouchableOpacity>
+                        {isLoadingAdvise ? (
+                            <ActivityIndicator
+                                size="small"
+                                color={colors.background}
+                                style={{ marginRight: 8 }}
+                            />
+                        ) : (
+                            <View
+                                style={{
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: 11,
+                                    backgroundColor: colors.background,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    marginRight: 8,
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        color: colors.accent,
+                                        fontWeight: "bold",
+                                        fontSize: 16,
+                                    }}
+                                >
+                                    💡
+                                </Text>
+                            </View>
+                        )}
+                        <Text
+                            style={{
+                                color: colors.background,
+                                fontWeight: "700",
+                                fontSize: 15,
+                                letterSpacing: 0.2,
+                            }}
+                        >
+                            {isLoadingAdvise
+                                ? "Generating advice..."
+                                : "Get AI Advice"}
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={{
+                            flex: 1,
+                            alignItems: "center",
+                            paddingVertical: 12,
+                            backgroundColor: `${colors.accent}20`,
+                            borderRadius: 8,
+                            flexDirection: "row",
+                            justifyContent: "center",
+                        }}
+                        activeOpacity={0.85}
+                        onPress={() => {
+                            // Scroll to the Energy Saving Tips section
+                            setTimeout(() => {
+                                scrollViewRef.current?.scrollToEnd({
+                                    animated: true,
+                                });
+                            }, 100);
+                        }}
+                    >
+                        <Ionicons
+                            name="bulb-outline"
+                            size={20}
+                            color={colors.accent}
+                            style={{ marginRight: 8 }}
+                        />
+                        <Text
+                            style={{
+                                color: colors.accent,
+                                fontWeight: "700",
+                                fontSize: 15,
+                                letterSpacing: 0.2,
+                            }}
+                        >
+                            Energy Tips
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            {/* Energy Saving Tips Section */}
+            <View
+                style={[
+                    { marginHorizontal: 20, marginTop: 16, marginBottom: 30 },
+                ]}
+            >
+                <EnergySavingTipsComponent
+                    devices={userData?.deviceList?.devices || []}
+                    energyData={{
+                        today: calculateDailyEnergy || 0,
+                        weekly: (calculateDailyEnergy || 0) * 7,
+                        monthly: (calculateDailyEnergy || 0) * 30,
+                        yearly: (calculateDailyEnergy || 0) * 365,
+                    }}
+                />
             </View>
         </ScrollView>
     );

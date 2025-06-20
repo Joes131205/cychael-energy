@@ -112,7 +112,6 @@ const EditProfilePage = () => {
                 storage,
                 `profilePhotos/${auth.currentUser.uid}.jpg`
             );
-            console.log(fileRef);
             await uploadBytes(fileRef, blob);
             const downloadURL = await getDownloadURL(fileRef);
 
@@ -141,14 +140,6 @@ const EditProfilePage = () => {
                     ]}
                 >
                     {photo}
-
-                    {/* Overlay Icon */}
-                    <TouchableOpacity
-                        style={styles.cameraOverlay}
-                        onPress={pickImage}
-                    >
-                        <Ionicons name="camera" size={20} color="#fff" />
-                    </TouchableOpacity>
                 </View>
             </View>
 
