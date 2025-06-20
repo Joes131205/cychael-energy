@@ -1024,7 +1024,7 @@ Format your response as a professional consultation with clear sections, but kee
                     }}
                 >
                     {adviseText}
-                </Markdown>{" "}
+                </Markdown>
                 <View
                     style={{
                         flexDirection: "row",

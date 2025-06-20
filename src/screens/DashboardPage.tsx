@@ -402,7 +402,7 @@ const DashboardPage = () => {
                             >
                                 kWh Yearly
                             </Text>
-                        </View>{" "}
+                        </View>
                     </View>
                 </View>
 

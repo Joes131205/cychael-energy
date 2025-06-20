@@ -10,7 +10,6 @@ import EditProfilePage from "../screens/EditProfilePage";
 import PrivacyPolicyPage from "../screens/PrivacyPolicyPage";
 import TermsOfServicesPage from "../screens/TermsOfServicesPage";
 import ForgotPasswordPage from "../screens/ForgotPasswordPage";
-import ErrorPage from "../screens/ErrorPage";
 import { useUser } from "../hooks/useUser";
 import {
     View,
