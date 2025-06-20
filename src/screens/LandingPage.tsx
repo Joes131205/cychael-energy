@@ -14,10 +14,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useTheme } from "../hooks/useTheme";
 import { useUser } from "../hooks/useUser";
+import { Ionicons } from "@expo/vector-icons";
 
 type RootStackParamList = {
     Login: undefined;
     Register: undefined;
+    Dashboard: undefined;
 };
 
 type LandingPageNavigationProp = StackNavigationProp<

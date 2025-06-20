@@ -7,21 +7,34 @@ import {
     BackHandler,
 } from "react-native";
 import { useTheme } from "../hooks/useTheme";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/Navigation";
 
-type ErrorPageProps = {
-    error?: { message?: string } | null;
-    resetError?: () => void;
+type NotFoundPageProps = {
+    message?: string;
+    goBack?: () => void;
 };
 
-const ErrorPage: React.FC<ErrorPageProps> = ({ error, resetError }) => {
+const NotFoundPage: React.FC<NotFoundPageProps> = ({
+    message = "The page you're looking for doesn't exist or has been moved",
+    goBack,
+}) => {
     const { colors, isDarkMode } = useTheme();
+    const navigation =
+        useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-    const handleReturnToSafety = () => {
-        if (resetError) {
-            resetError();
+    const handleGoHome = () => {
+        try {
+            // Try to navigate to home
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "LandingPage" }],
+            });
+        } catch (error) {
+            // Fallback to exiting the app if navigation fails
+            BackHandler.exitApp();
         }
-
-        BackHandler.exitApp();
     };
 
     return (
@@ -40,17 +53,17 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ error, resetError }) => {
                 <View
                     style={[
                         styles.iconContainer,
-                        { borderColor: colors.danger },
+                        { borderColor: colors.warning },
                     ]}
                 >
                     <Text
-                        style={[styles.negativeIcon, { color: colors.danger }]}
+                        style={[styles.notFoundIcon, { color: colors.warning }]}
                     >
-                        !
+                        404
                     </Text>
                 </View>
-                <Text style={[styles.errorTitle, { color: colors.danger }]}>
-                    Oops! Something went wrong
+                <Text style={[styles.errorTitle, { color: colors.warning }]}>
+                    Page Not Found
                 </Text>
                 <Text
                     style={[
@@ -58,10 +71,10 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ error, resetError }) => {
                         { color: colors.textSecondary },
                     ]}
                 >
-                    {error?.message || "An unexpected error occurred"}
+                    {message}
                 </Text>
                 <View style={styles.actionsContainer}>
-                    {resetError && (
+                    {goBack && (
                         <TouchableOpacity
                             style={[
                                 styles.buttonContainer,
@@ -70,9 +83,9 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ error, resetError }) => {
                                     marginRight: 8,
                                 },
                             ]}
-                            onPress={resetError}
+                            onPress={goBack}
                         >
-                            <Text style={styles.buttonText}>Try Again</Text>
+                            <Text style={styles.buttonText}>Go Back</Text>
                         </TouchableOpacity>
                     )}
                     <TouchableOpacity
@@ -80,9 +93,9 @@ const ErrorPage: React.FC<ErrorPageProps> = ({ error, resetError }) => {
                             styles.buttonContainer,
                             { backgroundColor: colors.primary },
                         ]}
-                        onPress={handleReturnToSafety}
+                        onPress={handleGoHome}
                     >
-                        <Text style={styles.buttonText}>Restart App</Text>
+                        <Text style={styles.buttonText}>Go to Home</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -122,8 +135,8 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: 16,
     },
-    negativeIcon: {
-        fontSize: 50,
+    notFoundIcon: {
+        fontSize: 22,
         fontWeight: "bold",
     },
     errorTitle: {
@@ -159,4 +172,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ErrorPage;
+export default NotFoundPage;
