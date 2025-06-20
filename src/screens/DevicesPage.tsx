@@ -132,7 +132,7 @@ const DevicesPage = () => {
                     name: device.name,
                     watt: device.watt,
                     category: device.category || "other",
-                    hours: device.hours,
+                    hours: device.hours || 0,
                     addedAt: now,
                 })),
             });
