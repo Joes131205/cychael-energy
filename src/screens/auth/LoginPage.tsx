@@ -90,6 +90,91 @@ const LoginPage = () => {
                     errorMessage =
                         "Network error. Please check your connection.";
                     break;
+                case "auth/email-already-in-use":
+                    errorMessage =
+                        "This email is already in use by another account.";
+                    break;
+                case "auth/operation-not-allowed":
+                    errorMessage =
+                        "Email/password sign-in is not enabled. Please contact support.";
+                    break;
+                case "auth/weak-password":
+                    errorMessage =
+                        "Your password is too weak. Please use a stronger password.";
+                    break;
+                case "auth/invalid-credential":
+                    errorMessage =
+                        "The credentials provided are invalid or expired.";
+                    break;
+                case "auth/account-exists-with-different-credential":
+                    errorMessage =
+                        "An account already exists with the same email but different sign-in credentials.";
+                    break;
+                case "auth/invalid-verification-code":
+                    errorMessage =
+                        "The verification code is invalid. Please try again.";
+                    break;
+                case "auth/invalid-verification-id":
+                    errorMessage =
+                        "The verification ID is invalid. Please request a new verification code.";
+                    break;
+                case "auth/captcha-check-failed":
+                    errorMessage =
+                        "Captcha verification failed. Please try again.";
+                    break;
+                case "auth/app-not-authorized":
+                    errorMessage =
+                        "This app is not authorized to use Firebase Authentication.";
+                    break;
+                case "auth/requires-recent-login":
+                    errorMessage =
+                        "Please sign in again as this operation requires recent authentication.";
+                    break;
+                case "auth/user-token-expired":
+                    errorMessage =
+                        "Your session has expired. Please log in again.";
+                    break;
+                case "auth/web-storage-unsupported":
+                    errorMessage =
+                        "Web storage is not supported or is disabled.";
+                    break;
+                case "auth/invalid-api-key":
+                    errorMessage = "The provided API key is invalid.";
+                    break;
+                case "auth/app-deleted":
+                    errorMessage =
+                        "The authentication module has been destroyed.";
+                    break;
+                case "auth/invalid-tenant-id":
+                    errorMessage = "The provided tenant ID is invalid.";
+                    break;
+                case "auth/user-mismatch":
+                    errorMessage =
+                        "The credential doesn't match the user attempting to login.";
+                    break;
+                case "auth/user-cancelled":
+                    errorMessage =
+                        "The authentication process was cancelled by the user.";
+                    break;
+                case "auth/timeout":
+                    errorMessage = "The operation has timed out.";
+                    break;
+                case "auth/quota-exceeded":
+                    errorMessage =
+                        "The project's quota has been exceeded. Please try again later.";
+                    break;
+                case "auth/popup-blocked":
+                    errorMessage =
+                        "The popup was blocked by the browser. Please enable popups for this site.";
+                    break;
+                case "auth/redirect-cancelled-by-user":
+                    errorMessage =
+                        "The redirect operation was cancelled by the user.";
+                    break;
+                case "auth/internal-error":
+                    errorMessage =
+                        "An internal authentication error has occurred. Please try again later.";
+                    break;
                 default:
                     if (
                         error &&
@@ -187,6 +272,22 @@ const LoginPage = () => {
                             />
                         </TouchableOpacity>
                     </View>
+
+                    <TouchableOpacity
+                        style={styles.forgotPasswordContainer}
+                        onPress={() =>
+                            navigation.navigate("ForgotPasswordPage" as never)
+                        }
+                    >
+                        <Text
+                            style={[
+                                styles.forgotPasswordText,
+                                { color: colors.accent },
+                            ]}
+                        >
+                            Forgot Password?
+                        </Text>
+                    </TouchableOpacity>
 
                     <TouchableOpacity
                         style={[

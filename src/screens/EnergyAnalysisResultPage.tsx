@@ -7,11 +7,8 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Animated,
-    BackHandler,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { StackNavigationProp } from "@react-navigation/stack";
-
 import {
     collection,
     query,
@@ -39,29 +36,7 @@ const EnergyAnalysisResultPage = () => {
     const [groupedData, setGroupedData] = useState<Record<string, any[]>>({});
     const [isLoadingAdvise, setIsLoadingAdvise] = useState(false);
     const [adviseText, setAdviseText] = useState("");
-    const [isLoading, setIsLoading] = useState(true);
-
-    // LineChart - MXA
-    // NEW: State for line chart tooltip
-    const [lineTooltipVisible, setLineTooltipVisible] = useState(false);
-    const [lineTooltipData, setLineTooltipData] = useState<{
-        x: number;
-        y: number;
-        label: string;
-        value: number;
-        date: string;
-    } | null>(null);
-    const lineFadeAnim = useRef(new Animated.Value(0)).current;
-
-    // State for Tooltip - MXA
-    const [tooltipVisible, setTooltipVisible] = useState(false);
-    const [tooltipData, setTooltipData] = useState<{
-        x: number;
-        y: number;
-        label: string;
-        value: number | string;
-        type: string;
-    } | null>(null);
+    const [isLoading, setIsLoading] = useState(true); // Tooltip state removed for simplicity
 
     useEffect(() => {
         if (!loading) {
@@ -146,10 +121,10 @@ const EnergyAnalysisResultPage = () => {
     }, []);
 
     const weeklyGroupData = useMemo(() => {
-        const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        const result: number[] = Array(7).fill(0); // Untuk 7 hari
-
         const today = new Date();
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const result: number[] = Array(7).fill(0);
+        const dateLabels: string[] = Array(7).fill("");
 
         // Process the last 7 days data
         for (let i = 6; i >= 0; i--) {
@@ -158,22 +133,23 @@ const EnergyAnalysisResultPage = () => {
 
             const dateKey = day.toISOString().split("T")[0];
             const dayIndex = day.getDay(); // Get day index (0=Sunday, 6=Saturday)
+            dateLabels[dayIndex] = dayNames[dayIndex];
 
             // Get devices for this date
             const devices = groupedData[dateKey] || [];
 
             // Calculate total kWh for the day
-            const totalKwh = devices.reduce((sum, device) => {
+            const totalKwh = devices.reduce((sum: number, device: any) => {
                 const hours = device.hours || 0;
                 const watt = device.watt || 0;
                 return sum + (watt * hours) / 1000;
             }, 0);
 
             // Add to the corresponding day slot
-            result[dayIndex] += Number(totalKwh.toFixed(2));
+            result[dayIndex] = Number(totalKwh.toFixed(2));
         }
 
-        return { labels, data: result };
+        return { labels: dateLabels, data: result };
     }, [groupedData]);
 
     const calculateDailyEnergy = useMemo(() => {
@@ -185,50 +161,64 @@ const EnergyAnalysisResultPage = () => {
         }
 
         return userData.deviceList.devices.reduce(
-            (total: any, device: any) =>
-                total + (device.watt * device.hours || 0) / 1000,
+            (total: number, device: any) =>
+                total + ((device.watt || 0) * (device.hours || 0)) / 1000,
             0
         );
     }, [userData]);
 
-    //   const weeklyData = useMemo(() => {
-    //     getLastWeekDevices().then((groupedDevices) => {});
-    //     // Generate slight variations based on daily energy
-    //     const baseValue = calculateDailyEnergy;
-
-    //     return Array(7)
-    //       .fill(0)
-    //       .map(() => {
-    //         const variation = Math.random() * 0.3 - 0.15; // -15% to +15% variation
-    //         return Number((baseValue * (1 + variation)).toFixed(2));
-    //       });
-    //   }, [calculateDailyEnergy]);
-
-    // Generate monthly data (4 weeks)
+    // Monthly data calculation - simplified to use actual data when available
     const monthlyData = useMemo(() => {
-        if (!calculateDailyEnergy) {
-            return {
-                labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
-                datasets: [{ data: [0, 0, 0, 0] }],
-            };
+        const weekLabels = ["W1", "W2", "W3", "W4"];
+        const weeklyValues = [0, 0, 0, 0];
+
+        // Try to use actual data when available
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+
+        // Simple week assignment
+        Object.keys(groupedData).forEach((dateKey) => {
+            const date = new Date(dateKey);
+            if (
+                date.getMonth() === currentMonth &&
+                date.getFullYear() === currentYear
+            ) {
+                // Determine which week of the month (0-3)
+                const dayOfMonth = date.getDate();
+                const weekIndex = Math.min(3, Math.floor((dayOfMonth - 1) / 7));
+
+                const devices = groupedData[dateKey] || [];
+                const dailyTotal = devices.reduce(
+                    (sum: number, device: any) => {
+                        const hours = device.hours || 0;
+                        const watt = device.watt || 0;
+                        return sum + (watt * hours) / 1000;
+                    },
+                    0
+                );
+
+                weeklyValues[weekIndex] += Number(dailyTotal.toFixed(2));
+            }
+        });
+
+        // If we have no data, generate some based on daily energy
+        if (weeklyValues.every((v) => v === 0) && calculateDailyEnergy > 0) {
+            const baseWeekly = calculateDailyEnergy * 7;
+            for (let i = 0; i < 4; i++) {
+                const variation = Math.random() * 0.2 - 0.05; // -5% to +15% variation
+                weeklyValues[i] = Number(
+                    (baseWeekly * (1 + variation)).toFixed(2)
+                );
+            }
         }
 
-        // Calculate weekly totals with some variation
-        const baseWeekly = calculateDailyEnergy * 7;
-        const weeklyTotals = Array(4)
-            .fill(0)
-            .map((_, i) => {
-                const variation = Math.random() * 0.2 - 0.05; // -5% to +15% variation
-                return Number(
-                    (baseWeekly * (1 + variation * (i + 1))).toFixed(2)
-                );
-            });
-
         return {
-            labels: ["W1", "W2", "W3", "W4"],
-            datasets: [{ data: weeklyTotals }],
+            labels: weekLabels,
+            datasets: [{ data: weeklyValues }],
         };
-    }, [calculateDailyEnergy]);
+    }, [groupedData, calculateDailyEnergy]);
+
     const handleAdvise = () => {
         const today = new Date();
         const result: {
@@ -354,24 +344,19 @@ Format your response as a professional consultation with clear sections, but kee
             return [];
         }
 
-        const totalWattage = userData.deviceList.devices.reduce(
-            (total: any, device: any) =>
-                total + (device.watt * device.hours || 0),
+        // Calculate total energy consumption
+        const totalEnergy = userData.deviceList.devices.reduce(
+            (total: number, device: any) => {
+                const watt = device.watt || 0;
+                const hours = device.hours || 0;
+                return total + watt * hours;
+            },
             0
         );
 
-        if (totalWattage === 0) return [];
+        if (totalEnergy === 0) return [];
 
-        const deviceMap = new Map();
-        userData.deviceList.devices.forEach((device: any) => {
-            const deviceUsage =
-                ((device.watt * device.hours) / totalWattage) * 100;
-            deviceMap.set(
-                device.name,
-                (deviceMap.get(device.name) || 0) + deviceUsage
-            );
-        });
-
+        // Map to percentage data
         const colorPalette = [
             colors.accent,
             colors.secondary,
@@ -381,19 +366,24 @@ Format your response as a professional consultation with clear sections, but kee
             "#FFA69E",
             "#AED9E0",
         ];
-
-        return Array.from(deviceMap.entries())
-            .map(([name, usage], index) => ({
-                name,
-                usage: parseFloat(usage.toFixed(1)),
-                color: colorPalette[index % colorPalette.length],
-                legendFontColor: colors.textSecondary,
-            }))
-            .sort((a, b) => b.usage - a.usage)
+        return userData.deviceList.devices
+            .filter((device: any) => device.watt && device.hours)
+            .map((device: any, index: number) => {
+                const deviceUsage =
+                    ((device.watt * device.hours) / totalEnergy) * 100;
+                return {
+                    name: device.name || "Unknown Device",
+                    usage: parseFloat(deviceUsage.toFixed(1)),
+                    color: colorPalette[index % colorPalette.length],
+                    legendFontColor: colors.text,
+                    legendFontSize: 12,
+                };
+            })
+            .sort((a: any, b: any) => b.usage - a.usage)
             .slice(0, 5);
     }, [userData, colors]);
 
-    // Comparison data (simulated based on current usage)
+    // Comparison data (simplified)
     const comparisonData = useMemo(() => {
         if (!calculateDailyEnergy) {
             return {
@@ -405,7 +395,11 @@ Format your response as a professional consultation with clear sections, but kee
             };
         }
 
-        const currentWeekTotal = calculateDailyEnergy * 7;
+        const currentWeekTotal = weeklyGroupData.data.reduce(
+            (a, b) => a + b,
+            0
+        );
+        // Simulate previous week with a slight increase
         const previousWeekTotal = currentWeekTotal * (1 + Math.random() * 0.2);
 
         const savingsPercentage =
@@ -421,7 +415,7 @@ Format your response as a professional consultation with clear sections, but kee
             peakHour: "7-8 PM",
             lowestHour: "3-4 AM",
         };
-    }, [calculateDailyEnergy]);
+    }, [calculateDailyEnergy, weeklyGroupData]);
 
     const chartConfig = {
         backgroundGradientFrom: isDarkMode ? colors.card : colors.background,
@@ -467,171 +461,10 @@ Format your response as a professional consultation with clear sections, but kee
         );
     }
 
-    // Handle Chart - MXA
-    const handleChartPress = (data: any, chartType: string) => {
-        if (data && data.length > 0) {
-            const point = data[0];
-            let label, value;
-
-            if (chartType === "weekly") {
-                label = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
-                    point.index
-                ];
-                value = weeklyGroupData.data[point.index];
-            } else if (chartType === "monthly") {
-                label = ["W1", "W2", "W3", "W4"][point.index];
-                value = monthlyData.datasets[0].data[point.index];
-            } else if (chartType === "pie") {
-                const item = applianceUsageData[point.index];
-                label = item.name;
-                value = item.usage + "%";
-            }
-
-            setTooltipData({
-                x: point.x ?? 0,
-                y: point.y ?? 0,
-                label,
-                value: value ?? "",
-                type: chartType,
-            });
-
-            // Animate tooltip appearance
-            Animated.timing(fadeAnim, {
-                toValue: 1,
-                duration: 200,
-                useNativeDriver: true,
-            }).start();
-
-            setTooltipVisible(true);
-        }
-    };
-
-    const hideTooltip = () => {
-        Animated.timing(fadeAnim, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-        }).start(() => {
-            setTooltipVisible(false);
-        });
-    };
-
-    // NEW: Handle scroll to hide tooltip
-    const handleScroll = () => {
-        if (tooltipVisible) {
-            hideTooltip();
-        }
-    };
-
-    // Add to your existing BarChart component:
-    const renderBar = (props: any) => {
-        const { index, x, y, width, height } = props;
-        return (
-            <TouchableOpacity
-                key={`bar-${index}`}
-                onPress={() => handleChartPress([{ index, x, y }], "monthly")}
-                style={{
-                    position: "absolute",
-                    left: x,
-                    top: y,
-                    width,
-                    height,
-                    backgroundColor:
-                        tooltipVisible &&
-                        tooltipData?.type === "monthly" &&
-                        tooltipData?.label === monthlyData.labels[index]
-                            ? colors.accent
-                            : `rgba(${hexToRgb(colors.accent)}, 0.7)`,
-                }}
-            />
-        );
-    };
-
-    // NEW: Handle line chart press
-    const handleLinePress = (data: any) => {
-        if (data && data.length > 0) {
-            const point = data[0];
-            const dayIndex = point.index;
-            const dayLabel = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][
-                dayIndex
-            ];
-
-            // Get the actual date from groupedData if available
-            const dates = Object.keys(groupedData);
-            const dateKey = dates[dayIndex] || "";
-            const formattedDate = dateKey
-                ? new Date(dateKey).toLocaleDateString()
-                : "";
-
-            setLineTooltipData({
-                x: point.x ?? 0,
-                y: point.y ?? 0,
-                label: dayLabel,
-                value: weeklyGroupData.data[dayIndex],
-                date: formattedDate,
-            });
-
-            // Animate tooltip appearance
-            Animated.timing(lineFadeAnim, {
-                toValue: 1,
-                duration: 200,
-                useNativeDriver: true,
-            }).start();
-
-            setLineTooltipVisible(true);
-        }
-    };
-
-    // NEW: Hide line tooltip
-    // What this do bruh
-    const hideLineTooltip = () => {
-        Animated.timing(lineFadeAnim, {
-            toValue: 0,
-            duration: 200,
-            useNativeDriver: true,
-        }).start(() => {
-            setLineTooltipVisible(false);
-        });
-    };
-
-    // NEW: Custom decorator for line chart points
-    const renderDots = (props: any) => {
-        const { x, y, index } = props;
-        return (
-            <TouchableOpacity
-                key={`dot-${index}`}
-                onPress={() => handleLinePress([{ ...props }])}
-                style={{
-                    position: "absolute",
-                    left: x - 15,
-                    top: y - 15,
-                    width: 30,
-                    height: 30,
-                    borderRadius: 15,
-                    backgroundColor: "transparent",
-                    justifyContent: "center",
-                    alignItems: "center",
-                }}
-            >
-                <View
-                    style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: 5,
-                        backgroundColor: colors.accent,
-                    }}
-                />
-            </TouchableOpacity>
-        );
-    };
-
-    // Ini Return
     return (
         <ScrollView
             ref={scrollViewRef}
             style={[styles.container, { backgroundColor: colors.background }]}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
         >
             <LinearGradient
                 colors={
@@ -650,41 +483,7 @@ Format your response as a professional consultation with clear sections, but kee
                     Your comprehensive energy usage analysis
                 </Text>
             </LinearGradient>
-            {/* Tooltip component */}
-            {tooltipVisible && tooltipData && (
-                <Animated.View
-                    style={[
-                        styles.tooltip,
-                        {
-                            left: tooltipData.x - 50,
-                            top: tooltipData.y - 60,
-                            backgroundColor: colors.card,
-                            borderColor: colors.border,
-                            opacity: fadeAnim,
-                            transform: [
-                                {
-                                    translateY: fadeAnim.interpolate({
-                                        inputRange: [0, 1],
-                                        outputRange: [10, 0],
-                                    }),
-                                },
-                            ],
-                        },
-                    ]}
-                    pointerEvents="none"
-                >
-                    <Text style={[styles.tooltipLabel, { color: colors.text }]}>
-                        {tooltipData.label}
-                    </Text>
-                    <Text
-                        style={[styles.tooltipValue, { color: colors.accent }]}
-                    >
-                        {tooltipData.value}{" "}
-                        {tooltipData.type === "pie" ? "" : "kWh"}
-                    </Text>
-                </Animated.View>
-            )}
-            {/* Weekly Energy Chart with interactive dots */}
+            {/* Weekly Energy Chart - Simplified */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Weekly Energy Consumption
@@ -692,15 +491,7 @@ Format your response as a professional consultation with clear sections, but kee
 
                 <LineChart
                     data={{
-                        labels: [
-                            "Mon",
-                            "Tue",
-                            "Wed",
-                            "Thu",
-                            "Fri",
-                            "Sat",
-                            "Sun",
-                        ],
+                        labels: weeklyGroupData.labels,
                         datasets: [
                             {
                                 data: weeklyGroupData.data,
@@ -722,97 +513,7 @@ Format your response as a professional consultation with clear sections, but kee
                     withHorizontalLines={true}
                     withShadow={true}
                     withInnerLines={false}
-                    decorator={renderDots} // Tambahkan untuk tooltip support
-                    onDataPointClick={({
-                        value,
-                        dataset,
-                        getColor,
-                        index,
-                        x,
-                        y,
-                    }) => {
-                        const dayLabel = [
-                            "Mon",
-                            "Tue",
-                            "Wed",
-                            "Thu",
-                            "Fri",
-                            "Sat",
-                            "Sun",
-                        ][index];
-                        const dateKey = Object.keys(groupedData)[index] || "";
-                        const formattedDate = dateKey
-                            ? new Date(dateKey).toLocaleDateString()
-                            : "";
-
-                        setLineTooltipData({
-                            x: x + 15,
-                            y: y + 90,
-                            label: dayLabel,
-                            value,
-                            date: formattedDate,
-                        });
-
-                        Animated.timing(lineFadeAnim, {
-                            toValue: 1,
-                            duration: 200,
-                            useNativeDriver: true,
-                        }).start();
-
-                        setLineTooltipVisible(true);
-                    }}
                 />
-
-                {/* Tooltip component */}
-                {lineTooltipVisible && lineTooltipData && (
-                    <Animated.View
-                        style={[
-                            styles.tooltip,
-                            {
-                                left: lineTooltipData.x - 60,
-                                top: lineTooltipData.y - 80,
-                                backgroundColor: colors.card,
-                                borderColor: colors.border,
-                                opacity: lineFadeAnim,
-                                transform: [
-                                    {
-                                        translateY: lineFadeAnim.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [10, 0],
-                                        }),
-                                    },
-                                ],
-                            },
-                        ]}
-                        pointerEvents="none"
-                    >
-                        <Text
-                            style={[
-                                styles.tooltipLabel,
-                                { color: colors.text },
-                            ]}
-                        >
-                            {lineTooltipData.label}
-                        </Text>
-                        <Text
-                            style={[
-                                styles.tooltipDate,
-                                { color: colors.textSecondary },
-                            ]}
-                        >
-                            {lineTooltipData.date && lineTooltipData.date}
-                        </Text>
-
-                        <Text
-                            style={[
-                                styles.tooltipValue,
-                                { color: colors.accent },
-                            ]}
-                        >
-                            {lineTooltipData.value.toFixed(2)} kWh
-                        </Text>
-                    </Animated.View>
-                )}
 
                 <View style={styles.statsRow}>
                     <View style={styles.statItem}>
@@ -929,73 +630,51 @@ Format your response as a professional consultation with clear sections, but kee
                 </Text>
                 {applianceUsageData.length > 0 ? (
                     <>
-                        <View style={{ position: "relative" }}>
-                            <PieChart
-                                data={applianceUsageData}
-                                width={screenWidth - 60}
-                                height={200}
-                                chartConfig={chartConfig}
-                                accessor="usage"
-                                backgroundColor="transparent"
-                                paddingLeft="25"
-                                absolute
-                                hasLegend={false}
-                                style={styles.chart}
-                            />
-                            {applianceUsageData.map((_, index) => (
-                                <TouchableOpacity
-                                    key={`touchable-${index}`}
-                                    style={{
-                                        position: "absolute",
-                                        width: (screenWidth - 60) / 2,
-                                        height: 200,
-                                        left: (screenWidth - 60) / 4,
-                                        top: 0,
-                                        transform: [
-                                            {
-                                                rotate: `${
-                                                    (index /
-                                                        applianceUsageData.length) *
-                                                    360
-                                                }deg`,
-                                            },
-                                        ],
-                                        opacity: 0.3, // Tetap tak terlihat, tapi bisa disentuh
-                                    }}
-                                    onPress={() =>
-                                        handleChartPress([{ index }], "pie")
-                                    }
-                                />
-                            ))}
-                        </View>
+                        <PieChart
+                            data={applianceUsageData}
+                            width={screenWidth - 60}
+                            height={200}
+                            chartConfig={chartConfig}
+                            accessor="usage"
+                            backgroundColor="transparent"
+                            paddingLeft="25"
+                            absolute
+                            hasLegend={true}
+                            style={styles.chart}
+                        />
 
                         <View style={styles.applianceList}>
-                            {applianceUsageData.map((item, index) => (
-                                <View key={index} style={styles.applianceItem}>
+                            {applianceUsageData.map(
+                                (item: any, index: number) => (
                                     <View
-                                        style={[
-                                            styles.colorIndicator,
-                                            { backgroundColor: item.color },
-                                        ]}
-                                    />
-                                    <Text
-                                        style={[
-                                            styles.applianceName,
-                                            { color: colors.textSecondary },
-                                        ]}
+                                        key={index}
+                                        style={styles.applianceItem}
                                     >
-                                        {item.name}
-                                    </Text>
-                                    <Text
-                                        style={[
-                                            styles.applianceValue,
-                                            { color: colors.text },
-                                        ]}
-                                    >
-                                        {item.usage}%
-                                    </Text>
-                                </View>
-                            ))}
+                                        <View
+                                            style={[
+                                                styles.colorIndicator,
+                                                { backgroundColor: item.color },
+                                            ]}
+                                        />
+                                        <Text
+                                            style={[
+                                                styles.applianceName,
+                                                { color: colors.textSecondary },
+                                            ]}
+                                        >
+                                            {item.name}
+                                        </Text>
+                                        <Text
+                                            style={[
+                                                styles.applianceValue,
+                                                { color: colors.text },
+                                            ]}
+                                        >
+                                            {item.usage}%
+                                        </Text>
+                                    </View>
+                                )
+                            )}
                         </View>
                     </>
                 ) : (
@@ -1010,21 +689,27 @@ Format your response as a professional consultation with clear sections, but kee
                     </Text>
                 )}
             </View>
-            {/* Saran */}
+            {/* Energy Saving Tips Section */}
+            <View
+                style={[
+                    { marginHorizontal: 20, marginTop: 16, marginBottom: 30 },
+                ]}
+            >
+                <EnergySavingTipsComponent
+                    devices={userData?.deviceList?.devices || []}
+                    energyData={{
+                        today: calculateDailyEnergy || 0,
+                        weekly: (calculateDailyEnergy || 0) * 7,
+                        monthly: (calculateDailyEnergy || 0) * 30,
+                        yearly: (calculateDailyEnergy || 0) * 365,
+                    }}
+                />
+            </View>
+            {/* AI Advisor */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     AI Advisor
                 </Text>
-                <Markdown
-                    style={{
-                        body: {
-                            ...styles.applianceName,
-                            color: colors.textSecondary,
-                        },
-                    }}
-                >
-                    {adviseText}
-                </Markdown>
                 <View
                     style={{
                         flexDirection: "row",
@@ -1070,15 +755,11 @@ Format your response as a professional consultation with clear sections, but kee
                                     marginRight: 8,
                                 }}
                             >
-                                <Text
-                                    style={{
-                                        color: colors.accent,
-                                        fontWeight: "bold",
-                                        fontSize: 16,
-                                    }}
-                                >
-                                    💡
-                                </Text>
+                                <Ionicons
+                                    name="bulb-outline"
+                                    size={14}
+                                    color={colors.accent}
+                                />
                             </View>
                         )}
                         <Text
@@ -1094,61 +775,17 @@ Format your response as a professional consultation with clear sections, but kee
                                 : "Get AI Advice"}
                         </Text>
                     </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={{
-                            flex: 1,
-                            alignItems: "center",
-                            paddingVertical: 12,
-                            backgroundColor: `${colors.accent}20`,
-                            borderRadius: 8,
-                            flexDirection: "row",
-                            justifyContent: "center",
-                        }}
-                        activeOpacity={0.85}
-                        onPress={() => {
-                            // Scroll to the Energy Saving Tips section
-                            setTimeout(() => {
-                                scrollViewRef.current?.scrollToEnd({
-                                    animated: true,
-                                });
-                            }, 100);
-                        }}
-                    >
-                        <Ionicons
-                            name="bulb-outline"
-                            size={20}
-                            color={colors.accent}
-                            style={{ marginRight: 8 }}
-                        />
-                        <Text
-                            style={{
-                                color: colors.accent,
-                                fontWeight: "700",
-                                fontSize: 15,
-                                letterSpacing: 0.2,
-                            }}
-                        >
-                            Energy Tips
-                        </Text>
-                    </TouchableOpacity>
                 </View>
-            </View>
-            {/* Energy Saving Tips Section */}
-            <View
-                style={[
-                    { marginHorizontal: 20, marginTop: 16, marginBottom: 30 },
-                ]}
-            >
-                <EnergySavingTipsComponent
-                    devices={userData?.deviceList?.devices || []}
-                    energyData={{
-                        today: calculateDailyEnergy || 0,
-                        weekly: (calculateDailyEnergy || 0) * 7,
-                        monthly: (calculateDailyEnergy || 0) * 30,
-                        yearly: (calculateDailyEnergy || 0) * 365,
+                <Markdown
+                    style={{
+                        body: {
+                            ...styles.applianceName,
+                            color: colors.textSecondary,
+                        },
                     }}
-                />
+                >
+                    {adviseText}
+                </Markdown>
             </View>
         </ScrollView>
     );
@@ -1278,21 +915,6 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         lineHeight: 20,
-    },
-
-    tooltip: {
-        position: "absolute",
-        padding: 10,
-        borderRadius: 8,
-        borderWidth: 1,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
-        zIndex: 100,
-        minWidth: 100,
-        alignItems: "center",
     },
     tooltipLabel: {
         fontSize: 14,

@@ -107,13 +107,105 @@ const Register = () => {
             }
         } catch (error: any) {
             let errorMessage = "Registration failed";
+            const errorCode = (error as any).code;
 
-            if (error.code === "auth/email-already-in-use") {
-                errorMessage = "Email is already in use";
-            } else if (error.code === "auth/invalid-email") {
-                errorMessage = "Invalid email address";
-            } else if (error.code === "auth/weak-password") {
-                errorMessage = "Password is too weak";
+            switch (errorCode) {
+                case "auth/email-already-in-use":
+                    errorMessage =
+                        "This email address is already in use by another account.";
+                    break;
+                case "auth/invalid-email":
+                    errorMessage = "The email address is not valid.";
+                    break;
+                case "auth/weak-password":
+                    errorMessage =
+                        "Password is too weak. Please use a stronger password.";
+                    break;
+                case "auth/operation-not-allowed":
+                    errorMessage =
+                        "Email/password accounts are not enabled. Please contact support.";
+                    break;
+                case "auth/network-request-failed":
+                    errorMessage =
+                        "Network error. Please check your internet connection.";
+                    break;
+                case "auth/too-many-requests":
+                    errorMessage = "Too many requests. Please try again later.";
+                    break;
+                case "auth/user-disabled":
+                    errorMessage = "This account has been disabled.";
+                    break;
+                case "auth/requires-recent-login":
+                    errorMessage =
+                        "This operation requires recent authentication. Please log in again.";
+                    break;
+                case "auth/user-token-expired":
+                    errorMessage =
+                        "Your session has expired. Please log in again.";
+                    break;
+                case "auth/user-not-found":
+                    errorMessage = "No user found with this email.";
+                    break;
+                case "auth/invalid-credential":
+                    errorMessage =
+                        "The credentials provided are malformed or expired.";
+                    break;
+                case "auth/app-not-authorized":
+                    errorMessage =
+                        "This app is not authorized to use Firebase Authentication.";
+                    break;
+                case "auth/quota-exceeded":
+                    errorMessage = "Quota exceeded. Please try again later.";
+                    break;
+                case "auth/missing-android-pkg-name":
+                case "auth/missing-ios-bundle-id":
+                case "auth/missing-continue-uri":
+                    errorMessage =
+                        "Configuration error. Please contact support.";
+                    break;
+                case "auth/invalid-api-key":
+                    errorMessage = "The provided API key is invalid.";
+                    break;
+                case "auth/app-deleted":
+                    errorMessage =
+                        "The authentication module has been destroyed.";
+                    break;
+                case "auth/internal-error":
+                    errorMessage =
+                        "An internal authentication error has occurred. Please try again later.";
+                    break;
+                case "auth/web-storage-unsupported":
+                    errorMessage =
+                        "Web storage is not supported or is disabled.";
+                    break;
+                case "auth/missing-recaptcha-token":
+                    errorMessage =
+                        "reCAPTCHA token is missing. Please try again.";
+                    break;
+                case "auth/invalid-recaptcha-token":
+                    errorMessage =
+                        "The reCAPTCHA token is invalid. Please try again.";
+                    break;
+                case "auth/invalid-tenant-id":
+                    errorMessage = "The provided tenant ID is invalid.";
+                    break;
+                case "auth/timeout":
+                    errorMessage = "The operation has timed out.";
+                    break;
+                case "auth/user-cancelled":
+                    errorMessage =
+                        "The authentication process was cancelled by the user.";
+                    break;
+                default:
+                    if (
+                        error &&
+                        typeof error === "object" &&
+                        "message" in error
+                    ) {
+                        errorMessage = `Registration failed: ${error.message}`;
+                    } else {
+                        errorMessage = "Registration failed: Unknown error";
+                    }
             }
 
             Alert.alert("Error", errorMessage);

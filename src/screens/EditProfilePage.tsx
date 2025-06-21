@@ -60,13 +60,101 @@ const EditProfilePage = () => {
             navigation.navigate("Settings", { refresh: true });
         } catch (error: any) {
             console.error(error);
-            let message = "Failed to update profile.";
-            if (error.code === "auth/requires-recent-login") {
-                message = "Please log in again before changing email.";
-            } else if (error.code === "auth/invalid-email") {
-                message = "Invalid email address.";
+            let errorMessage = "Failed to update profile.";
+
+            switch (error.code) {
+                case "auth/requires-recent-login":
+                    errorMessage =
+                        "For security reasons, please log in again before changing your email.";
+                    break;
+                case "auth/invalid-email":
+                    errorMessage = "The email address is invalid.";
+                    break;
+                case "auth/email-already-in-use":
+                    errorMessage =
+                        "This email address is already in use by another account.";
+                    break;
+                case "auth/user-disabled":
+                    errorMessage = "This account has been disabled.";
+                    break;
+                case "auth/user-token-expired":
+                    errorMessage =
+                        "Your session has expired. Please log in again.";
+                    break;
+                case "auth/user-not-found":
+                    errorMessage = "User account not found.";
+                    break;
+                case "auth/network-request-failed":
+                    errorMessage =
+                        "Network error. Please check your internet connection.";
+                    break;
+                case "auth/too-many-requests":
+                    errorMessage = "Too many requests. Please try again later.";
+                    break;
+                case "auth/operation-not-allowed":
+                    errorMessage = "This operation is not allowed.";
+                    break;
+                case "auth/invalid-credential":
+                    errorMessage =
+                        "The credentials provided are invalid or expired.";
+                    break;
+                case "auth/internal-error":
+                    errorMessage =
+                        "An internal error occurred. Please try again later.";
+                    break;
+                case "auth/app-not-authorized":
+                    errorMessage =
+                        "This app is not authorized to use Firebase Authentication.";
+                    break;
+                case "auth/timeout":
+                    errorMessage =
+                        "The operation has timed out. Please try again.";
+                    break;
+                case "auth/quota-exceeded":
+                    errorMessage = "Quota exceeded. Please try again later.";
+                    break;
+                case "auth/web-storage-unsupported":
+                    errorMessage =
+                        "Web storage is not supported or is disabled on this device.";
+                    break;
+                case "auth/invalid-api-key":
+                    errorMessage =
+                        "The API key is invalid. Please contact support.";
+                    break;
+                case "auth/app-deleted":
+                    errorMessage =
+                        "The authentication module has been destroyed. Please reload the app.";
+                    break;
+                case "auth/unverified-email":
+                    errorMessage =
+                        "Please verify your email address before making changes.";
+                    break;
+                case "auth/user-mismatch":
+                    errorMessage =
+                        "The credential does not correspond to the user.";
+                    break;
+                case "auth/credential-already-in-use":
+                    errorMessage =
+                        "This credential is already associated with a different user account.";
+                    break;
+                case "auth/email-change-needs-verification":
+                    errorMessage =
+                        "Please verify your new email address. A verification email has been sent.";
+                    break;
+                default:
+                    if (
+                        error &&
+                        typeof error === "object" &&
+                        "message" in error
+                    ) {
+                        errorMessage = `Update failed: ${error.message}`;
+                    } else {
+                        errorMessage =
+                            "Failed to update profile. Please try again.";
+                    }
             }
-            Alert.alert("Error", message);
+
+            Alert.alert("Error", errorMessage);
         }
     };
     const photo =
