@@ -38,6 +38,21 @@ const EnergyAnalysisResultPage = () => {
     const [adviseText, setAdviseText] = useState("");
     const [isLoading, setIsLoading] = useState(true); // Tooltip state removed for simplicity
 
+    // Chart interactivity states
+    const [selectedWeeklyIndex, setSelectedWeeklyIndex] = useState<
+        number | null
+    >(null);
+    const [selectedMonthlyIndex, setSelectedMonthlyIndex] = useState<
+        number | null
+    >(null);
+    const [tooltipVisible, setTooltipVisible] = useState(false);
+    const [tooltipContent, setTooltipContent] = useState<{
+        value: number;
+        label: string;
+        date: string;
+    }>({ value: 0, label: "", date: "" });
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
     useEffect(() => {
         if (!loading) {
             setIsLoading(false);
@@ -50,6 +65,21 @@ const EnergyAnalysisResultPage = () => {
             setGroupedData(data);
         };
         fetchGroupedData();
+    }, []);
+
+    // Handle touch events on charts
+    const handleChartTouch = (touchEvent = false) => {
+        // Hide tooltip when chart is touched elsewhere or when component unmounts
+        if (!touchEvent && tooltipVisible) {
+            setTooltipVisible(false);
+        }
+    };
+
+    // Reset tooltip when navigating away or refreshing
+    useEffect(() => {
+        return () => {
+            setTooltipVisible(false);
+        };
     }, []);
 
     const getLastWeekDevices = async () => {
@@ -217,7 +247,7 @@ const EnergyAnalysisResultPage = () => {
             labels: weekLabels,
             datasets: [{ data: weeklyValues }],
         };
-    }, [groupedData, calculateDailyEnergy]);
+    }, [groupedData, calculateDailyEnergy as number]);
 
     const handleAdvise = () => {
         const today = new Date();
@@ -488,33 +518,113 @@ Format your response as a professional consultation with clear sections, but kee
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Weekly Energy Consumption
                 </Text>
+                <View style={styles.chartContainer}>
+                    <LineChart
+                        data={{
+                            labels: weeklyGroupData.labels,
+                            datasets: [
+                                {
+                                    data: weeklyGroupData.data,
+                                    color: (opacity = 1) =>
+                                        `rgba(${hexToRgb(
+                                            colors.accent
+                                        )}, ${opacity})`,
+                                    strokeWidth: 3,
+                                },
+                            ],
+                            legend: ["Weekly Energy Output (kWh)"],
+                        }}
+                        width={screenWidth - 60}
+                        height={240}
+                        chartConfig={chartConfig}
+                        bezier
+                        style={styles.chart}
+                        withVerticalLines={false}
+                        withHorizontalLines={true}
+                        withShadow={true}
+                        withInnerLines={false}
+                        decorator={() => {
+                            return selectedWeeklyIndex !== null ? (
+                                <View
+                                    style={[
+                                        styles.dataPointIndicator,
+                                        {
+                                            left:
+                                                selectedWeeklyIndex *
+                                                    ((screenWidth - 60) /
+                                                        (weeklyGroupData.labels
+                                                            .length -
+                                                            1)) -
+                                                6 +
+                                                30,
+                                            top:
+                                                240 -
+                                                ((weeklyGroupData.data[
+                                                    selectedWeeklyIndex
+                                                ] -
+                                                    Math.min(
+                                                        ...weeklyGroupData.data
+                                                    )) /
+                                                    (Math.max(
+                                                        ...weeklyGroupData.data
+                                                    ) -
+                                                        Math.min(
+                                                            ...weeklyGroupData.data
+                                                        ) || 1)) *
+                                                    180 -
+                                                6,
+                                            borderColor: colors.accent,
+                                        },
+                                    ]}
+                                />
+                            ) : null;
+                        }}
+                    />
 
-                <LineChart
-                    data={{
-                        labels: weeklyGroupData.labels,
-                        datasets: [
-                            {
-                                data: weeklyGroupData.data,
-                                color: (opacity = 1) =>
-                                    `rgba(${hexToRgb(
-                                        colors.accent
-                                    )}, ${opacity})`,
-                                strokeWidth: 3,
-                            },
-                        ],
-                        legend: ["Weekly Energy Output (kWh)"],
-                    }}
-                    width={screenWidth - 60}
-                    height={240}
-                    chartConfig={chartConfig}
-                    bezier
-                    style={styles.chart}
-                    withVerticalLines={false}
-                    withHorizontalLines={true}
-                    withShadow={true}
-                    withInnerLines={false}
-                />
+                    {/* Interactive overlay for chart */}
+                    <View
+                        style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: screenWidth - 60,
+                            height: 240,
+                            flexDirection: "row",
+                        }}
+                    >
+                        {weeklyGroupData.labels.map((label, index) => (
+                            <TouchableOpacity
+                                key={`point-${index}`}
+                                style={{
+                                    flex: 1,
+                                    height: "100%",
+                                }}
+                                onPress={() => {
+                                    setSelectedWeeklyIndex(index);
+                                    setSelectedMonthlyIndex(null); // Reset other selection
+                                }}
+                            />
+                        ))}
+                    </View>
 
+                    {/* Show data value on select */}
+                    {selectedWeeklyIndex !== null && (
+                        <View style={styles.selectedDataInfo}>
+                            <Text
+                                style={{
+                                    color: colors.accent,
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                {`${
+                                    weeklyGroupData.labels[selectedWeeklyIndex]
+                                }: ${weeklyGroupData.data[
+                                    selectedWeeklyIndex
+                                ].toFixed(2)} kWh`}
+                            </Text>
+                        </View>
+                    )}
+                </View>
                 <View style={styles.statsRow}>
                     <View style={styles.statItem}>
                         <Text
@@ -528,10 +638,9 @@ Format your response as a professional consultation with clear sections, but kee
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
                         >
-                            {weeklyGroupData.data
+                            {`${weeklyGroupData.data
                                 .reduce((a, b) => a + b, 0)
-                                .toFixed(1)}{" "}
-                            kWh
+                                .toFixed(1)} kWh`}
                         </Text>
                     </View>
                     <View style={styles.statItem}>
@@ -546,34 +655,80 @@ Format your response as a professional consultation with clear sections, but kee
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
                         >
-                            {(
+                            {`${(
                                 weeklyGroupData.data.reduce(
                                     (a, b) => a + b,
                                     0
                                 ) / 7
-                            ).toFixed(2)}{" "}
-                            kWh
+                            ).toFixed(2)} kWh`}
                         </Text>
                     </View>
                 </View>
+                {/* Removed tooltipVisible popover since we now use inline tooltips */}
             </View>
             {/* Monthly Energy Chart */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
                     Monthly Energy Trend
                 </Text>
-                <BarChart
-                    data={monthlyData}
-                    width={screenWidth - 60}
-                    height={220}
-                    chartConfig={chartConfig}
-                    style={styles.chart}
-                    yAxisSuffix=" kWh"
-                    showBarTops={false}
-                    fromZero={true}
-                    yAxisLabel={""}
-                    withInnerLines={false}
-                />
+                <View style={styles.chartContainer}>
+                    <BarChart
+                        data={monthlyData}
+                        width={screenWidth - 60}
+                        height={220}
+                        chartConfig={chartConfig}
+                        style={styles.chart}
+                        yAxisSuffix=" kWh"
+                        showBarTops={false}
+                        fromZero={true}
+                        yAxisLabel={""}
+                        withInnerLines={false}
+                    />
+
+                    {/* Interactive overlay for bar chart */}
+                    <View
+                        style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: screenWidth - 60,
+                            height: 220,
+                            flexDirection: "row",
+                        }}
+                    >
+                        {monthlyData.labels.map((label, index) => (
+                            <TouchableOpacity
+                                key={`bar-${index}`}
+                                style={{
+                                    flex: 1,
+                                    height: "100%",
+                                }}
+                                onPress={() => {
+                                    setSelectedMonthlyIndex(index);
+                                    setSelectedWeeklyIndex(null); // Reset other selection
+                                }}
+                            />
+                        ))}
+                    </View>
+
+                    {/* Show selected data info */}
+                    {selectedMonthlyIndex !== null && (
+                        <View style={styles.selectedDataInfo}>
+                            <Text
+                                style={{
+                                    color: colors.accent,
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                {`${
+                                    monthlyData.labels[selectedMonthlyIndex]
+                                }: ${monthlyData.datasets[0].data[
+                                    selectedMonthlyIndex
+                                ].toFixed(2)} kWh`}
+                            </Text>
+                        </View>
+                    )}
+                </View>
                 <View style={styles.statsRow}>
                     <View style={styles.statItem}>
                         <Text
@@ -587,10 +742,9 @@ Format your response as a professional consultation with clear sections, but kee
                         <Text
                             style={[styles.statValue, { color: colors.text }]}
                         >
-                            {monthlyData.datasets[0].data
+                            {`${monthlyData.datasets[0].data
                                 .reduce((a, b) => a + b, 0)
-                                .toFixed(1)}
-                            kWh
+                                .toFixed(1)} kWh`}
                         </Text>
                     </View>
                     <View style={styles.statItem}>
@@ -614,14 +768,17 @@ Format your response as a professional consultation with clear sections, but kee
                                 },
                             ]}
                         >
-                            {comparisonData.savingsPercentage >= 0 ? "↓" : "↑"}
-                            {Math.abs(comparisonData.savingsPercentage).toFixed(
-                                1
-                            )}
-                            %
+                            {`${
+                                comparisonData.savingsPercentage >= 0
+                                    ? "↓"
+                                    : "↑"
+                            }${Math.abs(
+                                comparisonData.savingsPercentage
+                            ).toFixed(1)}%`}
                         </Text>
                     </View>
                 </View>
+                {/* Removed tooltip for monthly chart */}
             </View>
             {/* Appliance Breakdown */}
             <View style={[styles.card, { backgroundColor: colors.card }]}>
@@ -850,6 +1007,27 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         marginLeft: -15, // Adjust horizontal positioning to prevent overflow
     },
+    chartContainer: {
+        position: "relative",
+        marginBottom: 16,
+    },
+    dataPointIndicator: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        backgroundColor: "#fff",
+        borderWidth: 2,
+        position: "absolute",
+        zIndex: 10,
+    },
+    selectedDataInfo: {
+        alignSelf: "center",
+        marginTop: 8,
+        paddingVertical: 4,
+        paddingHorizontal: 12,
+        backgroundColor: "rgba(0,0,0,0.05)",
+        borderRadius: 16,
+    },
     statsRow: {
         flexDirection: "row",
         justifyContent: "space-between",
@@ -928,6 +1106,19 @@ const styles = StyleSheet.create({
     tooltipDate: {
         fontSize: 12,
         marginBottom: 4,
+    },
+    tooltip: {
+        position: "absolute",
+        backgroundColor: "rgba(0,0,0,0.7)",
+        borderRadius: 8,
+        padding: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
 });
 
