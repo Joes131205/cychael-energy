@@ -543,42 +543,6 @@ Format your response as a professional consultation with clear sections, but kee
                         withHorizontalLines={true}
                         withShadow={true}
                         withInnerLines={false}
-                        decorator={() => {
-                            return selectedWeeklyIndex !== null ? (
-                                <View
-                                    style={[
-                                        styles.dataPointIndicator,
-                                        {
-                                            left:
-                                                selectedWeeklyIndex *
-                                                    ((screenWidth - 60) /
-                                                        (weeklyGroupData.labels
-                                                            .length -
-                                                            1)) -
-                                                6 +
-                                                30,
-                                            top:
-                                                240 -
-                                                ((weeklyGroupData.data[
-                                                    selectedWeeklyIndex
-                                                ] -
-                                                    Math.min(
-                                                        ...weeklyGroupData.data
-                                                    )) /
-                                                    (Math.max(
-                                                        ...weeklyGroupData.data
-                                                    ) -
-                                                        Math.min(
-                                                            ...weeklyGroupData.data
-                                                        ) || 1)) *
-                                                    180 -
-                                                6,
-                                            borderColor: colors.accent,
-                                        },
-                                    ]}
-                                />
-                            ) : null;
-                        }}
                     />
 
                     {/* Interactive overlay for chart */}
@@ -1010,16 +974,7 @@ const styles = StyleSheet.create({
     chartContainer: {
         position: "relative",
         marginBottom: 16,
-    },
-    dataPointIndicator: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: "#fff",
-        borderWidth: 2,
-        position: "absolute",
-        zIndex: 10,
-    },
+    } /* Removed dataPointIndicator style */,
     selectedDataInfo: {
         alignSelf: "center",
         marginTop: 8,
