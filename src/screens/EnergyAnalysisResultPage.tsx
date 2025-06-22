@@ -405,8 +405,6 @@ Format your response as a professional consultation with clear sections, but kee
                     name: device.name || "Unknown Device",
                     usage: parseFloat(deviceUsage.toFixed(1)),
                     color: colorPalette[index % colorPalette.length],
-                    legendFontColor: colors.text,
-                    legendFontSize: 12,
                 };
             })
             .sort((a: any, b: any) => b.usage - a.usage)
@@ -543,42 +541,6 @@ Format your response as a professional consultation with clear sections, but kee
                         withHorizontalLines={true}
                         withShadow={true}
                         withInnerLines={false}
-                        decorator={() => {
-                            return selectedWeeklyIndex !== null ? (
-                                <View
-                                    style={[
-                                        styles.dataPointIndicator,
-                                        {
-                                            left:
-                                                selectedWeeklyIndex *
-                                                    ((screenWidth - 60) /
-                                                        (weeklyGroupData.labels
-                                                            .length -
-                                                            1)) -
-                                                6 +
-                                                30,
-                                            top:
-                                                240 -
-                                                ((weeklyGroupData.data[
-                                                    selectedWeeklyIndex
-                                                ] -
-                                                    Math.min(
-                                                        ...weeklyGroupData.data
-                                                    )) /
-                                                    (Math.max(
-                                                        ...weeklyGroupData.data
-                                                    ) -
-                                                        Math.min(
-                                                            ...weeklyGroupData.data
-                                                        ) || 1)) *
-                                                    180 -
-                                                6,
-                                            borderColor: colors.accent,
-                                        },
-                                    ]}
-                                />
-                            ) : null;
-                        }}
                     />
 
                     {/* Interactive overlay for chart */}
@@ -787,6 +749,7 @@ Format your response as a professional consultation with clear sections, but kee
                 </Text>
                 {applianceUsageData.length > 0 ? (
                     <>
+                        {" "}
                         <PieChart
                             data={applianceUsageData}
                             width={screenWidth - 60}
@@ -794,12 +757,16 @@ Format your response as a professional consultation with clear sections, but kee
                             chartConfig={chartConfig}
                             accessor="usage"
                             backgroundColor="transparent"
-                            paddingLeft="25"
+                            paddingLeft="0"
+                            center={[(screenWidth - 250) / 2, 0]}
                             absolute
-                            hasLegend={true}
-                            style={styles.chart}
+                            hasLegend={false}
+                            style={{
+                                borderRadius: 12,
+                                marginBottom: 16,
+                                alignSelf: "center",
+                            }}
                         />
-
                         <View style={styles.applianceList}>
                             {applianceUsageData.map(
                                 (item: any, index: number) => (
@@ -992,7 +959,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 4,
-        overflow: "hidden", // Prevent content from overflowing card bounds
+        overflow: "hidden",
     },
     recommendationCard: {
         borderLeftWidth: 4,
@@ -1005,20 +972,11 @@ const styles = StyleSheet.create({
     chart: {
         borderRadius: 12,
         marginBottom: 16,
-        marginLeft: -15, // Adjust horizontal positioning to prevent overflow
+        marginLeft: -15,
     },
     chartContainer: {
         position: "relative",
         marginBottom: 16,
-    },
-    dataPointIndicator: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: "#fff",
-        borderWidth: 2,
-        position: "absolute",
-        zIndex: 10,
     },
     selectedDataInfo: {
         alignSelf: "center",

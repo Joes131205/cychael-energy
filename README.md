@@ -1,78 +1,113 @@
+# Cychael Energy
+
+A React Native mobile application for energy monitoring and management with support for web, Android, and iOS platforms.
+
+![Cychael Energy](./assets/logo.jpg)
+
+## Overview
+
+Cychael Energy helps users monitor their energy consumption, manage devices, and get energy-saving tips to reduce their environmental footprint and utility costs.
+
+## Features
+
+-   **User Authentication**: Secure login, registration, and password recovery
+-   **Dashboard**: Overview of energy usage and key metrics
+-   **Device Management**: Track and control connected devices
+-   **Energy Analysis**: Detailed reports and visualization of energy consumption
+-   **Profile Management**: User profile customization
+-   **Energy Saving Tips**: Recommendations for reducing energy usage
+
+## Technology Stack
+
+-   React Native / Expo
+-   Firebase Authentication & Database
+-   NativeWind (TailwindCSS for React Native)
+-   React Navigation
+-   TypeScript
+
 ## Getting Started
 
-Install dependencies:
+### Prerequisites
+
+-   [Node.js](https://nodejs.org/) (LTS version recommended)
+-   [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+-   [Expo CLI](https://docs.expo.dev/get-started/installation/)
+-   [EAS CLI](https://docs.expo.dev/build/setup/) (for builds)
+
+### Installation
+
+1. Clone the repository:
+
+    ```bash
+    git clone https://github.com/yourusername/cychael-energy.git
+    cd cychael-energy
+    ```
+
+2. Install dependencies:
+
+    ```bash
+    npm install
+    ```
+
+3. Start the development server:
+
+    ```bash
+    # For web
+    npm run web
+
+    # For Android
+    npm run android
+
+    # For iOS
+    npm run ios
+    ```
+
+## Development Commands
+
+### Development Server
 
 ```bash
-npm install
-```
+# Start Expo development server
+npm start
 
-Start the development server:
-
-```bash
+# Start for specific platform
 npm run web
 npm run android
 npm run ios
 ```
 
-## Useful Commands
-
-### Git
-```bash
-git status
-```
+### Building with EAS
 
 ```bash
-git pull
-```
-
-```bash
-git push
-```
-
-```bash
-git checkout -b <New-Branch>
-```
-
-### Expo
-
-```bash
-npm install <pkg> 
-npm expo-doctor
-```
-
-or
-
-```bash
-npx expo install <pkg> 
-npx expo doctor
-```
-
-### NPM
-
-```bash
-npm run web
-npm android
-npm run ios
-```
-
-### EAS (Expo Application Services)
-
-```bash
+# Build Android preview
 eas build -p android --profile preview
-```
 
-```bash
+# Build iOS preview
 eas build -p ios --profile preview
+
+# Submit to stores
 eas submit -p android --latest
 eas submit -p ios --latest
+
+# Update over-the-air
 eas update
+```
+
+## Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── context/        # React context providers
+├── hooks/          # Custom React hooks
+├── navigation/     # Navigation configuration
+├── screens/        # Application screens
+├── types/          # TypeScript type definitions
+└── utils/          # Utility functions
 ```
 
 ## Notes
 
-- Make sure you have Expo CLI and EAS CLI installed globally:
-    ```bash
-    npm install -g expo-cli eas-cli
-    ```
-- For iOS builds, a Mac is required.
-- Check [Expo documentation](https://docs.expo.dev/) for more details.
+-   For iOS builds, a Mac is required
+-   Ensure you have the latest Expo SDK and dependencies
+-   See the [Expo documentation](https://docs.expo.dev/) for detailed information
