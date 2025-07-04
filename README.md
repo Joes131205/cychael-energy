@@ -88,7 +88,7 @@ Cychael Energy is a comprehensive solution that helps users monitor their energy
     npm run ios
     ```
 
-## 💻 [Development Workflow]
+## 💻 **Development Workflow**
 > Error By Mikhail
 
 ### Development Server Commands
