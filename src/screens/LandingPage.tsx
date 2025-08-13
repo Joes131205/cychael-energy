@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useRef } from "react";
 import {
     View,
     Text,
     Image,
+    Animated,
     TouchableOpacity,
     StyleSheet,
     Dimensions,
@@ -121,7 +122,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                 showsVerticalScrollIndicator={false}
                 scrollEnabled={true}
             >
-                {/* Logo/App Name */}                <View style={styles.logoContainer}>
+                 <View style={styles.logoContainer}>
                     <Text style={[styles.logoFirst, { color: "#34A853" }]}>
                         Cychael
                     </Text>
@@ -132,7 +133,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                     </Text>
                 </View>
 
-                {/* Hero Image */}
                 <Animated.View
                     style={{ opacity: fadeAnim, transform: [{ translateY }] }}
                 >
@@ -154,7 +154,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                     recommendations.
                 </Animated.Text>
 
-                {/* Features List */}                <View style={styles.featuresContainer}>                    <View style={styles.featureItem}>
+              <View style={styles.featuresContainer}>                    
+                <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
@@ -170,7 +171,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                         >
                             Real-time energy tracking
                         </Text>
-                    </View>                    <View style={styles.featureItem}>
+                    </View>                  
+                      <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
@@ -186,7 +188,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                         >
                             Smart savings suggestions
                         </Text>
-                    </View>                    <View style={styles.featureItem}>
+                    </View>                   
+                         <View style={styles.featureItem}>
                         <View
                             style={[
                                 styles.featureIcon,
@@ -203,7 +206,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                             Detailed consumption reports
                         </Text>
                     </View>
-                </View>{/* Action Buttons */}
+                </View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity                        style={[
                             styles.button,
@@ -211,7 +214,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ navigation }) => {
                             { backgroundColor: "#1E6F5C" },
                         ]}
                         onPress={() => navigation.navigate("Login")}
-                    >                        <Text
+                    >                       
+                     <Text
                             style={[styles.buttonText, { color: "#FFFFFF" }]}
                         >
                             Login
